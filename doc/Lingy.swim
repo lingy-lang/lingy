@@ -1,0 +1,44 @@
+Lingy
+=====
+
+A Programming Language for Acmeist Modules
+
+= Synopsis
+
+  > lingy --to=perl6 module.ly.yaml
+
+= Description
+
+Lingy is a programming language, but not in the typical sense. It has no
+syntax and it has no runtime. The main point of Lingy is generate equivalent
+code in many popular programming languages.
+
+Lingy defines the internal structure of a program. A program in Lingy is a
+well defined data structure. The data structure contains all the information
+necessary to produce equivalent "real" code in many langauges.
+
+Programs in Lingy are graphs in memory. They can serialized, thus they can
+conceptually be /written/ using a serialization like YAML. However *any*
+syntax that can compile to a valid Lingy data structure, is a valid Lingy
+syntax. Thus it is intended that Lingy will have many syntaxes.
+
+One syntax that is being developed in parallel is called CafeScript. You can
+think of it as a language like CoffeeScript, except that instead of just
+compiling to one language, it compiles to many languages (including
+JavaScript).
+
+Lingy is currently targeting class-based OO languages, like Perl, Ruby,
+Python, PHP and JavaScript.
+
+= Author
+
+Ingy döt Net <ingy@cpan.org>
+
+= Copyright
+
+Copyright 2014. Ingy döt Net.
+
+This program is free software; you can redistribute it and/or modify it under
+the same terms as Perl itself.
+
+See http://www.perl.com/perl/misc/Artistic.html
