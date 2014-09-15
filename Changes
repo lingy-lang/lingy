@@ -1,4 +1,9 @@
 ---
+version: 0.0.2
+date:    Sun Sep 14 22:58:50 PDT 2014
+changes:
+- Basic compiler plumbing in place.
+---
 version: 0.0.1
 date:    Sun Sep 14 19:23:21 PDT 2014
 changes:

@@ -1,6 +1,7 @@
 #!/usr/bin/env perl
 
 use strict; use warnings;
+use lib 'lib';
 use Lingy::Command;
 
 Lingy::Command->new(args => \@ARGV)->run;
