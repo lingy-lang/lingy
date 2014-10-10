@@ -1,5 +1,5 @@
 package Lingy::Emitter::YAML;
-use Pegex::Base;
+use Lingy::Base;
 extends 'Lingy::Emitter';
 
 use YAML::XS;

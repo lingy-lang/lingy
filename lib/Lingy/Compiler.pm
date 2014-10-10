@@ -1,12 +1,13 @@
 package Lingy::Compiler;
 use Lingy::Base;
 
-use Getopt::Long;
-
 has input => ();
+has ast => sub { Lingy::AST->new };
+
+use Lingy::AST;
 
 sub compile {
-    my ($self) = @_;
+    die "compile() method not implemented";
 }
 
 1;

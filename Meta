@@ -1,7 +1,7 @@
 =meta: 0.0.2
 
 name: Lingy
-version: 0.0.2
+version: 0.0.3
 abstract: A Language of Languages
 homepage: https://metacpan.org/release/Lingy
 language: perl
@@ -23,4 +23,5 @@ devel:
 
 requires:
   perl: 5.8.1
+  Pegex: 0
   YAML::XS: 0

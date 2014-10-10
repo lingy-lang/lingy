@@ -1,0 +1,48 @@
+# This is a hand written YAML compilation unit that eventually will be machine
+# written by the CafeScript compiler, compiling `lib/Pig/Latin.cafe`:
+
+---
+type: Module
+name: Pig.Latin
+anon:
+- &001
+  type: Func
+  args: [word]
+  vars:
+    word: Str
+    lword: Str
+    match: Str
+    ay: Str
+    pword: Str
+  code:
+  - [=lword, $word, .lower]
+  - - or
+    - [=match, [=~, $lword, '/^([^aeiou]*)(.*)$']]
+    - [-!!!, -error]
+  - - if
+    - [==, $match/1, 0]
+    - [=ay, -way]
+    - [=ay, -ay]
+  - [=pword, [+, $m/2, $m/1, $ay]]
+  - - if
+    - [=~, $word, '/^[A-Z]']
+    - [=pword, [+, [$pword/0, .upper], $pword/1]]
+  - [return, $pword]
+class:
+- name: Pig.Latin
+  attr:
+  - english
+  vars:
+    english: Str
+    convert:
+      type: Method
+      args: []
+      code:
+      - [=pig-latin-words,
+          -@english,
+          [.split, /\ +],
+          [.map, *001]
+        ]
+      - [return, [$pig-latin-words, [.join, '- ']]]
+      vars:
+        pig-latin-words: Array/Str

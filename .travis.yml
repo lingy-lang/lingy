@@ -19,6 +19,7 @@ perl:
 install:
 - cpanm --quiet --notest
   Devel::Cover::Report::Coveralls
+  Pegex
   YAML::XS
 
 script:

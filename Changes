@@ -1,4 +1,9 @@
 ---
+version: 0.0.3
+date:    Fri Oct 10 11:59:04 CEST 2014
+changes:
+- Add Pegex to required modules.
+---
 version: 0.0.2
 date:    Sun Sep 14 22:58:50 PDT 2014
 changes:
