@@ -2,8 +2,9 @@ package Lingy::Emitter;
 use Lingy::Base;
 use Lingy;
 
-use constant emit_module_foot => '';
-use constant emit_class_foot => '';
+use constant emit_module_foot => "\n";
+use constant emit_class_foot => "\n";
+use constant emit_method_foot => "\n";
 
 sub emit {
     my ($self, $ast) = @_;
@@ -12,7 +13,7 @@ sub emit {
         $out .= $self->emit_class($class);
     }
     $out .= $self->emit_module_foot;
-    $out =~ s/\n\n\z/\n/;
+    $out =~ s/\s*\z/\n/;
     return $out;
 }
 

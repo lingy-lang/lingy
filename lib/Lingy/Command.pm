@@ -15,6 +15,7 @@ my $extension_map = {
     p6 => 'perl6',
     pl6 => 'perl6',
     pm6 => 'perl6',
+    py => 'python',
     yml => 'yaml',
     yaml => 'yaml',
 };
@@ -29,6 +30,7 @@ my $compiler_map = {
 my $emitter_map = {
     perl5 => 'Lingy::Emitter::Perl5',
     perl6 => 'Lingy::Emitter::Perl6',
+    python => 'Lingy::Emitter::Python',
     yaml => 'Lingy::Emitter::YAML',
 };
 
