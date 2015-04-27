@@ -16,11 +16,8 @@ sub BUILD {
 }
 
 sub compile {
-    my ($self) = @_;
-    my $input = $self->get_input;
+    my ($self, $input) = @_;
     my $code = $self->{code} = YAML::XS::Load($input);
-    $code->{type} eq 'Module'
-        or die "Unknown Lingy type: '$code->{type}'";
     my $ast = $self->ast;
     my $module = $ast->module;
     $module->{name} = $code->{name}
@@ -33,11 +30,25 @@ sub compile {
 
 sub compile_class {
     my ($self, $code) = @_;
-    XXX $code;
     my $class = Lingy::Class->new;
+    my $methods = $code->{meth} || [];
+    for my $next (@$methods) {
+        my ($name, $method) = each %$next;
+        push @{$class->method}, $name;
+        $class->stash->{$name} = $self->compile_method($method);
+    }
     $class->{name} = $code->{name};
     return $class;
 }
+
+sub compile_method {
+    my ($self, $code) = @_;
+    Lingy::Method->new(
+        args => $code->{args},
+        code => $code->{code},
+    );
+}
+
 
 sub get_input {
     my ($self) = @_;

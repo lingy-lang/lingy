@@ -1,0 +1,10 @@
+name: Greeter
+version: 0.1.2
+class:
+- name: Greeter
+  meth:
+  - greet:
+      args: [name: Str]
+      rets: Nul
+      code:
+      - [IO/say, ['Hello ', +, $name]]

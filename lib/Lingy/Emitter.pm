@@ -1,4 +1,4 @@
 package Lingy::Emitter;
-use Pegex::Base;
+use Lingy::Base;
 
 1;

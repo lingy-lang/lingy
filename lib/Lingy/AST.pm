@@ -17,12 +17,12 @@ use Lingy::Base;
 
 # Class can be anonymous, but typically is defined with a name:
 has name => ();
-# Methods, attributes, class variables:
-has namespace => {};
+# Symbol/variable lookup hash. Methods, attributes, class variables:
+has stash => {};
 # The parent class (for inheritance):
 has parent => ();
 # The (names of) attributes defined by the class:
-has attribute => [];
+has attr => [];
 # The (names of) methods defined by the class:
 has method => [];
 
@@ -30,16 +30,16 @@ has method => [];
 package Lingy::Stash;
 use Lingy::Base;
 
-has namespace => {};
+has stash => {};
 
 #------------------------------------------------------------------------------
 package Lingy::Function;
 use Lingy::Base;
 
 has name => ();
-has signature => {};
-has namespace => {};
-has statement => [];
+has args => [];
+has stash => {};
+has code => [];
 
 #------------------------------------------------------------------------------
 package Lingy::Method;
