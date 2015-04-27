@@ -23,7 +23,7 @@ method $name($arg_list) {
 
 sub emit_method_foot {
     my ($self, $name, $body) = @_;
-    "};\n\n";
+    "}\n";
 }
 
 # XXX This needs to be implemented (just faked it):
