@@ -45,6 +45,7 @@ sub compile_method {
     my ($self, $code) = @_;
     Lingy::Method->new(
         args => $code->{args},
+        rets => $code->{rets},
         code => $code->{code},
     );
 }
