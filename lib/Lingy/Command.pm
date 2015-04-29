@@ -18,6 +18,7 @@ my $extension_map = {
     py => 'python',
     yml => 'yaml',
     yaml => 'yaml',
+    cpp => 'cpp',
 };
 
 my $language_map = { map {($_, 1)} values %$extension_map };
@@ -32,6 +33,7 @@ my $emitter_map = {
     perl6 => 'Lingy::Emitter::Perl6',
     python => 'Lingy::Emitter::Python',
     yaml => 'Lingy::Emitter::YAML',
+    cpp => 'Lingy::Emitter::Cpp',
 };
 
 sub run {

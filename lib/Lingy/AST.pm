@@ -38,6 +38,7 @@ use Lingy::Base;
 
 has name => ();
 has args => [];
+has rets => ();
 has stash => {};
 has code => [];
 
