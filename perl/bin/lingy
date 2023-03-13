@@ -1,0 +1,76 @@
+#!/bin/bash
+
+###
+# This `lingy` CLI command tries to call the appropriate implementation.
+# Lingy has many implementations in many programming languages.
+# Each implementation should install this script along with a uniquely named
+# executable file.
+# The name should start with `_lingy`.
+#
+# If only one _lingy* executable is found in your PATH, exec that one.
+# Else if LINGY_RUNTIME is an absolute path to an executable, exec that one.
+# Else error with helpful message.
+###
+
+# Bash strict:
+set -e -u -o pipefail
+
+# Define a 'die' function, used throughout:
+die() { printf '%s\n' "$*" >&2; exit 1; }
+
+# Get the right _lingy in development env:
+ROOT=$(cd "$(dirname "$0")/.." && pwd -P)
+if [[ -f $ROOT/lib/Lingy.pm ]]; then
+  export PATH=$ROOT/bin:$PATH
+  export PERL5LIB=$ROOT/lib
+fi
+
+# To support CTL-C handling in the Perl Lingy REPL:
+export PERL_SIGNALS=unsafe
+
+if [[ ${LINGY_RUNTIME-} ]]; then
+  [[ $LINGY_RUNTIME == /* ]] ||
+    die "LINGY_RUNTIME set to '$LINGY_RUNTIME'." \
+        "Needs to be an absolute path."
+  [[ -f $LINGY_RUNTIME ]] ||
+    die "LINGY_RUNTIME set to '$LINGY_RUNTIME'." \
+        "File not found."
+  [[ -x $LINGY_RUNTIME ]] ||
+    die "LINGY_RUNTIME set to '$LINGY_RUNTIME'." \
+        "File is not executable."
+
+  exec "$LINGY_RUNTIME" "$@"
+fi
+
+runners=(
+  $(
+    # shellcheck disable=2046,2086
+    find $(IFS=:; echo $PATH) \
+      -name '_lingy*' \
+      -type f \
+      -executable \
+      2>/dev/null |
+      uniq |
+      grep '^/' || true
+  )
+)
+
+[[ ${runners[*]:+"${runners[*]}"} ]] ||
+  die "Can't find any executables named '_lingy*' in your PATH." \
+      "You can specify one with 'export LINGY_RUNTIME=/path/to/_lingy.xxx'."
+
+if [[ ${#runners[*]} -gt 1 ]]; then
+    echo "Multiple _lingy* executables found."
+    echo
+    echo "Set 'export LINGY_RUNTIME=/path/to/_lingy.xxx' to one of:"
+    echo
+    i=1
+    for runner in "${runners[@]}"; do
+      printf '%d) %s\n' $((i++)) "$runner"
+    done
+    echo
+    echo "Using the first: '${runners[0]}'..."
+    echo
+fi
+
+exec "${runners[0]}" "$@"

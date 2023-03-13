@@ -1,0 +1,35 @@
+=meta: 0.0.2
+
+name: Lingy
+version: 0.1.0
+abstract: An Acmeist Lisp for Perl
+homepage:
+- http://lingy.org
+language: perl
+license: perl
+copyright: 2023
+
+author:
+  name: Ingy döt Net
+  email: ingy@cpan.org
+  homepage: http://ingy.net
+  github: ingydotnet
+  twitter: ingydotnet
+  freenode: ingy
+
+devel:
+  git: https://github.com/ingydotnet/
+  bug: https://github.com/ingydotnet/lingy/issues
+  irc: irc.freenode.net#yaml
+
+requires:
+  perl: 5.12
+  Tie::IxHash: 0
+  YAML::PP: 0
+  YAMLTest: 0
+  XXX: 0
+
+=zild:
+  no-about: true
+  no-readme: true
+  no-travis: true
