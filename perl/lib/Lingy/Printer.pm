@@ -3,6 +3,8 @@ package Lingy::Printer;
 
 use Lingy::Types;
 
+sub new { bless {}, shift }
+
 my $escape = {
     "\n" => "\\n",
     "\t" => "\\t",

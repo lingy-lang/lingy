@@ -1,5 +1,13 @@
-#!/usr/bin/env yamltest
+use Test::More;
 
-- pass: "wheee"
+use_ok 'Lingy';
+use_ok 'Lingy::Core';
+use_ok 'Lingy::Env';
+use_ok 'Lingy::Eval';
+use_ok 'Lingy::NS';
+use_ok 'Lingy::Printer';
+use_ok 'Lingy::Reader';
+use_ok 'Lingy::Runtime';
+use_ok 'Lingy::Types';
 
-- done-testing: 1
+done_testing;

@@ -5,7 +5,7 @@ use Capture::Tiny;
 
 use lib 'lib';
 
-use Lingy::REPL;
+use Lingy::Runtime;
 use Lingy::Printer;
 
 my %plan = (
@@ -27,7 +27,7 @@ my @files = sort
 
 my $i = 1;
 for my $file (@files) {
-    my $repl = Lingy::REPL->new;
+    my $repl = Lingy::Runtime->new;
 
     $i++;
     # next unless $i == 6;
@@ -36,7 +36,11 @@ for my $file (@files) {
     subtest $file => sub {
         plan tests => $plan{$i};
 
-        for my $test (read_mal_test_file($file)) {
+        my @tests = ($file =~ /\.yaml$/)
+        ? read_yaml_test_file($file)
+        : read_mal_test_file($file);
+
+        for my $test (@tests) {
             my ($expr, $got, $want, $like, $out, $err);
             if (my $note = $test->{note}) {
                 note $note;
@@ -44,13 +48,14 @@ for my $file (@files) {
             ($out) = Capture::Tiny::capture {
                 for (@{$test->{expr}}) {
                     $expr .= $_;
-                    $got = eval { $repl->rep($_) };
+                    my @got = eval { $repl->rep($_) };
                     if ($@) {
                         die $@ if $@ =~ /(^>>|^---\s| via package ")/;
                         $err .= ref($@)
                         ? "Error: " . Lingy::Printer::pr_str($@)
                         : $@;
                     }
+                    $got = $got[0];
                 }
             };
 
@@ -80,6 +85,25 @@ for my $file (@files) {
             }
         }
     }
+}
+
+sub read_yaml_test_file {
+    require YAML::PP;
+    my ($file) = @_;
+
+    my $tests = YAML::PP::LoadFile($file);
+
+    map {
+        my $t = {};
+        $t->{note} = $_->{say} if defined $_->{say};
+        $t->{expr} = ref($_->{mal}) ? $_->{mal} : [ $_->{mal} ]
+            if defined $_->{mal};
+        $t->{want} = ref($_->{out}) ? $_->{out} : [ $_->{out} ]
+            if defined $_->{out};
+        $t->{like} = ref($_->{err}) ? $_->{err} : [ $_->{err} ]
+            if defined $_->{err};
+        defined($t->{expr}) ? ($t) : ();
+    } @$tests;
 }
 
 sub read_mal_test_file {

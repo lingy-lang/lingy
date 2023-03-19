@@ -1,8 +1,9 @@
 use strict; use warnings;
 package Lingy::Core;
 
+use base 'Lingy::NS';
+
 use Lingy::Types;
-use Lingy::Reader;
 use Lingy::Eval;
 use Lingy::Printer;
 
@@ -12,8 +13,10 @@ our @EXPORT = qw< slurp str >;
 
 our %meta;
 
-sub ns {
-    +{
+sub new {
+    my $class = shift;
+
+    my $self = bless {
         '*' => \&multiply,
         '+' => \&add,
         '-' => \&subtract,
@@ -83,12 +86,62 @@ sub ns {
         'vector?' => \&vector_q,
         'with-meta' => \&with_meta,
 
+        'ENV' => \&ENV,
         'PPP' => \&PPP,
         'WWW' => \&WWW,
         'XXX' => \&XXX,
         'YYY' => \&YYY,
         'ZZZ' => \&ZZZ,
-    }
+    }, $class;
+}
+
+sub init {
+    my $self = shift;
+
+    my $env = ::rt->env;
+    $env->set('*file*', string($ARGV[0]));
+    $env->set('*ARGV*', list([map string($_), @ARGV[1..$#ARGV]]));
+    $env->set('*command-line-args*', list([map string($_), @ARGV[1..$#ARGV]]));
+    $env->set(eval => sub { Lingy::Eval::eval($_[0], $env) });
+
+    ::rt->rep(q(
+      (defmacro! defmacro
+        (fn* (name args body)
+          `(defmacro! ~name (fn* ~args ~body))))
+
+      (defmacro def (& xs) (cons 'def! xs))
+
+      (def *host-language* "perl")
+
+      (defmacro fn (& xs) (cons 'fn* xs))
+
+      (defmacro defn (name args body)
+        `(def ~name (fn ~args ~body)))
+
+      (defmacro let (& xs) (cons 'let* xs))
+      (defmacro try (& xs) (cons 'try* xs))
+
+      (defn not (a)
+        (if a
+          false
+          true))
+
+      (defmacro cond (& xs)
+        (if (> (count xs) 0)
+          (list 'if (first xs)
+            (if (> (count xs) 1)
+              (nth xs 1)
+              (throw "odd number of forms to cond"))
+            (cons 'cond (rest (rest xs))))))
+
+      (defn load-file (f)
+        (eval
+          (read-string
+            (str
+              "(do "
+              (slurp f)
+              "\nnil)"))))
+    ));
 }
 
 sub add { $_[0] + $_[1] }
@@ -284,12 +337,15 @@ sub range {
 
 sub readline_ {
     require Lingy::ReadLine;
-    my $l = Lingy::ReadLine::readline($_[0], $REPL::env) // return;
+    my $l = Lingy::ReadLine::readline() // return;
     chomp $l;
     string($l);
 }
 
-sub read_string { Lingy::Reader->new->read_str(@_) }
+sub read_string {
+    my @forms = Lingy::Runtime->reader->read_str(@_);
+    return @forms ? $forms[0] : nil;
+}
 
 sub reset { $_[0]->[0] = $_[1] }
 
@@ -358,6 +414,21 @@ sub with_meta {
     $o = ref($o) eq 'CODE' ? sub { goto &$o } : $o->clone;
     $meta{$o} = $m;
     $o;
+}
+
+sub ENV {
+    my $env = $Lingy::Eval::ENV;
+    my $www = {};
+    my $w = $www;
+    my $e = $env;
+    while ($e) {
+        $w->{'+'} = join ' ', sort CORE::keys %{$e->space};
+        $w->{'^'} = {};
+        $w = $w->{'^'};
+        $e = $e->{outer};
+    }
+    WWW($www);      # Print the env
+    nil;
 }
 
 1;

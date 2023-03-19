@@ -25,7 +25,7 @@ if [[ -f $ROOT/lib/Lingy.pm ]]; then
   export PERL5LIB=$ROOT/lib
 fi
 
-# To support CTL-C handling in the Perl Lingy REPL:
+# To support CTL-C handling in the Perl Lingy Runtime:
 export PERL_SIGNALS=unsafe
 
 if [[ ${LINGY_RUNTIME-} ]]; then
@@ -59,7 +59,7 @@ runners=(
   die "Can't find any executables named '_lingy*' in your PATH." \
       "You can specify one with 'export LINGY_RUNTIME=/path/to/_lingy.xxx'."
 
-if [[ ${#runners[*]} -gt 1 ]]; then
+if [[ ${#runners[*]} -gt 1 && ! ${LINGY_TEST-} ]]; then
     echo "Multiple _lingy* executables found."
     echo
     echo "Set 'export LINGY_RUNTIME=/path/to/_lingy.xxx' to one of:"

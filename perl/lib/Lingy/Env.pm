@@ -3,15 +3,16 @@ package Lingy::Env;
 
 use Lingy::Types;
 
+sub space { shift->{space} }
+
 sub new {
-    my $class = shift;
+    my ($class, %args) = @_;
     my $self = bless {
-        outer => undef,
-        stash => {},
-        @_
+        outer => $args{outer},
+        space => $args{space} // {},
     }, $class;
-    my $binds = [ @{$self->{binds} // []} ];
-    my $exprs = $self->{exprs} // [];
+    my $binds = [ @{$args{binds} // []} ];
+    my $exprs = $args{exprs} // [];
     while (@$binds) {
         if ("$binds->[0]" eq '&') {
             shift @$binds;
@@ -19,37 +20,45 @@ sub new {
         }
         $self->set(shift(@$binds), shift(@$exprs) // nil);
     }
-    delete $self->{binds};
-    delete $self->{exprs};
-    return $self;
-}
-
-sub add {
-    my ($self, $ns) = @_;
-    my $stash = $self->{stash};
-    %$stash = (%$stash, %$ns);
     return $self;
 }
 
 sub set {
     my ($self, $key, $val) = @_;
-    $self->{stash}{$key} = $val;
-}
-
-sub find {
-    my ($self, $key) = @_;
-    while ($self) {
-        return $self if defined $self->{stash}{$key};
-        $self = $self->{outer};
-    }
-    return;
+    $self->{space}{$key} = $val;
 }
 
 sub get {
     my ($self, $key) = @_;
-    my $env = $self->find($key) or
-        die "'$key' not found\n";
-    $env->{stash}{$key};
+
+    while ($self) {
+        if (defined(my $val = $self->{space}{$key})) {
+            return $val;
+        }
+        $self = $self->{outer};
+    }
+
+    die "'$key' not found\n";
+
+    # XXX Use this clojure message: (adjust mal tests)
+    die "Unable to resolve symbol: $key in this context\n";
+}
+
+sub is_macro_call {
+    my ($self, $ast) = @_;
+
+    my $name;
+    return unless
+        ref($ast) eq 'list' and
+        $name = $ast->[0] and
+        ref($name) eq "symbol";
+
+    my $val;
+    while ($self and not defined($val = $self->{space}{$$name})) {
+        $self = $self->{outer};
+    }
+
+    $self and ref($val) eq 'macro';
 }
 
 1;

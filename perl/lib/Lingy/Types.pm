@@ -117,9 +117,24 @@ sub clone {
 #------------------------------------------------------------------------------
 package
 function;
+
 sub new {
-    my ($class, $sig, $ast, $env) = @_;
+    my ($class, $ast, $env) = @_;
+
+    my $sig = $ast->[1];
+    # ::XXX $ast unless ref($sig) eq 'vector';
+    if (@$ast > 3) {
+        $ast = Lingy::Types::list([
+            Lingy::Types::symbol('do'),
+            @{$ast}[2..(@$ast-1)],
+        ]);
+    } else {
+        $ast = $ast->[2];
+    }
+
+    # map = { 0 => ..., 1 => ..., & -> ... };
     bless sub {
+        # TODO return arity-pair matching args or error
         $ast,
         Lingy::Env->new(
             outer => $env,

@@ -21,7 +21,11 @@ die "Please install Term::ReadLine::Gnu from CPAN\n"
     if $tty->ReadLine ne 'Term::ReadLine::Gnu';
 
 sub readline {
-    my ($prompt, $env) = @_;
+    my $rt = $Lingy::Runtime::rt;
+
+    my $prompt = $rt->prompt;
+    my $env = $rt->env;
+
     $tty->ornaments(0);
 
     local $SIG{INT} = sub {
@@ -42,7 +46,7 @@ sub readline {
 
     $tty->Attribs->{completion_function} = sub {
         my ($text, $line, $start) = @_;
-        keys %{$env->{stash}}, qw(
+        keys %{$env->space}, qw(
             catch
             do
             false

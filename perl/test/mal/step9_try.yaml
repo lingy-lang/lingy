@@ -1,0 +1,489 @@
+- say: Testing throw
+  mal: (throw "err1")
+  err: .*([Ee][Rr][Rr][Oo][Rr]|[Ee]xception).*err1.*
+
+
+- say: Testing try*/catch*
+  mal: (try* 123 (catch* e 456))
+  out: 123
+
+- mal: (try* abc (catch* exc (prn "exc is:" exc)))
+  err: >-
+    "exc is:" "'abc' not found"
+  # err: >-
+  #   "exc is:" "Unable to resolve symbol: abc in this context"
+  out: nil
+
+- mal: (try* (abc 1 2) (catch* exc (prn "exc is:" exc)))
+  err: >-
+    "exc is:" "'abc' not found"
+  # err: >-
+  #   "exc is:" "Unable to resolve symbol: abc in this context"
+  out: nil
+
+- say: Make sure error from core can be caught
+  mal: (try* (nth () 1) (catch* exc (prn "exc is:" exc)))
+  err: >-
+    "exc is:".*(length|range|[Bb]ounds|beyond).*
+  out: nil
+
+- mal: (try* (throw "my exception") (catch* exc (do (prn "exc:" exc) 7)))
+  err: >-
+    "exc:" "my exception"
+  out: 7
+
+- say: Test that exception handlers get restored correctly
+  mal: (try* (do (try* "t1" (catch* e "c1")) (throw "e1")) (catch* e "c2"))
+  out: '"c2"'
+
+- mal: (try* (try* (throw "e1") (catch* e (throw "e2"))) (catch* e "c2"))
+  out: '"c2"'
+
+- say: Test that throw is a function
+  mal: (try* (map throw (list "my err")) (catch* exc exc))
+  out: '"my err"'
+
+
+- say: Testing builtin functions
+  mal: (symbol? 'abc)
+  out: 'true'
+
+- mal: (symbol? "abc")
+  out: 'false'
+
+- mal: (nil? nil)
+  out: 'true'
+
+- mal: (nil? true)
+  out: 'false'
+
+- mal: (true? true)
+  out: 'true'
+
+- mal: (true? false)
+  out: 'false'
+
+- mal: (true? true?)
+  out: 'false'
+
+- mal: (false? false)
+  out: 'true'
+
+- mal: (false? true)
+  out: 'false'
+
+
+- say: Testing apply function with core functions
+  mal: (apply + (list 2 3))
+  out: 5
+
+- mal: (apply + 4 (list 5))
+  out: 9
+
+- mal: (apply prn (list 1 2 "3" (list)))
+  err: 1 2 "3" \(\)
+  out: nil
+
+- mal: (apply prn 1 2 (list "3" (list)))
+  err: 1 2 "3" \(\)
+  out: nil
+
+- mal: (apply list (list))
+  out: ()
+
+- mal: (apply symbol? (list (quote two)))
+  out: 'true'
+
+
+- say: Testing apply function with user functions
+  mal: (apply (fn* (a b) (+ a b)) (list 2 3))
+  out: 5
+
+- mal: (apply (fn* (a b) (+ a b)) 4 (list 5))
+  out: 9
+
+
+- say: Testing map function
+  mal:
+  - (def! nums (list 1 2 3))
+  - (def! double (fn* (a) (* 2 a)))
+  - (double 3)
+  out: 6
+
+- mal: (map double nums)
+  out: (2 4 6)
+
+- mal: (map (fn* (x) (symbol? x)) (list 1 (quote two) "three"))
+  out: (false true false)
+
+- mal: (= () (map str ()))
+  out: 'true'
+
+
+# ------- Deferrable Functionality ----------
+# ------- (Needed for self-hosting) -------
+
+- say: Testing symbol and keyword functions
+  mal: (symbol? :abc)
+  out: 'false'
+
+- mal: (symbol? 'abc)
+  out: 'true'
+
+- mal: (symbol? "abc")
+  out: 'false'
+
+- mal: (symbol? (symbol "abc"))
+  out: 'true'
+
+- mal: (keyword? :abc)
+  out: 'true'
+
+- mal: (keyword? 'abc)
+  out: 'false'
+
+- mal: (keyword? "abc")
+  out: 'false'
+
+- mal: (keyword? "")
+  out: 'false'
+
+- mal: (keyword? (keyword "abc"))
+  out: 'true'
+
+- mal: (symbol "abc")
+  out: abc
+
+- mal: (keyword "abc")
+  out: :abc
+
+
+- say: Testing sequential? function
+  mal: (sequential? (list 1 2 3))
+  out: 'true'
+
+- mal: (sequential? [15])
+  out: 'true'
+
+- mal: (sequential? sequential?)
+  out: 'false'
+
+- mal: (sequential? nil)
+  out: 'false'
+
+- mal: (sequential? "abc")
+  out: 'false'
+
+
+- say: Testing apply function with core functions and arguments in vector
+  mal: (apply + 4 [5])
+  out: 9
+
+- mal: (apply prn 1 2 ["3" 4])
+  err: 1 2 "3" 4
+  out: nil
+
+- mal: (apply list [])
+  out: ()
+
+
+- say: Testing apply function with user functions and arguments in vector
+  mal: (apply (fn* (a b) (+ a b)) [2 3])
+  out: 5
+
+- mal: (apply (fn* (a b) (+ a b)) 4 [5])
+  out: 9
+
+
+- say: Testing map function with vectors
+  mal: (map (fn* (a) (* 2 a)) [1 2 3])
+  out: (2 4 6)
+
+- mal: (map (fn* [& args] (list? args)) [1 2])
+  out: (true true)
+
+
+- say: Testing vector functions
+  mal: (vector? [10 11])
+  out: 'true'
+
+- mal: (vector? '(12 13))
+  out: 'false'
+
+- mal: (vector 3 4 5)
+  out: '[3 4 5]'
+
+- mal: (= [] (vector))
+  out: 'true'
+
+- mal: (map? {})
+  out: 'true'
+
+- mal: (map? '())
+  out: 'false'
+
+- mal: (map? [])
+  out: 'false'
+
+- mal: (map? 'abc)
+  out: 'false'
+
+- mal: (map? :abc)
+  out: 'false'
+
+
+- say: Testing hash-maps
+  mal: (hash-map "a" 1)
+  out: '{"a" 1}'
+
+- mal: '{"a" 1}'
+  out: '{"a" 1}'
+
+- mal: (assoc {} "a" 1)
+  out: '{"a" 1}'
+
+- mal: (get (assoc (assoc {"a" 1 } "b" 2) "c" 3) "a")
+  out: 1
+
+- mal: (def! hm1 (hash-map))
+  out: '{}'
+
+- mal: (map? hm1)
+  out: 'true'
+
+- mal: (map? 1)
+  out: 'false'
+
+- mal: (map? "abc")
+  out: 'false'
+
+- mal: (get nil "a")
+  out: nil
+
+- mal: (get hm1 "a")
+  out: nil
+
+- mal: (contains? hm1 "a")
+  out: 'false'
+
+- mal: (def! hm2 (assoc hm1 "a" 1))
+  out: '{"a" 1}'
+
+- mal: (get hm1 "a")
+  out: nil
+
+- mal: (contains? hm1 "a")
+  out: 'false'
+
+- mal: (get hm2 "a")
+  out: 1
+
+- mal: (contains? hm2 "a")
+  out: 'true'
+
+
+- say: TODO - fix. Clojure returns nil but this breaks mal impl
+  mal: (keys hm1)
+  out: ()
+
+- mal: (= () (keys hm1))
+  out: 'true'
+
+- mal: (keys hm2)
+  out: ("a")
+
+- mal: (keys {"1" 1})
+  out: ("1")
+
+- say: TODO - fix. Clojure returns nil but this breaks mal impl
+  mal: (vals hm1)
+  out: ()
+
+- mal: (= () (vals hm1))
+  out: 'true'
+
+- mal: (vals hm2)
+  out: (1)
+
+- mal: (count (keys (assoc hm2 "b" 2 "c" 3)))
+  out: 3
+
+
+- say: Testing keywords as hash-map keys
+  mal: (get {:abc 123} :abc)
+  out: 123
+
+- mal: (contains? {:abc 123} :abc)
+  out: 'true'
+
+- mal: (contains? {:abcd 123} :abc)
+  out: 'false'
+
+- mal: (assoc {} :bcd 234)
+  out: '{:bcd 234}'
+
+- mal: (keyword? (nth (keys {:abc 123 :def 456}) 0))
+  out: 'true'
+
+- mal: (keyword? (nth (vals {"a" :abc "b" :def}) 0))
+  out: 'true'
+
+
+- say: Testing whether assoc updates properly
+  mal:
+  - (def! hm4 (assoc {:a 1 :b 2} :a 3 :c 1))
+  - (get hm4 :a)
+  out: 3
+
+- mal: (get hm4 :b)
+  out: 2
+
+- mal: (get hm4 :c)
+  out: 1
+
+
+- say: Testing nil as hash-map values
+  mal: (contains? {:abc nil} :abc)
+  out: 'true'
+
+- mal: (assoc {} :bcd nil)
+  out: '{:bcd nil}'
+
+
+- say: Additional str and pr-str tests
+  mal: (str "A" {:abc "val"} "Z")
+  out: '"A{:abc val}Z"'
+
+- mal: (str true "." false "." nil "." :keyw "." 'symb)
+  out: '"true.false.nil.:keyw.symb"'
+
+- mal: (pr-str "A" {:abc "val"} "Z")
+  out: '"\"A\" {:abc \"val\"} \"Z\""'
+
+- mal: (pr-str true "." false "." nil "." :keyw "." 'symb)
+  out: '"true \".\" false \".\" nil \".\" :keyw \".\" symb"'
+
+- mal:
+  - (def! s (str {:abc "val1" :def "val2"}))
+  - (cond (= s "{:abc val1 :def val2}") true (= s "{:def val2 :abc val1}") true)
+  out: 'true'
+
+- mal:
+  - (def! p (pr-str {:abc "val1" :def "val2"}))
+  - (cond (= p "{:abc \"val1\" :def \"val2\"}") true (= p "{:def \"val2\" :abc \"val1\"}") true)
+  out: 'true'
+
+
+- say: Test extra function arguments as Mal List (bypassing TCO with apply)
+  mal: (apply (fn* (& more) (list? more)) [1 2 3])
+  out: 'true'
+
+- mal: (apply (fn* (& more) (list? more)) [])
+  out: 'true'
+
+- mal: (apply (fn* (a & more) (list? more)) [1])
+  out: 'true'
+
+
+# ------- Optional Functionality --------------
+# ------- (Not needed for self-hosting) -------
+
+- say: Testing throwing a hash-map
+  mal: (throw {:msg "err2"})
+  err: .*([Ee][Rr][Rr][Oo][Rr]|[Ee]xception).*msg.*err2.*
+
+# TODO: fix so long lines don't trigger ANSI escape codes ;;;(try*
+# (try* (throw ["data" "foo"]) (catch* exc (do (prn "exc is:" exc) 7))) ;;;;
+# "exc is:" ["data" "foo"] ;;;;=>7
+# =>7
+
+
+- say: Testing try* without catch*
+  mal: (try* xyz)
+  err: .*'xyz' not found.*
+  # err: >-
+  #   Unable to resolve symbol: xyz in this context
+
+
+- say: Testing throwing non-strings
+  mal: (try* (throw (list 1 2 3)) (catch* exc (do (prn "err:" exc) 7)))
+  err: >-
+    "err:" \(1 2 3\)
+  out: 7
+
+
+- say: Testing dissoc
+  mal:
+  - (def! hm3 (assoc hm2 "b" 2))
+  - (count (keys hm3))
+  out: 2
+
+- mal: (count (vals hm3))
+  out: 2
+
+- mal: (dissoc hm3 "a")
+  out: '{"b" 2}'
+
+- mal: (dissoc hm3 "a" "b")
+  out: '{}'
+
+- mal: (dissoc hm3 "a" "b" "c")
+  out: '{}'
+
+- mal: (count (keys hm3))
+  out: 2
+
+- mal: (dissoc {:cde 345 :fgh 456} :cde)
+  out: '{:fgh 456}'
+
+- mal: (dissoc {:cde nil :fgh 456} :cde)
+  out: '{:fgh 456}'
+
+
+- say: Testing equality of hash-maps
+  mal: (= {} {})
+  out: 'true'
+
+- mal: (= {} (hash-map))
+  out: 'true'
+
+- mal: (= {:a 11 :b 22} (hash-map :b 22 :a 11))
+  out: 'true'
+
+- mal: (= {:a 11 :b [22 33]} (hash-map :b [22 33] :a 11))
+  out: 'true'
+
+- mal: (= {:a 11 :b {:c 33}} (hash-map :b {:c 33} :a 11))
+  out: 'true'
+
+- mal: (= {:a 11 :b 22} (hash-map :b 23 :a 11))
+  out: 'false'
+
+- mal: (= {:a 11 :b 22} (hash-map :a 11))
+  out: 'false'
+
+- mal: (= {:a [11 22]} {:a (list 11 22)})
+  out: 'true'
+
+- mal: (= {:a 11 :b 22} (list :a 11 :b 22))
+  out: 'false'
+
+- mal: (= {} [])
+  out: 'false'
+
+- mal: (= [] {})
+  out: 'false'
+
+- mal: (keyword :abc)
+  out: :abc
+
+- mal: (keyword? (first (keys {":abc" 123 ":def" 456})))
+  out: 'false'
+
+
+- say: Testing that hashmaps don't alter function ast
+  mal:
+  - (def! bar (fn* [a] {:foo (get a :foo)}))
+  - (bar {:foo (fn* [x] x)})
+  - (bar {:foo 3})
+# shouldn't give an error

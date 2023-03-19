@@ -10,11 +10,16 @@ ZILD := \
     disttest \
     install \
     release \
-    test \
     update \
+
+test ?= test/
+v ?= -v
 
 default:
 
 .PHONY: test
+test:
+	prove -l $v $(test)
+
 $(ZILD):
 	zild $@

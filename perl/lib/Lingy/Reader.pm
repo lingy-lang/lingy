@@ -13,26 +13,37 @@ sub new {
 
 sub read_str {
     my ($self, $str) = @_;
-    $self->{tokens} = tokenize($str);
-    $self->read_form;
+    my $tokens = $self->{tokens} = tokenize($str);
+    my @forms;
+    while (@$tokens) {
+        my $form = $self->read_form;
+        if (defined $form) {
+            push @forms, $form;
+        }
+    }
+    return @forms;
 }
 
 sub tokenize {
-    [ $_[0] =~ /
-        (?:
-            [\s,] |
-            ;.*
-        )*
-        (
-            ~@ |
-            [\[\]{}()'`~^@] |
-            "(?:
-                \\. |
-                [^\\"]
-            )*"? |
-            [^\s\[\]{}('"`,;)]*
-        )
-    /xog ];
+    [
+        grep length,
+        $_[0] =~ /
+            (?:                     # Ignore:
+                [\s,] |                 # whitespace, commas,
+                ;.*                     # comments
+            )*
+            (                       # Capture all these tokens:
+                ~@ |                    # Unquote-splice token
+                [\[\]{}()'`~^@] |       # Single character tokens
+                "(?:                    # Quoted string
+                    \\. |                 # Escaped char
+                    [^\\"]                # Any other char
+                )*"? |                    # Match if missing ending quote
+                                        # Other tokens
+                [^\s\[\]\{\}\(\)\'\"\`\,\;]*
+            )
+        /xog
+    ];
 }
 
 sub read_form {
