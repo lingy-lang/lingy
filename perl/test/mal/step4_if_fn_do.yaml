@@ -183,26 +183,26 @@
   mal: (+ 1 2)
   out: 3
 
-- mal: ( (fn* (a b) (+ b a)) 3 4)
+- mal: ( (fn* [a b] (+ b a)) 3 4)
   out: 7
 
-- mal: ( (fn* () 4) )
+- mal: ( (fn* [] 4) )
   out: 4
 
-- mal: ( (fn* (f x) (f x)) (fn* (a) (+ 1 a)) 7)
+- mal: ( (fn* [f x] (f x)) (fn* [a] (+ 1 a)) 7)
   out: 8
 
 
 - say: Testing closures
-  mal: ( ( (fn* (a) (fn* (b) (+ a b))) 5) 7)
+  mal: ( ( (fn* [a] (fn* [b] (+ a b))) 5) 7)
   out: 12
 
-- mal: (def! gen-plus5 (fn* () (fn* (b) (+ 5 b))))
+- mal: (def! gen-plus5 (fn* [] (fn* [b] (+ 5 b))))
 - mal: (def! plus5 (gen-plus5))
 - mal: (plus5 7)
   out: 12
 
-- mal: (def! gen-plusX (fn* (x) (fn* (b) (+ x b))))
+- mal: (def! gen-plusX (fn* [x] (fn* [b] (+ x b))))
 - mal: (def! plus7 (gen-plusX 7))
 - mal: (plus7 8)
   out: 15
@@ -231,13 +231,13 @@
 
 
 - say: Testing special form case-sensitivity
-  mal: (def! DO (fn* (a) 7))
+  mal: (def! DO (fn* [a] 7))
 - mal: (DO 3)
   out: 7
 
 
 - say: Testing recursive sumdown function
-  mal: (def! sumdown (fn* (N) (if (> N 0) (+ N (sumdown  (- N 1))) 0)))
+  mal: (def! sumdown (fn* [N] (if (> N 0) (+ N (sumdown  (- N 1))) 0)))
 - mal: (sumdown 1)
   out: 1
 
@@ -249,7 +249,7 @@
 
 
 - say: Testing recursive fibonacci function
-  mal: (def! fib (fn* (N) (if (= N 0) 1 (if (= N 1) 1 (+ (fib (- N 1)) (fib (- N 2)))))))
+  mal: (def! fib (fn* [N] (if (= N 0) 1 (if (= N 1) 1 (+ (fib (- N 1)) (fib (- N 2)))))))
 - mal: (fib 1)
   out: 1
 
@@ -261,13 +261,13 @@
 
 
 - say: Testing recursive function in environment.
-  mal: (let* (f (fn* () x) x 3) (f))
+  mal: (let* (f (fn* [] x) x 3) (f))
   out: 3
 
-- mal: (let* (cst (fn* (n) (if (= n 0) nil (cst (- n 1))))) (cst 1))
+- mal: (let* (cst (fn* [n] (if (= n 0) nil (cst (- n 1))))) (cst 1))
   out: nil
 
-- mal: (let* (f (fn* (n) (if (= n 0) 0 (g (- n 1)))) g (fn* (n) (f n))) (f 2))
+- mal: (let* (f (fn* [n] (if (= n 0) 0 (g (- n 1)))) g (fn* [n] (f n))) (f 2))
   out: 0
 
 
@@ -305,28 +305,28 @@
 
 
 - say: Testing variable length arguments
-  mal: ( (fn* (& more) (count more)) 1 2 3)
+  mal: ( (fn* [& more] (count more)) 1 2 3)
   out: 3
 
-- mal: ( (fn* (& more) (list? more)) 1 2 3)
+- mal: ( (fn* [& more] (list? more)) 1 2 3)
   out: 'true'
 
-- mal: ( (fn* (& more) (count more)) 1)
+- mal: ( (fn* [& more] (count more)) 1)
   out: 1
 
-- mal: ( (fn* (& more) (count more)) )
+- mal: ( (fn* [& more] (count more)) )
   out: 0
 
-- mal: ( (fn* (& more) (list? more)) )
+- mal: ( (fn* [& more] (list? more)) )
   out: 'true'
 
-- mal: ( (fn* (a & more) (count more)) 1 2 3)
+- mal: ( (fn* [a & more] (count more)) 1 2 3)
   out: 2
 
-- mal: ( (fn* (a & more) (count more)) 1)
+- mal: ( (fn* [a & more] (count more)) 1)
   out: 0
 
-- mal: ( (fn* (a & more) (list? more)) 1)
+- mal: ( (fn* [a & more] (list? more)) 1)
   out: 'true'
 
 

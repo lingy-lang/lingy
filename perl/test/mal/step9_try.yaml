@@ -96,24 +96,24 @@
 
 
 - say: Testing apply function with user functions
-  mal: (apply (fn* (a b) (+ a b)) (list 2 3))
+  mal: (apply (fn* [a b] (+ a b)) (list 2 3))
   out: 5
 
-- mal: (apply (fn* (a b) (+ a b)) 4 (list 5))
+- mal: (apply (fn* [a b] (+ a b)) 4 (list 5))
   out: 9
 
 
 - say: Testing map function
   mal:
   - (def! nums (list 1 2 3))
-  - (def! double (fn* (a) (* 2 a)))
+  - (def! double (fn* [a] (* 2 a)))
   - (double 3)
   out: 6
 
 - mal: (map double nums)
   out: (2 4 6)
 
-- mal: (map (fn* (x) (symbol? x)) (list 1 (quote two) "three"))
+- mal: (map (fn* [x] (symbol? x)) (list 1 (quote two) "three"))
   out: (false true false)
 
 - mal: (= () (map str ()))
@@ -188,15 +188,15 @@
 
 
 - say: Testing apply function with user functions and arguments in vector
-  mal: (apply (fn* (a b) (+ a b)) [2 3])
+  mal: (apply (fn* [a b] (+ a b)) [2 3])
   out: 5
 
-- mal: (apply (fn* (a b) (+ a b)) 4 [5])
+- mal: (apply (fn* [a b] (+ a b)) 4 [5])
   out: 9
 
 
 - say: Testing map function with vectors
-  mal: (map (fn* (a) (* 2 a)) [1 2 3])
+  mal: (map (fn* [a] (* 2 a)) [1 2 3])
   out: (2 4 6)
 
 - mal: (map (fn* [& args] (list? args)) [1 2])
@@ -375,13 +375,13 @@
 
 
 - say: Test extra function arguments as Mal List (bypassing TCO with apply)
-  mal: (apply (fn* (& more) (list? more)) [1 2 3])
+  mal: (apply (fn* [& more] (list? more)) [1 2 3])
   out: 'true'
 
-- mal: (apply (fn* (& more) (list? more)) [])
+- mal: (apply (fn* [& more] (list? more)) [])
   out: 'true'
 
-- mal: (apply (fn* (a & more) (list? more)) [1])
+- mal: (apply (fn* [a & more] (list? more)) [1])
   out: 'true'
 
 

@@ -1,18 +1,18 @@
 - say: Testing trivial macros
   mal:
-  - (defmacro! one (fn* () 1))
+  - (defmacro! one (fn* [] 1))
   - (one)
   out: 1
 
 - mal:
-  - (defmacro! two (fn* () 2))
+  - (defmacro! two (fn* [] 2))
   - (two)
   out: 2
 
 
 - say: Testing unless macros
   mal:
-  - (defmacro! unless (fn* (pred a b) `(if ~pred ~b ~a)))
+  - (defmacro! unless (fn* [pred a b] `(if ~pred ~b ~a)))
   - (unless false 7 8)
   out: 7
 
@@ -20,7 +20,7 @@
   out: 8
 
 - mal:
-  - (defmacro! unless2 (fn* (pred a b) (list 'if (list 'not pred) a b)))
+  - (defmacro! unless2 (fn* [pred a b] (list 'if (list 'not pred) a b)))
   - (unless2 false 7 8)
   out: 7
 
@@ -44,7 +44,7 @@
 
 - say: Testing evaluation of macro result
   mal:
-  - (defmacro! identity (fn* (x) x))
+  - (defmacro! identity (fn* [x] x))
   - (let* (a 123) (macroexpand (identity a)))
   out: a
 

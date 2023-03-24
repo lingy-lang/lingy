@@ -51,7 +51,7 @@
 
 
 - say: Testing atoms
-  mal: (def! inc3 (fn* (a) (+ 3 a)))
+  mal: (def! inc3 (fn* [a] (+ 3 a)))
 
 - mal: (def! a (atom 2))
   out: a
@@ -77,13 +77,13 @@
 - mal: (deref a)
   out: 6
 
-- mal: (swap! a (fn* (a) a))
+- mal: (swap! a (fn* [a] a))
   out: 6
 
-- mal: (swap! a (fn* (a) (* 2 a)))
+- mal: (swap! a (fn* [a] (* 2 a)))
   out: 12
 
-- mal: (swap! a (fn* (a b) (* a b)) 10)
+- mal: (swap! a (fn* [a b] (* a b)) 10)
   out: 120
 
 - mal: (swap! a + 3)
@@ -92,9 +92,9 @@
 
 - say: Testing swap!/closure interaction
   mal:
-  - (def! inc-it (fn* (a) (+ 1 a)))
+  - (def! inc-it (fn* [a] (+ 1 a)))
   - (def! atm (atom 7))
-  - (def! f (fn* () (swap! atm inc-it)))
+  - (def! f (fn* [] (swap! atm inc-it)))
   - (f)
   out: 8
 
@@ -104,7 +104,7 @@
 
 - say: Testing whether closures can retain atoms
   mal:
-  - (def! g (let* (atm (atom 0)) (fn* () (deref atm))))
+  - (def! g (let* (atm (atom 0)) (fn* [] (deref atm))))
   - (def! atm (atom 1))
   - (g)
   out: 0

@@ -26,12 +26,12 @@ $rt->rep(q<
 test '(add1 2 2)', "4",
     "Simple 'add' fn";
 
-$rt->rep(q<
-  (def add2 (fn
-    ([] 0)
-    ([a] a)
-    ([a b] (+ a b))))
->);
+# $rt->rep(q<
+#   (def add2 (fn
+#     ([] 0)
+#     ([a] a)
+#     ([a b] (+ a b))))
+# >);
 
 # test '(add2)', "0",
 #     "Multi-arity 'add' fn";

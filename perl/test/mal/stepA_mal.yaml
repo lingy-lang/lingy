@@ -53,17 +53,17 @@
 # Testing metadata on functions
 
 - say: Testing metadata on mal functions
-  mal: (meta (fn* (a) a))
+  mal: (meta (fn* [a] a))
   out: nil
 
-- mal: (meta (with-meta (fn* (a) a) {"b" 1}))
+- mal: (meta (with-meta (fn* [a] a) {"b" 1}))
   out: '{"b" 1}'
 
-- mal: (meta (with-meta (fn* (a) a) "abc"))
+- mal: (meta (with-meta (fn* [a] a) "abc"))
   out: '"abc"'
 
 - mal:
-  - (def! l-wm (with-meta (fn* (a) a) {"b" 2}))
+  - (def! l-wm (with-meta (fn* [a] a) {"b" 2}))
   - (meta l-wm)
   out: '{"b" 2}'
 
@@ -95,7 +95,7 @@
 
 - say: Make sure closures and metadata co-exist
   mal:
-  - (def! gen-plusX (fn* (x) (with-meta (fn* (b) (+ x b)) {"meta" 1})))
+  - (def! gen-plusX (fn* [x] (with-meta (fn* [b] (+ x b)) {"meta" 1})))
   - (def! plus7 (gen-plusX 7))
   - (def! plus8 (gen-plusX 8))
   - (plus7 8)
@@ -151,7 +151,7 @@
 - mal: (number? "123")
   out: 'false'
 
-- mal: (def! add1 (fn* (x) (+ x 1)))
+- mal: (def! add1 (fn* [x] (+ x 1)))
 
 - say: Testing fn? function
   mal: (fn? +)
@@ -169,7 +169,7 @@
 - mal: (fn? :+)
   out: 'false'
 
-- mal: (fn? ^{"ismacro" true} (fn* () 0))
+- mal: (fn? ^{"ismacro" true} (fn* [] 0))
   out: 'true'
 
 - say: Testing macro? function

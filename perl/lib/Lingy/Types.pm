@@ -122,7 +122,16 @@ sub new {
     my ($class, $ast, $env) = @_;
 
     my $sig = $ast->[1];
-    # ::ZZZ $ast unless ref($sig) eq 'vector';
+
+    if (ref($sig) eq 'vector') {
+        # make single arity function
+    } elsif (ref($sig) eq 'list') {
+        # make multi arity function
+        die;
+    } else {
+        die "fn* args must be specified as a vector\n"
+    }
+
     if (@$ast > 3) {
         $ast = Lingy::Types::list([
             Lingy::Types::symbol('do'),
