@@ -1,0 +1,210 @@
+- say: Testing trivial macros
+  mal:
+  - (defmacro! one (fn* () 1))
+  - (one)
+  out: 1
+
+- mal:
+  - (defmacro! two (fn* () 2))
+  - (two)
+  out: 2
+
+
+- say: Testing unless macros
+  mal:
+  - (defmacro! unless (fn* (pred a b) `(if ~pred ~b ~a)))
+  - (unless false 7 8)
+  out: 7
+
+- mal: (unless true 7 8)
+  out: 8
+
+- mal:
+  - (defmacro! unless2 (fn* (pred a b) (list 'if (list 'not pred) a b)))
+  - (unless2 false 7 8)
+  out: 7
+
+- mal: (unless2 true 7 8)
+  out: 8
+
+
+- say: Testing macroexpand
+  mal: (macroexpand (one))
+  out: 1
+
+- mal: (macroexpand (unless PRED A B))
+  out: (if PRED B A)
+
+- mal: (macroexpand (unless2 PRED A B))
+  out: (if (not PRED) A B)
+
+- mal: (macroexpand (unless2 2 3 4))
+  out: (if (not 2) 3 4)
+
+
+- say: Testing evaluation of macro result
+  mal:
+  - (defmacro! identity (fn* (x) x))
+  - (let* (a 123) (macroexpand (identity a)))
+  out: a
+
+- mal: (let* (a 123) (identity a))
+  out: 123
+
+
+- say: Test that macros do not break empty list
+  mal: ()
+  out: ()
+
+
+- say: Test that macros do not break quasiquote
+  mal: '`(1)'
+  out: (1)
+
+
+# -------- Deferrable Functionality --------
+
+- say: Testing non-macro function
+  mal: (not (= 1 1))
+  out: 'false'
+
+# This should fail if it is a macro
+- mal: (not (= 1 2))
+  out: 'true'
+
+
+- say: Testing nth, first and rest functions
+  mal: (nth (list 1) 0)
+  out: 1
+
+- mal: (nth (list 1 2) 1)
+  out: 2
+
+- mal: (nth (list 1 2 nil) 2)
+  out: nil
+
+- mal:
+  - (def! x "x")
+  - (def! x (nth (list 1 2) 2))
+  - x
+  out: '"x"'
+
+- mal: (first (list))
+  out: nil
+
+- mal: (first (list 6))
+  out: 6
+
+- mal: (first (list 7 8 9))
+  out: 7
+
+- mal: (rest (list))
+  out: ()
+
+- mal: (rest (list 6))
+  out: ()
+
+- mal: (rest (list 7 8 9))
+  out: (8 9)
+
+
+- say: Testing cond macro
+  mal: (macroexpand (cond))
+  out: nil
+
+- mal: (cond)
+  out: nil
+
+- mal: (macroexpand (cond X Y))
+  out: (if X Y (cond))
+
+- mal: (cond true 7)
+  out: 7
+
+- mal: (cond false 7)
+  out: nil
+
+- mal: (macroexpand (cond X Y Z T))
+  out: (if X Y (cond Z T))
+
+- mal: (cond true 7 true 8)
+  out: 7
+
+- mal: (cond false 7 true 8)
+  out: 8
+
+- mal: (cond false 7 false 8 "else" 9)
+  out: 9
+
+- mal: (cond false 7 (= 2 2) 8 "else" 9)
+  out: 8
+
+- mal: (cond false 7 false 8 false 9)
+  out: nil
+
+
+- say: Testing EVAL in let*
+  mal: (let* (x (cond false "no" true "yes")) x)
+  out: '"yes"'
+
+
+- say: Testing nth, first, rest with vectors
+  mal: (nth [1] 0)
+  out: 1
+
+- mal: (nth [1 2] 1)
+  out: 2
+
+- mal: (nth [1 2 nil] 2)
+  out: nil
+
+- mal:
+  - (def! x "x")
+  - (def! x (nth [1 2] 2))
+  - x
+  out: '"x"'
+
+- mal: (first [])
+  out: nil
+
+- mal: (first nil)
+  out: nil
+
+- mal: (first [10])
+  out: 10
+
+- mal: (first [10 11 12])
+  out: 10
+
+- mal: (rest [])
+  out: ()
+
+- mal: (rest nil)
+  out: ()
+
+- mal: (rest [10])
+  out: ()
+
+- mal: (rest [10 11 12])
+  out: (11 12)
+
+- mal: (rest (cons 10 [11 12]))
+  out: (11 12)
+
+
+- say: Testing EVAL in vector let*
+  mal: (let* [x (cond false "no" true "yes")] x)
+  out: '"yes"'
+
+
+# ------- Optional Functionality --------------
+
+- say: Test that macros use closures
+- mal:
+  - (def! x 2)
+  - (defmacro! a (fn* [] x))
+  - (a)
+  out: 2
+
+- mal: (let* (x 3) (a))
+  out: 2

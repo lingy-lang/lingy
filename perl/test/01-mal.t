@@ -11,7 +11,7 @@ use Lingy::Printer;
 my %plan = (
     2 => 14,
     3 => 28,
-    4 => 186,
+    4 => 187,
     5 => 4,
     6 => 41,
     7 => 144,
@@ -36,9 +36,7 @@ for my $file (@files) {
     subtest $file => sub {
         plan tests => $plan{$i};
 
-        my @tests = ($file =~ /\.yaml$/)
-        ? read_yaml_test_file($file)
-        : read_mal_test_file($file);
+        my @tests = read_yaml_test_file($file);
 
         for my $test (@tests) {
             my ($expr, $got, $want, $like, $out, $err);
@@ -104,39 +102,6 @@ sub read_yaml_test_file {
             if defined $_->{err};
         defined($t->{expr}) ? ($t) : ();
     } @$tests;
-}
-
-sub read_mal_test_file {
-    my ($file) = @_;
-    open IN, '<', $file or die "Can't open '$file' for input: $!";
-    my @tests;
-
-    my $t = {};
-    while ($_ = <IN>) {
-        if (s/^;; //) {
-            chomp;
-            $t->{note} = $_;
-        } elsif (/(?:^;;|;>>>|^\s*$)/) {
-        } elsif (s/^;\///) {
-            my $like = $t->{like} //= [];
-            push @$like, $_;
-
-        } elsif (s/^;=>//) {
-            my $want = $t->{want} //= [];
-            push @$want, $_;
-
-        } else {
-            if ($t->{expr} and ($t->{like} or $t->{want})) {
-                push @tests, $t;
-                $t = {};
-            }
-            my $expr = $t->{expr} //= [];
-            push @$expr, $_;
-        }
-    }
-    push @tests, $t if $t->{expr};
-
-    return @tests;
 }
 
 done_testing;

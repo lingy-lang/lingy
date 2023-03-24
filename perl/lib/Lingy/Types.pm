@@ -122,7 +122,7 @@ sub new {
     my ($class, $ast, $env) = @_;
 
     my $sig = $ast->[1];
-    # ::XXX $ast unless ref($sig) eq 'vector';
+    # ::ZZZ $ast unless ref($sig) eq 'vector';
     if (@$ast > 3) {
         $ast = Lingy::Types::list([
             Lingy::Types::symbol('do'),

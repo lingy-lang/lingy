@@ -106,27 +106,27 @@ sub init {
 
     ::rt->rep(q(
       (defmacro! defmacro
-        (fn* (name args body)
+        (fn* [name args body]
           `(defmacro! ~name (fn* ~args ~body))))
 
-      (defmacro def (& xs) (cons 'def! xs))
+      (defmacro def [& xs] (cons 'def! xs))
 
       (def *host-language* "perl")
 
-      (defmacro fn (& xs) (cons 'fn* xs))
+      (defmacro fn [& xs] (cons 'fn* xs))
 
-      (defmacro defn (name args body)
+      (defmacro defn [name args body]
         `(def ~name (fn ~args ~body)))
 
-      (defmacro let (& xs) (cons 'let* xs))
-      (defmacro try (& xs) (cons 'try* xs))
+      (defmacro let [& xs] (cons 'let* xs))
+      (defmacro try [& xs] (cons 'try* xs))
 
-      (defn not (a)
+      (defn not [a]
         (if a
           false
           true))
 
-      (defmacro cond (& xs)
+      (defmacro cond [& xs]
         (if (> (count xs) 0)
           (list 'if (first xs)
             (if (> (count xs) 1)
@@ -134,7 +134,7 @@ sub init {
               (throw "odd number of forms to cond"))
             (cons 'cond (rest (rest xs))))))
 
-      (defn load-file (f)
+      (defn load-file [f]
         (eval
           (read-string
             (str

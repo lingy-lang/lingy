@@ -1,0 +1,595 @@
+- say: Testing list functions
+  mal: (list)
+  out: ()
+
+- mal: (list? (list))
+  out: 'true'
+
+- mal: (empty? (list))
+  out: 'true'
+
+- mal: (empty? (list 1))
+  out: 'false'
+
+- mal: (list 1 2 3)
+  out: (1 2 3)
+
+- mal: (count (list 1 2 3))
+  out: 3
+
+- mal: (count (list))
+  out: 0
+
+- mal: (count nil)
+  out: 0
+
+- mal: (if (> (count (list 1 2 3)) 3) 89 78)
+  out: 78
+
+- mal: (if (>= (count (list 1 2 3)) 3) 89 78)
+  out: 89
+
+
+- say: Testing if form
+  mal: (if true 7 8)
+  out: 7
+
+- mal: (if false 7 8)
+  out: 8
+
+- mal: (if false 7 false)
+  out: 'false'
+
+- mal: (if true (+ 1 7) (+ 1 8))
+  out: 8
+
+- mal: (if false (+ 1 7) (+ 1 8))
+  out: 9
+
+- mal: (if nil 7 8)
+  out: 8
+
+- mal: (if 0 7 8)
+  out: 7
+
+- mal: (if (list) 7 8)
+  out: 7
+
+- mal: (if (list 1 2 3) 7 8)
+  out: 7
+
+- mal: (= (list) nil)
+  out: 'false'
+
+
+- say: Testing 1-way if form
+  mal: (if false (+ 1 7))
+  out: nil
+
+- mal: (if nil 8)
+  out: nil
+
+- mal: (if nil 8 7)
+  out: 7
+
+- mal: (if true (+ 1 7))
+  out: 8
+
+
+- say: Testing basic conditionals
+  mal: (= 2 1)
+  out: 'false'
+
+- mal: (= 1 1)
+  out: 'true'
+
+- mal: (= 1 2)
+  out: 'false'
+
+- mal: (= 1 (+ 1 1))
+  out: 'false'
+
+- mal: (= 2 (+ 1 1))
+  out: 'true'
+
+- mal: (= nil 1)
+  out: 'false'
+
+- mal: (= nil nil)
+  out: 'true'
+
+- mal: (> 2 1)
+  out: 'true'
+
+- mal: (> 1 1)
+  out: 'false'
+
+- mal: (> 1 2)
+  out: 'false'
+
+- mal: (>= 2 1)
+  out: 'true'
+
+- mal: (>= 1 1)
+  out: 'true'
+
+- mal: (>= 1 2)
+  out: 'false'
+
+- mal: (< 2 1)
+  out: 'false'
+
+- mal: (< 1 1)
+  out: 'false'
+
+- mal: (< 1 2)
+  out: 'true'
+
+- mal: (<= 2 1)
+  out: 'false'
+
+- mal: (<= 1 1)
+  out: 'true'
+
+- mal: (<= 1 2)
+  out: 'true'
+
+
+- say: Testing equality
+  mal: (= 1 1)
+  out: 'true'
+
+- mal: (= 0 0)
+  out: 'true'
+
+- mal: (= 1 0)
+  out: 'false'
+
+- mal: (= true true)
+  out: 'true'
+
+- mal: (= false false)
+  out: 'true'
+
+- mal: (= nil nil)
+  out: 'true'
+
+- mal: (= (list) (list))
+  out: 'true'
+
+- mal: (= (list) ())
+  out: 'true'
+
+- mal: (= (list 1 2) (list 1 2))
+  out: 'true'
+
+- mal: (= (list 1) (list))
+  out: 'false'
+
+- mal: (= (list) (list 1))
+  out: 'false'
+
+- mal: (= 0 (list))
+  out: 'false'
+
+- mal: (= (list) 0)
+  out: 'false'
+
+- mal: (= (list nil) (list))
+  out: 'false'
+
+
+- say: Testing builtin and user defined functions
+  mal: (+ 1 2)
+  out: 3
+
+- mal: ( (fn* (a b) (+ b a)) 3 4)
+  out: 7
+
+- mal: ( (fn* () 4) )
+  out: 4
+
+- mal: ( (fn* (f x) (f x)) (fn* (a) (+ 1 a)) 7)
+  out: 8
+
+
+- say: Testing closures
+  mal: ( ( (fn* (a) (fn* (b) (+ a b))) 5) 7)
+  out: 12
+
+- mal: (def! gen-plus5 (fn* () (fn* (b) (+ 5 b))))
+- mal: (def! plus5 (gen-plus5))
+- mal: (plus5 7)
+  out: 12
+
+- mal: (def! gen-plusX (fn* (x) (fn* (b) (+ x b))))
+- mal: (def! plus7 (gen-plusX 7))
+- mal: (plus7 8)
+  out: 15
+
+
+- say: Testing do form
+  mal: (do (prn 101))
+  err: 101
+  out: nil
+
+- mal: (do (prn 102) 7)
+  err: 102
+  out: 7
+
+- mal: (do (prn 101) (prn 102) (+ 1 2))
+  err:
+  - 101
+  - 102
+  out: 3
+
+- mal: (do (def! a 6) 7 (+ a 8))
+  out: 14
+
+- mal: a
+  out: 6
+
+
+- say: Testing special form case-sensitivity
+  mal: (def! DO (fn* (a) 7))
+- mal: (DO 3)
+  out: 7
+
+
+- say: Testing recursive sumdown function
+  mal: (def! sumdown (fn* (N) (if (> N 0) (+ N (sumdown  (- N 1))) 0)))
+- mal: (sumdown 1)
+  out: 1
+
+- mal: (sumdown 2)
+  out: 3
+
+- mal: (sumdown 6)
+  out: 21
+
+
+- say: Testing recursive fibonacci function
+  mal: (def! fib (fn* (N) (if (= N 0) 1 (if (= N 1) 1 (+ (fib (- N 1)) (fib (- N 2)))))))
+- mal: (fib 1)
+  out: 1
+
+- mal: (fib 2)
+  out: 2
+
+- mal: (fib 4)
+  out: 5
+
+
+- say: Testing recursive function in environment.
+  mal: (let* (f (fn* () x) x 3) (f))
+  out: 3
+
+- mal: (let* (cst (fn* (n) (if (= n 0) nil (cst (- n 1))))) (cst 1))
+  out: nil
+
+- mal: (let* (f (fn* (n) (if (= n 0) 0 (g (- n 1)))) g (fn* (n) (f n))) (f 2))
+  out: 0
+
+
+# -------- Deferrable Functionality --------
+
+- say: Testing if on strings
+  mal: (if "" 7 8)
+  out: 7
+
+
+- say: Testing string equality
+  mal: (= "" "")
+  out: 'true'
+
+- mal: (= "abc" "abc")
+  out: 'true'
+
+- mal: (= "abc" "")
+  out: 'false'
+
+- mal: (= "" "abc")
+  out: 'false'
+
+- mal: (= "abc" "def")
+  out: 'false'
+
+- mal: (= "abc" "ABC")
+  out: 'false'
+
+- mal: (= (list) "")
+  out: 'false'
+
+- mal: (= "" (list))
+  out: 'false'
+
+
+- say: Testing variable length arguments
+  mal: ( (fn* (& more) (count more)) 1 2 3)
+  out: 3
+
+- mal: ( (fn* (& more) (list? more)) 1 2 3)
+  out: 'true'
+
+- mal: ( (fn* (& more) (count more)) 1)
+  out: 1
+
+- mal: ( (fn* (& more) (count more)) )
+  out: 0
+
+- mal: ( (fn* (& more) (list? more)) )
+  out: 'true'
+
+- mal: ( (fn* (a & more) (count more)) 1 2 3)
+  out: 2
+
+- mal: ( (fn* (a & more) (count more)) 1)
+  out: 0
+
+- mal: ( (fn* (a & more) (list? more)) 1)
+  out: 'true'
+
+
+- say: Testing language defined not function
+  mal: (not false)
+  out: 'true'
+
+- mal: (not nil)
+  out: 'true'
+
+- mal: (not true)
+  out: 'false'
+
+- mal: (not "a")
+  out: 'false'
+
+- mal: (not 0)
+  out: 'false'
+
+
+- say: Testing string quoting
+  mal: '""'
+  out: '""'
+
+- mal: '"abc"'
+  out: '"abc"'
+
+- mal: '"abc  def"'
+  out: '"abc  def"'
+
+- mal: '"\""'
+  out: '"\""'
+
+- mal: '"abc\ndef\nghi"'
+  out: '"abc\ndef\nghi"'
+
+- mal: '"abc\\def\\ghi"'
+  out: '"abc\\def\\ghi"'
+
+- mal: '"\\n"'
+  out: '"\\n"'
+
+
+- say: Testing pr-str
+  mal: (pr-str)
+  out: '""'
+
+- mal: (pr-str "")
+  out: '"\"\""'
+
+- mal: (pr-str "abc")
+  out: '"\"abc\""'
+
+- mal: (pr-str "abc  def" "ghi jkl")
+  out: '"\"abc  def\" \"ghi jkl\""'
+
+- mal: (pr-str "\"")
+  out: '"\"\\\"\""'
+
+- mal: (pr-str (list 1 2 "abc" "\"") "def")
+  out: '"(1 2 \"abc\" \"\\\"\") \"def\""'
+
+- mal: (pr-str "abc\ndef\nghi")
+  out: '"\"abc\\ndef\\nghi\""'
+
+- mal: (pr-str "abc\\def\\ghi")
+  out: '"\"abc\\\\def\\\\ghi\""'
+
+- mal: (pr-str (list))
+  out: '"()"'
+
+
+- say: Testing str
+  mal: (str)
+  out: '""'
+
+- mal: (str "")
+  out: '""'
+
+- mal: (str "abc")
+  out: '"abc"'
+
+- mal: (str "\"")
+  out: '"\""'
+
+- mal: (str 1 "abc" 3)
+  out: '"1abc3"'
+
+- mal: (str "abc  def" "ghi jkl")
+  out: '"abc  defghi jkl"'
+
+- mal: (str "abc\ndef\nghi")
+  out: '"abc\ndef\nghi"'
+
+- mal: (str "abc\\def\\ghi")
+  out: '"abc\\def\\ghi"'
+
+- mal: (str (list 1 2 "abc" "\"") "def")
+  out: '"(1 2 abc \")def"'
+
+- mal: (str (list))
+  out: '"()"'
+
+
+- say: Testing prn
+  mal: (prn)
+  err: ''
+  out: nil
+
+- mal: (prn "")
+  err: '""'
+  out: nil
+
+- mal: (prn "abc")
+  err: '"abc"'
+  out: nil
+
+- mal: (prn "abc  def" "ghi jkl")
+  err: '"abc  def" "ghi jkl"'
+
+- mal: (prn "\"")
+  err: '"\\""'
+  out: nil
+
+- mal: (prn "abc\ndef\nghi")
+  err: '"abc\\ndef\\nghi"'
+  out: nil
+
+- mal: (prn "abc\\def\\ghi")
+  err: '"abc\\\\def\\\\ghi"'
+  out: nil
+
+- mal: (prn (list 1 2 "abc" "\"") "def")
+  err: \(1 2 "abc" "\\""\) "def"
+  out: nil
+
+
+- say: Testing println
+  mal: (println)
+  err: ''
+  out: nil
+
+- mal: (println "")
+  err: ''
+  out: nil
+
+- mal: (println "abc")
+  err: abc
+  out: nil
+
+- mal: (println "abc  def" "ghi jkl")
+  err: abc  def ghi jkl
+
+- mal: (println "\"")
+  err: '"'
+  out: nil
+
+- mal: (println "abc\ndef\nghi")
+  err:
+  - abc
+  - def
+  - ghi
+  out: nil
+
+- mal: (println "abc\\def\\ghi")
+  err: abc\\def\\ghi
+  out: nil
+
+- mal: (println (list 1 2 "abc" "\"") "def")
+  err: \(1 2 abc "\) def
+  out: nil
+
+
+- say: Testing keywords
+  mal: (= :abc :abc)
+  out: 'true'
+
+- mal: (= :abc :def)
+  out: 'false'
+
+- mal: (= :abc ":abc")
+  out: 'false'
+
+- mal: (= (list :abc) (list :abc))
+  out: 'true'
+
+
+- say: Testing vector truthiness
+  mal: (if [] 7 8)
+  out: 7
+
+
+- say: Testing vector printing
+  mal: (pr-str [1 2 "abc" "\""] "def")
+  out: '"[1 2 \"abc\" \"\\\"\"] \"def\""'
+
+- mal: (pr-str [])
+  out: '"[]"'
+
+- mal: (str [1 2 "abc" "\""] "def")
+  out: '"[1 2 abc \"]def"'
+
+- mal: (str [])
+  out: '"[]"'
+
+
+- say: Testing vector functions
+  mal: (count [1 2 3])
+  out: 3
+
+- mal: (empty? [1 2 3])
+  out: 'false'
+
+- mal: (empty? [])
+  out: 'true'
+
+- mal: (list? [4 5 6])
+  out: 'false'
+
+
+- say: Testing vector equality
+  mal: (= [] (list))
+  out: 'true'
+
+- mal: (= [7 8] [7 8])
+  out: 'true'
+
+- mal: (= [:abc] [:abc])
+  out: 'true'
+
+- mal: (= (list 1 2) [1 2])
+  out: 'true'
+
+- mal: (= (list 1) [])
+  out: 'false'
+
+- mal: (= [] [1])
+  out: 'false'
+
+- mal: (= 0 [])
+  out: 'false'
+
+- mal: (= [] 0)
+  out: 'false'
+
+- mal: (= [] "")
+  out: 'false'
+
+- mal: (= "" [])
+  out: 'false'
+
+
+- say: Testing vector parameter lists
+  mal: ( (fn* [] 4) )
+  out: 4
+
+- mal: ( (fn* [f x] (f x)) (fn* [a] (+ 1 a)) 7)
+  out: 8
+
+
+- say: Nested vector/list equality
+  mal: (= [(list)] (list []))
+  out: 'true'
+
+- mal: (= [1 2 (list 3 4 [5 6])] (list 1 2 [3 4 (list 5 6)]))
+  out: 'true'
