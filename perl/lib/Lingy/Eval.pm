@@ -21,8 +21,8 @@ sub eval {
         my $sym = (ref($a0) eq 'symbol') ? $$a0 : '';
 
         if ('def!' eq $sym) {
-            return $env->set($$a1, Lingy::Eval::eval($a2, $env));
-            # XXX clojure returns the var, not the symbol or value
+            $env->set($$a1, Lingy::Eval::eval($a2, $env));
+            return $a1;
 
         } elsif ('defmacro!' eq $sym) {
             return $env->set($$a1, macro(Lingy::Eval::eval($a2, $env)));

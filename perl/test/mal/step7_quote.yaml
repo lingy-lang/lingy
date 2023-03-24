@@ -1,0 +1,488 @@
+- say: Testing cons function
+  mal: (cons 1 (list))
+  out: (1)
+
+- mal: (cons 1 (list 2))
+  out: (1 2)
+
+- mal: (cons 1 (list 2 3))
+  out: (1 2 3)
+
+- mal: (cons (list 1) (list 2 3))
+  out: ((1) 2 3)
+
+- mal:
+  - (def! a (list 2 3))
+  - (cons 1 a)
+  out: (1 2 3)
+
+- mal: a
+  out: (2 3)
+
+
+- say: Testing concat function
+  mal: (concat)
+  out: ()
+
+- mal: (concat (list 1 2))
+  out: (1 2)
+
+- mal: (concat (list 1 2) (list 3 4))
+  out: (1 2 3 4)
+
+- mal: (concat (list 1 2) (list 3 4) (list 5 6))
+  out: (1 2 3 4 5 6)
+
+- mal: (concat (concat))
+  out: ()
+
+- mal: (concat (list) (list))
+  out: ()
+
+- mal: (= () (concat))
+  out: 'true'
+
+- mal:
+  - (def! a (list 1 2))
+  - (def! b (list 3 4))
+  - (concat a b (list 5 6))
+  out: (1 2 3 4 5 6)
+
+- mal: a
+  out: (1 2)
+
+- mal: b
+  out: (3 4)
+
+
+- say: Testing regular quote
+  mal: (quote 7)
+  out: 7
+
+- mal: (quote (1 2 3))
+  out: (1 2 3)
+
+- mal: (quote (1 2 (3 4)))
+  out: (1 2 (3 4))
+
+
+- say: Testing simple quasiquote
+  mal: (quasiquote nil)
+  out: nil
+
+- mal: (quasiquote 7)
+  out: 7
+
+- mal: (quasiquote a)
+  out: a
+
+- mal: (quasiquote {"a" b})
+  out: '{"a" b}'
+
+
+- say: Testing quasiquote with lists
+  mal: (quasiquote ())
+  out: ()
+
+- mal: (quasiquote (1 2 3))
+  out: (1 2 3)
+
+- mal: (quasiquote (a))
+  out: (a)
+
+- mal: (quasiquote (1 2 (3 4)))
+  out: (1 2 (3 4))
+
+- mal: (quasiquote (nil))
+  out: (nil)
+
+- mal: (quasiquote (1 ()))
+  out: (1 ())
+
+- mal: (quasiquote (() 1))
+  out: (() 1)
+
+- mal: (quasiquote (1 () 2))
+  out: (1 () 2)
+
+- mal: (quasiquote (()))
+  out: (())
+
+- mal: (quasiquote (f () g (h) i (j k) l))
+  out: (f () g (h) i (j k) l)
+
+
+- say: Testing unquote
+- mal: (quasiquote (unquote 7))
+  out: 7
+
+- mal: (def! a 8)
+  out: a
+
+- mal: (quasiquote a)
+  out: a
+
+- mal: (quasiquote (unquote a))
+  out: 8
+
+- mal: (quasiquote (1 a 3))
+  out: (1 a 3)
+
+- mal: (quasiquote (1 (unquote a) 3))
+  out: (1 8 3)
+
+- mal: (def! b (quote (1 "b" "d")))
+  out: b
+
+- mal: (quasiquote (1 b 3))
+  out: (1 b 3)
+
+- mal: (quasiquote (1 (unquote b) 3))
+  out: (1 (1 "b" "d") 3)
+
+- mal: (quasiquote ((unquote 1) (unquote 2)))
+  out: (1 2)
+
+
+- say: Quasiquote and environments
+- mal: (let* (x 0) (quasiquote (unquote x)))
+  out: 0
+
+
+- say: Testing splice-unquote
+- mal: (def! c (quote (1 "b" "d")))
+  out: c
+
+- mal: (quasiquote (1 c 3))
+  out: (1 c 3)
+
+- mal: (quasiquote (1 (splice-unquote c) 3))
+  out: (1 1 "b" "d" 3)
+
+- mal: (quasiquote (1 (splice-unquote c)))
+  out: (1 1 "b" "d")
+
+- mal: (quasiquote ((splice-unquote c) 2))
+  out: (1 "b" "d" 2)
+
+- mal: (quasiquote ((splice-unquote c) (splice-unquote c)))
+  out: (1 "b" "d" 1 "b" "d")
+
+
+- say: Testing symbol equality
+- mal: (= (quote abc) (quote abc))
+  out: 'true'
+
+- mal: (= (quote abc) (quote abcd))
+  out: 'false'
+
+- mal: (= (quote abc) "abc")
+  out: 'false'
+
+- mal: (= "abc" (quote abc))
+  out: 'false'
+
+- mal: (= "abc" (str (quote abc)))
+  out: 'true'
+
+- mal: (= (quote abc) nil)
+  out: 'false'
+
+- mal: (= nil (quote abc))
+  out: 'false'
+
+
+# -------- Deferrable Functionality --------
+
+- say: Testing ' (quote) reader macro
+  mal: "'7"
+  out: 7
+
+- mal: "'(1 2 3)"
+  out: (1 2 3)
+
+- mal: "'(1 2 (3 4))"
+  out: (1 2 (3 4))
+
+
+- say: Testing cons and concat with vectors
+
+- mal: (cons 1 [])
+  out: (1)
+
+- mal: (cons [1] [2 3])
+  out: ([1] 2 3)
+
+- mal: (cons 1 [2 3])
+  out: (1 2 3)
+
+- mal: (concat [1 2] (list 3 4) [5 6])
+  out: (1 2 3 4 5 6)
+
+- mal: (concat [1 2])
+  out: (1 2)
+
+
+# -------- Optional Functionality --------
+
+- say: Testing ` (quasiquote) reader macro
+  mal: '`7'
+  out: 7
+
+- mal: '`(1 2 3)'
+  out: (1 2 3)
+
+- mal: '`(1 2 (3 4))'
+  out: (1 2 (3 4))
+
+- mal: '`(nil)'
+  out: (nil)
+
+
+- say: Testing ~ (unquote) reader macro
+  mal: '`~7'
+  out: 7
+
+- mal: (def! a 8)
+  out: a
+
+- mal: '`(1 ~a 3)'
+  out: (1 8 3)
+
+- mal: (def! b '(1 "b" "d"))
+  out: b
+
+- mal: '`(1 b 3)'
+  out: (1 b 3)
+
+- mal: '`(1 ~b 3)'
+  out: (1 (1 "b" "d") 3)
+
+
+- say: Testing ~@ (splice-unquote) reader macro
+- mal: (def! c '(1 "b" "d"))
+  out: c
+
+- mal: '`(1 c 3)'
+  out: (1 c 3)
+
+- mal: '`(1 ~@c 3)'
+  out: (1 1 "b" "d" 3)
+
+
+- say: Testing vec function
+
+- mal: (vec (list))
+  out: '[]'
+
+- mal: (vec (list 1))
+  out: '[1]'
+
+- mal: (vec (list 1 2))
+  out: '[1 2]'
+
+- mal: (vec [])
+  out: '[]'
+
+- mal: (vec [1 2])
+  out: '[1 2]'
+
+
+- say: Testing that vec does not mutate the original list
+  mal:
+  - (def! a (list 1 2))
+  - (vec a)
+  out: '[1 2]'
+
+- mal: a
+  out: (1 2)
+
+
+- say: Test quine
+  mal: ((fn* (q) (quasiquote ((unquote q) (quote (unquote q))))) (quote (fn* (q) (quasiquote ((unquote q) (quote (unquote q)))))))
+  out: ((fn* (q) (quasiquote ((unquote q) (quote (unquote q))))) (quote (fn* (q) (quasiquote ((unquote q) (quote (unquote q)))))))
+
+
+- say: Testing quasiquote with vectors
+  mal: (quasiquote [])
+  out: '[]'
+
+- mal: (quasiquote [[]])
+  out: '[[]]'
+
+- mal: (quasiquote [()])
+  out: '[()]'
+
+- mal: (quasiquote ([]))
+  out: ([])
+
+- mal: (def! a 8)
+  out: a
+
+- mal: '`[1 a 3]'
+  out: '[1 a 3]'
+
+- mal: (quasiquote [a [] b [c] d [e f] g])
+  out: '[a [] b [c] d [e f] g]'
+
+
+- say: Testing unquote with vectors
+  mal: '`[~a]'
+  out: '[8]'
+
+- mal: '`[(~a)]'
+  out: '[(8)]'
+
+- mal: '`([~a])'
+  out: ([8])
+
+- mal: '`[a ~a a]'
+  out: '[a 8 a]'
+
+- mal: '`([a ~a a])'
+  out: ([a 8 a])
+
+- mal: '`[(a ~a a)]'
+  out: '[(a 8 a)]'
+
+
+- say: Testing splice-unquote with vectors
+  mal: (def! c '(1 "b" "d"))
+  out: c
+
+- mal: '`[~@c]'
+  out: '[1 "b" "d"]'
+
+- mal: '`[(~@c)]'
+  out: '[(1 "b" "d")]'
+
+- mal: '`([~@c])'
+  out: ([1 "b" "d"])
+
+- mal: '`[1 ~@c 3]'
+  out: '[1 1 "b" "d" 3]'
+
+- mal: '`([1 ~@c 3])'
+  out: ([1 1 "b" "d" 3])
+
+- mal: '`[(1 ~@c 3)]'
+  out: '[(1 1 "b" "d" 3)]'
+
+
+- say: Misplaced unquote or splice-unquote
+  mal: '`(0 unquote)'
+  out: (0 unquote)
+
+- mal: '`(0 splice-unquote)'
+  out: (0 splice-unquote)
+
+- mal: '`[unquote 0]'
+  out: '[unquote 0]'
+
+- mal: '`[splice-unquote 0]'
+  out: '[splice-unquote 0]'
+
+
+- say: Debugging quasiquote
+  mal: (quasiquoteexpand nil)
+  out: nil
+
+- mal: (quasiquoteexpand 7)
+  out: 7
+
+- mal: (quasiquoteexpand a)
+  out: (quote a)
+
+- mal: (quasiquoteexpand {"a" b})
+  out: (quote {"a" b})
+
+- mal: (quasiquoteexpand ())
+  out: ()
+
+- mal: (quasiquoteexpand (1 2 3))
+  out: (cons 1 (cons 2 (cons 3 ())))
+
+- mal: (quasiquoteexpand (a))
+  out: (cons (quote a) ())
+
+- mal: (quasiquoteexpand (1 2 (3 4)))
+  out: (cons 1 (cons 2 (cons (cons 3 (cons 4 ())) ())))
+
+- mal: (quasiquoteexpand (nil))
+  out: (cons nil ())
+
+- mal: (quasiquoteexpand (1 ()))
+  out: (cons 1 (cons () ()))
+
+- mal: (quasiquoteexpand (() 1))
+  out: (cons () (cons 1 ()))
+
+- mal: (quasiquoteexpand (1 () 2))
+  out: (cons 1 (cons () (cons 2 ())))
+
+- mal: (quasiquoteexpand (()))
+  out: (cons () ())
+
+- mal: (quasiquoteexpand (f () g (h) i (j k) l))
+  out: (cons (quote f) (cons () (cons (quote g) (cons (cons (quote h) ()) (cons (quote i) (cons (cons (quote j) (cons (quote k) ())) (cons (quote l) ())))))))
+
+- mal: (quasiquoteexpand (unquote 7))
+  out: 7
+
+- mal: (quasiquoteexpand a)
+  out: (quote a)
+
+- mal: (quasiquoteexpand (unquote a))
+  out: a
+
+- mal: (quasiquoteexpand (1 a 3))
+  out: (cons 1 (cons (quote a) (cons 3 ())))
+
+- mal: (quasiquoteexpand (1 (unquote a) 3))
+  out: (cons 1 (cons a (cons 3 ())))
+
+- mal: (quasiquoteexpand (1 b 3))
+  out: (cons 1 (cons (quote b) (cons 3 ())))
+
+- mal: (quasiquoteexpand (1 (unquote b) 3))
+  out: (cons 1 (cons b (cons 3 ())))
+
+- mal: (quasiquoteexpand ((unquote 1) (unquote 2)))
+  out: (cons 1 (cons 2 ()))
+
+- mal: (quasiquoteexpand (a (splice-unquote (b c)) d))
+  out: (cons (quote a) (concat (b c) (cons (quote d) ())))
+
+- mal: (quasiquoteexpand (1 c 3))
+  out: (cons 1 (cons (quote c) (cons 3 ())))
+
+- mal: (quasiquoteexpand (1 (splice-unquote c) 3))
+  out: (cons 1 (concat c (cons 3 ())))
+
+- mal: (quasiquoteexpand (1 (splice-unquote c)))
+  out: (cons 1 (concat c ()))
+
+- mal: (quasiquoteexpand ((splice-unquote c) 2))
+  out: (concat c (cons 2 ()))
+
+- mal: (quasiquoteexpand ((splice-unquote c) (splice-unquote c)))
+  out: (concat c (concat c ()))
+
+- mal: (quasiquoteexpand [])
+  out: (vec ())
+
+- mal: (quasiquoteexpand [[]])
+  out: (vec (cons (vec ()) ()))
+
+- mal: (quasiquoteexpand [()])
+  out: (vec (cons () ()))
+
+- mal: (quasiquoteexpand ([]))
+  out: (cons (vec ()) ())
+
+- mal: (quasiquoteexpand [1 a 3])
+  out: (vec (cons 1 (cons (quote a) (cons 3 ()))))
+
+- mal: (quasiquoteexpand [a [] b [c] d [e f] g])
+  out: (vec (cons (quote a) (cons (vec ()) (cons (quote b) (cons (vec (cons (quote c) ())) (cons (quote d) (cons (vec (cons (quote e) (cons (quote f) ()))) (cons (quote g) ()))))))))
+

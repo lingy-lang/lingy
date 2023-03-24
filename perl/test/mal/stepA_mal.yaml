@@ -1,0 +1,340 @@
+#
+# See IMPL/tests/stepA_mal.mal for implementation specific
+# interop tests.
+#
+
+# SKIPPING: readline test
+# ;;
+# ;; Testing readline
+# (readline "mal-user> ")
+# "hello"
+# ;=>"\"hello\""
+
+# each impl is different, but this should return false
+# rather than throwing an exception
+- say: Testing *host-language*
+  mal: (= "something bogus" *host-language*)
+  out: 'false'
+
+
+# ------- Deferrable Functionality ----------
+# ------- (Needed for self-hosting) -------
+
+- say: Testing hash-map evaluation and atoms (i.e. an env)
+  mal:
+  - (def! e (atom {"+" +}))
+  - (swap! e assoc "-" -)
+  - ( (get @e "+") 7 8)
+  out: 15
+
+- mal: ( (get @e "-") 11 8)
+  out: 3
+
+- mal:
+  - (swap! e assoc "foo" (list))
+  - (get @e "foo")
+  out: ()
+
+- mal:
+  - (swap! e assoc "bar" '(1 2 3))
+  - (get @e "bar")
+  out: (1 2 3)
+
+- say: Testing for presence of optional functions
+  mal: (do (list time-ms string? number? seq conj meta with-meta fn?) nil)
+  out: nil
+
+- mal: (map symbol? '(nil false true))
+  out: (false false false)
+
+# ------- Optional Functionality --------------
+# ------- (Not needed for self-hosting) -------
+
+# Testing metadata on functions
+
+- say: Testing metadata on mal functions
+  mal: (meta (fn* (a) a))
+  out: nil
+
+- mal: (meta (with-meta (fn* (a) a) {"b" 1}))
+  out: '{"b" 1}'
+
+- mal: (meta (with-meta (fn* (a) a) "abc"))
+  out: '"abc"'
+
+- mal:
+  - (def! l-wm (with-meta (fn* (a) a) {"b" 2}))
+  - (meta l-wm)
+  out: '{"b" 2}'
+
+- mal: (meta (with-meta l-wm {"new_meta" 123}))
+  out: '{"new_meta" 123}'
+
+- mal: (meta l-wm)
+  out: '{"b" 2}'
+
+- mal:
+  - (def! f-wm (with-meta (fn* [a] (+ 1 a)) {"abc" 1}))
+  - (meta f-wm)
+  out: '{"abc" 1}'
+
+- mal: (meta (with-meta f-wm {"new_meta" 123}))
+  out: '{"new_meta" 123}'
+
+- mal: (meta f-wm)
+  out: '{"abc" 1}'
+
+- mal:
+  - (def! f-wm2 ^{"abc" 1} (fn* [a] (+ 1 a)))
+  - (meta f-wm2)
+  out: '{"abc" 1}'
+
+- say: Meta of native functions should return nil (not fail)
+  mal: (meta +)
+  out: nil
+
+- say: Make sure closures and metadata co-exist
+  mal:
+  - (def! gen-plusX (fn* (x) (with-meta (fn* (b) (+ x b)) {"meta" 1})))
+  - (def! plus7 (gen-plusX 7))
+  - (def! plus8 (gen-plusX 8))
+  - (plus7 8)
+  out: 15
+
+- mal: (meta plus7)
+  out: '{"meta" 1}'
+
+- mal: (meta plus8)
+  out: '{"meta" 1}'
+
+- mal: (meta (with-meta plus7 {"meta" 2}))
+  out: '{"meta" 2}'
+
+- mal: (meta plus8)
+  out: '{"meta" 1}'
+
+- say: Testing string? function
+  mal: (string? "")
+  out: 'true'
+
+- mal: (string? 'abc)
+  out: 'false'
+
+- mal: (string? "abc")
+  out: 'true'
+
+- mal: (string? :abc)
+  out: 'false'
+
+- mal: (string? (keyword "abc"))
+  out: 'false'
+
+- mal: (string? 234)
+  out: 'false'
+
+- mal: (string? nil)
+  out: 'false'
+
+- say: Testing number? function
+  mal: (number? 123)
+  out: 'true'
+
+- mal: (number? -1)
+  out: 'true'
+
+- mal: (number? nil)
+  out: 'false'
+
+- mal: (number? false)
+  out: 'false'
+
+- mal: (number? "123")
+  out: 'false'
+
+- mal: (def! add1 (fn* (x) (+ x 1)))
+
+- say: Testing fn? function
+  mal: (fn? +)
+  out: 'true'
+
+- mal: (fn? add1)
+  out: 'true'
+
+- mal: (fn? cond)
+  out: 'false'
+
+- mal: (fn? "+")
+  out: 'false'
+
+- mal: (fn? :+)
+  out: 'false'
+
+- mal: (fn? ^{"ismacro" true} (fn* () 0))
+  out: 'true'
+
+- say: Testing macro? function
+  mal: (macro? cond)
+  out: 'true'
+
+- mal: (macro? +)
+  out: 'false'
+
+- mal: (macro? add1)
+  out: 'false'
+
+- mal: (macro? "+")
+  out: 'false'
+
+- mal: (macro? :+)
+  out: 'false'
+
+- mal: (macro? {})
+  out: 'false'
+
+
+- say: Testing conj function
+  mal: (conj (list) 1)
+  out: (1)
+
+- mal: (conj (list 1) 2)
+  out: (2 1)
+
+- mal: (conj (list 2 3) 4)
+  out: (4 2 3)
+
+- mal: (conj (list 2 3) 4 5 6)
+  out: (6 5 4 2 3)
+
+- mal: (conj (list 1) (list 2 3))
+  out: ((2 3) 1)
+
+- mal: (conj [] 1)
+  out: '[1]'
+
+- mal: (conj [1] 2)
+  out: '[1 2]'
+
+- mal: (conj [2 3] 4)
+  out: '[2 3 4]'
+
+- mal: (conj [2 3] 4 5 6)
+  out: '[2 3 4 5 6]'
+
+- mal: (conj [1] [2 3])
+  out: '[1 [2 3]]'
+
+- say: Testing seq function
+  mal: (seq "abc")
+  out: ("a" "b" "c")
+
+- mal: (apply str (seq "this is a test"))
+  out: '"this is a test"'
+
+- mal: (seq '(2 3 4))
+  out: (2 3 4)
+
+- mal: (seq [2 3 4])
+  out: (2 3 4)
+
+- mal: (seq "")
+  out: nil
+
+- mal: (seq '())
+  out: nil
+
+- mal: (seq [])
+  out: nil
+
+- mal: (seq nil)
+  out: nil
+
+- say: Testing metadata on collections
+
+- mal: (meta [1 2 3])
+  out: nil
+
+- mal: (with-meta [1 2 3] {"a" 1})
+  out: '[1 2 3]'
+
+- mal: (meta (with-meta [1 2 3] {"a" 1}))
+  out: '{"a" 1}'
+
+- mal: (vector? (with-meta [1 2 3] {"a" 1}))
+  out: 'true'
+
+- mal: (meta (with-meta [1 2 3] "abc"))
+  out: '"abc"'
+
+- mal: (with-meta [] "abc")
+  out: '[]'
+
+- mal: (meta (with-meta (list 1 2 3) {"a" 1}))
+  out: '{"a" 1}'
+
+- mal: (list? (with-meta (list 1 2 3) {"a" 1}))
+  out: 'true'
+
+- mal: (with-meta (list) {"a" 1})
+  out: ()
+
+- mal: (empty? (with-meta (list) {"a" 1}))
+  out: 'true'
+
+- mal: (meta (with-meta {"abc" 123} {"a" 1}))
+  out: '{"a" 1}'
+
+- mal: (map? (with-meta {"abc" 123} {"a" 1}))
+  out: 'true'
+
+- mal: (with-meta {} {"a" 1})
+  out: '{}'
+
+- mal: (def! l-wm (with-meta [4 5 6] {"b" 2}))
+  out: l-wm
+
+- mal: (meta l-wm)
+  out: '{"b" 2}'
+
+- mal: (meta (with-meta l-wm {"new_meta" 123}))
+  out: '{"new_meta" 123}'
+
+- mal: (meta l-wm)
+  out: '{"b" 2}'
+
+- say: Testing metadata on builtin functions
+  mal: (meta +)
+  out: nil
+
+- mal:
+  - (def! f-wm3 ^{"def" 2} +)
+  - (meta f-wm3)
+  out: '{"def" 2}'
+
+- mal: (meta +)
+  out: nil
+
+- say: Loading sumdown from computations.mal
+  mal: (load-file "../tests/computations.mal")
+  out: nil
+
+- say: Testing time-ms function
+  mal:
+  - (def! start-time (time-ms))
+  - (= start-time 0)
+  out: 'false'
+
+- mal: (sumdown 10) ; Waste some time
+  out: 55
+
+- mal: (> (time-ms) start-time)
+  out: 'true'
+
+- say: Test that defining a macro does not mutate an existing function.
+  mal:
+  - (def! f (fn* [x] (number? x)))
+  - (defmacro! m f)
+  - (f (+ 1 1))
+  out: 'true'
+
+- mal: (m (+ 1 1))
+  out: 'false'

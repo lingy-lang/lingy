@@ -246,7 +246,7 @@
   out: 1
 
 - mal: (def! hm1 (hash-map))
-  out: '{}'
+  out: hm1
 
 - mal: (map? hm1)
   out: 'true'
@@ -267,7 +267,7 @@
   out: 'false'
 
 - mal: (def! hm2 (assoc hm1 "a" 1))
-  out: '{"a" 1}'
+  out: hm2
 
 - mal: (get hm1 "a")
   out: nil

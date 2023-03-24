@@ -1,0 +1,22 @@
+- say: Testing recursive tail-call function
+  mal: (def! sum2 (fn* (n acc) (if (= n 0) acc (sum2 (- n 1) (+ n acc)))))
+
+# TODO: test let*, and do for TCO
+
+- mal: (sum2 10 0)
+  out: 55
+
+- mal: (def! res2 nil)
+  out: res2
+
+- mal:
+  - (def! res2 (sum2 10000 0))
+  - res2
+  out: 50005000
+
+- say: Test mutually recursive tail-call functions
+  mal:
+  - (def! foo (fn* (n) (if (= n 0) 0 (bar (- n 1)))))
+  - (def! bar (fn* (n) (if (= n 0) 0 (foo (- n 1)))))
+  - (foo 10000)
+  out: 0

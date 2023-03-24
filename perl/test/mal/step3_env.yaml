@@ -8,29 +8,29 @@
 
 - say: Testing def!
   mal: (def! x 3)
-  out: 3
+  out: x
 
 - mal: x
   out: 3
 
 - mal: (def! x 4)
-  out: 4
+  out: x
 
 - mal: x
   out: 4
 
 - mal: (def! y (+ 1 7))
-  out: 8
+  out: y
 
 - mal: y
   out: 8
 
 - say: Verifying symbols are case-sensitive
   mal: (def! mynum 111)
-  out: 111
+  out: mynum
 
 - mal: (def! MYNUM 222)
-  out: 222
+  out: MYNUM
 
 - mal: mynum
   out: 111
@@ -73,7 +73,7 @@
 
 - say: Testing outer environment
   mal: (def! a 4)
-  out: 4
+  out: a
 
 - mal: (let* (q 9) q)
   out: 9

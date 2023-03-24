@@ -1,0 +1,220 @@
+# TODO: really a step5 test
+- say: Testing that (do (do)) not broken by TCO
+  mal: (do (do 1 2))
+  out: 2
+
+
+- say: Testing read-string, eval and slurp
+  mal: (read-string "(1 2 (3 4) nil)")
+  out: (1 2 (3 4) nil)
+
+- mal: (= nil (read-string "nil"))
+  out: 'true'
+
+- mal: (read-string "(+ 2 3)")
+  out: (+ 2 3)
+
+- mal: (read-string "\"\n\"")
+  out: '"\n"'
+
+- mal: (read-string "7 ;; comment")
+  out: 7
+
+
+- say: Differing output, but make sure no fatal error
+  mal: (read-string ";; comment")
+
+- mal: (eval (read-string "(+ 2 3)"))
+  out: 5
+
+- mal: (slurp "../tests/test.txt")
+  out: "A line of text\n"
+
+
+- say: Load the same file twice.
+  mal: (slurp "../tests/test.txt")
+  out: "A line of text\n"
+
+
+- say: Testing load-file
+  mal: (load-file "../tests/inc.mal")
+  out: nil
+
+- mal: (inc1 7)
+  out: 8
+
+- mal: (inc2 7)
+  out: 9
+
+- mal: (inc3 9)
+  out: 12
+
+
+- say: Testing atoms
+  mal: (def! inc3 (fn* (a) (+ 3 a)))
+
+- mal: (def! a (atom 2))
+  out: a
+
+- mal: (atom? a)
+  out: 'true'
+
+- mal: (atom? 1)
+  out: 'false'
+
+- mal: (deref a)
+  out: 2
+
+- mal: (reset! a 3)
+  out: 3
+
+- mal: (deref a)
+  out: 3
+
+- mal: (swap! a inc3)
+  out: 6
+
+- mal: (deref a)
+  out: 6
+
+- mal: (swap! a (fn* (a) a))
+  out: 6
+
+- mal: (swap! a (fn* (a) (* 2 a)))
+  out: 12
+
+- mal: (swap! a (fn* (a b) (* a b)) 10)
+  out: 120
+
+- mal: (swap! a + 3)
+  out: 123
+
+
+- say: Testing swap!/closure interaction
+  mal:
+  - (def! inc-it (fn* (a) (+ 1 a)))
+  - (def! atm (atom 7))
+  - (def! f (fn* () (swap! atm inc-it)))
+  - (f)
+  out: 8
+
+- mal: (f)
+  out: 9
+
+
+- say: Testing whether closures can retain atoms
+  mal:
+  - (def! g (let* (atm (atom 0)) (fn* () (deref atm))))
+  - (def! atm (atom 1))
+  - (g)
+  out: 0
+
+
+# -------- Deferrable Functionality --------
+
+- say: Testing reading of large files
+  mal: (load-file "../tests/computations.mal")
+  out: nil
+
+- mal: (sumdown 2)
+  out: 3
+
+- mal: (fib 2)
+  out: 1
+
+
+- say: Testing `@` reader macro (short for `deref`)
+  mal:
+  - (def! atm (atom 9))
+  - '@atm'
+  out: 9
+
+
+# TODO: really a step5 test
+- say: Testing that vector params not broken by TCO
+  mal:
+  - (def! g (fn* [] 78))
+  - (g)
+  out: 78
+
+- mal: (def! g (fn* [a] (+ a 78)))
+- mal: (g 3)
+  out: 81
+
+
+- say: Testing that *ARGV* exists and is an empty list
+  mal: (list? *ARGV*)
+  out: 'true'
+
+- mal: '*ARGV*'
+  out: ()
+
+
+- say: Testing that eval sets aa in root scope, and that it is found in nested scope
+  mal: (let* (b 12) (do (eval (read-string "(def! aa 7)")) aa ))
+  out: 7
+
+
+# -------- Optional Functionality --------
+
+- say: Testing comments in a file
+  mal: (load-file "../tests/incB.mal")
+  out: nil
+
+- mal: (inc4 7)
+  out: 11
+
+- mal: (inc5 7)
+  out: 12
+
+
+- say: Testing map literal across multiple lines in a file
+  mal: (load-file "../tests/incC.mal")
+  out: nil
+
+- mal: mymap
+  out: '{"a" 1}'
+
+
+- say: Checking that eval does not use local environments.
+  mal: (def! a 1)
+  out: a
+
+- mal: (let* (a 2) (eval (read-string "a")))
+  out: 1
+
+
+- say: Non alphanumeric characters in comments in read-string
+  mal: (read-string "1;!")
+  out: 1
+
+- mal: (read-string "1;\"")
+  out: 1
+
+- mal: (read-string "1;#")
+  out: 1
+
+- mal: (read-string "1;$")
+  out: 1
+
+- mal: (read-string "1;%")
+  out: 1
+
+- mal: (read-string "1;'")
+  out: 1
+
+- mal: (read-string "1;\\")
+  out: 1
+
+- mal: (read-string "1;\\\\")
+  out: 1
+
+- mal: (read-string "1;\\\\\\")
+  out: 1
+
+- mal: (read-string "1;`")
+  out: 1
+
+- say: Hopefully less problematic characters can be checked together
+  mal: (read-string "1; &()*+,-./:;<=>?@[]^_{|}~")
+  out: 1
