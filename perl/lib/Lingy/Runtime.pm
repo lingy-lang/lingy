@@ -74,18 +74,15 @@ sub repl {
         )) >);
 
     while (defined (my $line = readline)) {
-        if (length $line) {
-            eval {
-                for my $out ($self->rep("$line")) {
-                    print "$out\n";
-                }
-            };
-            if ($@) {
-                die $@ if $@ =~ /(^>>|^---\s| via package ")/;
-                print "Error: " .
-                    (ref($@) ? $pr_str->($@) : $@) .
-                    "\n";
-            }
+        next unless length $line;
+        eval {
+            print "$_\n" for $self->rep("$line");
+        };
+        if ($@) {
+            print "Error:" .
+                ($@ =~ /\n./ ? "\n" : ' ') .
+                (ref($@) ? $pr_str->($@) : $@) .
+                "\n";
         }
     }
 

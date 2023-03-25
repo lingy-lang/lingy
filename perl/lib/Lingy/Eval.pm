@@ -20,6 +20,7 @@ sub eval {
         my ($a0, $a1, $a2, $a3) = @$ast;
         my $sym = (ref($a0) eq 'symbol') ? $$a0 : '';
 
+        # The Lingy Special Forms:
         if ('def!' eq $sym) {
             $env->set($$a1, Lingy::Eval::eval($a2, $env));
             return $a1;

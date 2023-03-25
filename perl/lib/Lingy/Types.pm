@@ -97,7 +97,7 @@ sub new {
     for (my $i = 0; $i < @$list; $i += 2) {
         my $key = $list->[$i];
         if (my $type = ref($key)) {
-            die "Type '$type' not supported as a hash-map key"
+            die "Type '$type' not supported as a hash-map key\n"
                 if not($key->isa('Lingy::Scalar')) or $type eq 'symbol';
             $list->[$i] = $type eq 'string' ? qq<"$key> : qq<$key>;
         }
@@ -118,37 +118,57 @@ sub clone {
 package
 function;
 
+*list = \&Lingy::Types::list;
+*symbol = \&Lingy::Types::symbol;
+
 sub new {
     my ($class, $ast, $env) = @_;
 
-    my $sig = $ast->[1];
+    my (undef, @exprs) = @$ast;
+    @exprs = (list([@exprs]))
+        if ref($exprs[0]) eq 'vector';
 
-    if (ref($sig) eq 'vector') {
-        # make single arity function
-    } elsif (ref($sig) eq 'list') {
-        # make multi arity function
-        die;
-    } else {
-        die "fn* args must be specified as a vector\n"
+    my $functions = {};
+    my $variadic = '';
+    for my $expr (@exprs) {
+        die "fn expr is not a list\n"
+            unless ref($expr) eq 'list';
+        my ($sig, @body) = @$expr;
+        die "fn signature not a vector\n"
+            unless ref($sig) eq 'vector';
+        my $arity = (grep {$$_ eq '&'} @$sig) ? '*' : @$sig;
+        if ($arity eq '*') {
+            $variadic = @$sig - 1;
+        } elsif ($variadic) {
+            die "Can't have fixed arity function " .
+                "with more params than variadic function\n"
+                if @$sig > $variadic;
+        }
+        @body = (list([ symbol('do'), @body ]))
+            if @body > 1;
+        if (exists $functions->{$arity}) {
+            die $arity eq '*'
+                ? "Can't have more than 1 variadic overload\n"
+                : "Can't have 2 overloads with same arity\n";
+        }
+        $functions->{$arity} = [$sig, @body];
     }
 
-    if (@$ast > 3) {
-        $ast = Lingy::Types::list([
-            Lingy::Types::symbol('do'),
-            @{$ast}[2..(@$ast-1)],
-        ]);
-    } else {
-        $ast = $ast->[2];
-    }
-
-    # map = { 0 => ..., 1 => ..., & -> ... };
     bless sub {
-        # TODO return arity-pair matching args or error
-        $ast,
-        Lingy::Env->new(
-            outer => $env,
-            binds => $sig,
-            exprs => \@_,
+        my $arity = @_;
+        my $function =
+            $functions->{$arity} ||
+            $functions->{'*'}
+                or die "Wrong number of args ($arity) passed to function\n";
+        my ($sig, $ast) = @$function;
+
+        return (
+            $ast,
+            Lingy::Env->new(
+                outer => $env,
+                binds => $sig,
+                exprs => \@_,
+            ),
         );
     }, $class;
 }
