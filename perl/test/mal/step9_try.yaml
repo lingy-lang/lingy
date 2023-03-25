@@ -9,16 +9,12 @@
 
 - mal: (try* abc (catch* exc (prn "exc is:" exc)))
   err: >-
-    "exc is:" "'abc' not found"
-  # err: >-
-  #   "exc is:" "Unable to resolve symbol: abc in this context"
+    "exc is:" "Error: Unable to resolve symbol: abc in this context"
   out: nil
 
 - mal: (try* (abc 1 2) (catch* exc (prn "exc is:" exc)))
   err: >-
-    "exc is:" "'abc' not found"
-  # err: >-
-  #   "exc is:" "Unable to resolve symbol: abc in this context"
+    "exc is:" "Error: Unable to resolve symbol: abc in this context"
   out: nil
 
 - say: Make sure error from core can be caught
@@ -400,9 +396,8 @@
 
 - say: Testing try* without catch*
   mal: (try* xyz)
-  err: .*'xyz' not found.*
-  # err: >-
-  #   Unable to resolve symbol: xyz in this context
+  err: >-
+    Error: Unable to resolve symbol: xyz in this context
 
 
 - say: Testing throwing non-strings

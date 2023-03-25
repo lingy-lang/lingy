@@ -40,8 +40,7 @@
 
 - say: Check env lookup non-fatal error
   mal: (abc 1 2 3)
-  err: .*'abc' not found.*
-  # err: 'Unable to resolve symbol: abc in this context'
+  err: 'Error: Unable to resolve symbol: abc in this context'
 
 - say: Check that error aborts def!
   mal:

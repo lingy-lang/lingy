@@ -67,6 +67,7 @@ for my $file (@files) {
                 $like = qr<^$like$>;
 
                 if (defined $err) {
+                    chomp $err;
                     like $err, $like,
                         sprintf("e %-40s -> ERROR: '%s'", "'$expr'", $like);
                 } else {

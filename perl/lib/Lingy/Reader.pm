@@ -73,7 +73,7 @@ sub read_list {
         }
         push @$list, $self->read_form;
     }
-    die "Reached end of input in 'read_list'";
+    err "Reached end of input in 'read_list'";
 }
 
 sub read_hash_map {
@@ -88,7 +88,7 @@ sub read_hash_map {
         }
         push @$pairs, $self->read_form, $self->read_form;
     }
-    die "Reached end of input in 'read_hash_map'";
+    err "Reached end of input in 'read_hash_map'";
 }
 
 my $string_re = qr/"((?:\\.|[^\\"])*)"/;
@@ -104,7 +104,7 @@ sub read_scalar {
 
     if (/^"/) {
         s/^$string_re$/$1/ or
-            die "Reached end of input looking for '\"'";
+            err "Reached end of input looking for '\"'";
         s/\\([nt\"\\])/$unescape->{$1}/ge;
         return string($_);
     }

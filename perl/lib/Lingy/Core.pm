@@ -104,14 +104,14 @@ sub init {
     $env->set('*command-line-args*', list([map string($_), @ARGV[1..$#ARGV]]));
     $env->set(eval => sub { Lingy::Eval::eval($_[0], $env) });
 
-    ::rt->rep(q(
+    ::rt->rep(qq(
       (defmacro! defmacro
         (fn* [name args body]
           `(defmacro! ~name (fn* ~args ~body))))
 
       (defmacro def [& xs] (cons 'def! xs))
 
-      (def *host-language* "perl")
+      (def *host* "$Lingy::Runtime::host")
 
       (defmacro fn [& xs] (cons 'fn* xs))
 
@@ -140,7 +140,7 @@ sub init {
             (str
               "(do "
               (slurp f)
-              "\nnil)"))))
+              "\\nnil)"))))
     ));
 }
 

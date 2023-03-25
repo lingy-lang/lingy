@@ -118,7 +118,7 @@ sub getopt {
     }
 
     GetOptions (%$spec) or
-        die("Error in command line arguments\n");
+        die "Error in command line arguments";
 
     $self->{args} = [@ARGV];
 }

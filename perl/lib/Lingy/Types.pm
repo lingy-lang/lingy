@@ -24,6 +24,8 @@ our @EXPORT = qw<
     XXX
     YYY
     ZZZ
+
+    err
 >;
 
 sub atom     { 'atom'    ->new(@_) }
@@ -43,6 +45,14 @@ sub XXX { require XXX; goto &XXX::XXX }
 sub YYY { require XXX; goto &XXX::YYY }
 sub ZZZ { require XXX; goto &XXX::ZZZ }
 sub PPP { require Lingy::Printer; XXX(Lingy::Printer::pr_str(@_)) }
+
+sub err {
+    my $msg = shift;
+    die "Error:" .
+        ($msg =~ /\n./ ? "\n" : ' ') .
+        $msg .
+        "\n";
+}
 
 
 #------------------------------------------------------------------------------
@@ -91,13 +101,15 @@ package
 hash_map;
 use base 'Lingy::Map';
 use Tie::IxHash;
+sub err;
+*err = \&Lingy::Types::err;
 
 sub new {
     my ($class, $list) = @_;
     for (my $i = 0; $i < @$list; $i += 2) {
         my $key = $list->[$i];
         if (my $type = ref($key)) {
-            die "Type '$type' not supported as a hash-map key\n"
+            err "Type '$type' not supported as a hash-map key\n"
                 if not($key->isa('Lingy::Scalar')) or $type eq 'symbol';
             $list->[$i] = $type eq 'string' ? qq<"$key> : qq<$key>;
         }
@@ -120,6 +132,8 @@ function;
 
 *list = \&Lingy::Types::list;
 *symbol = \&Lingy::Types::symbol;
+sub err;
+*err = \&Lingy::Types::err;
 
 sub new {
     my ($class, $ast, $env) = @_;
@@ -131,25 +145,25 @@ sub new {
     my $functions = {};
     my $variadic = '';
     for my $expr (@exprs) {
-        die "fn expr is not a list\n"
+        err "fn expr is not a list"
             unless ref($expr) eq 'list';
         my ($sig, @body) = @$expr;
-        die "fn signature not a vector\n"
+        err "fn signature not a vector"
             unless ref($sig) eq 'vector';
         my $arity = (grep {$$_ eq '&'} @$sig) ? '*' : @$sig;
         if ($arity eq '*') {
             $variadic = @$sig - 1;
         } elsif ($variadic) {
-            die "Can't have fixed arity function " .
-                "with more params than variadic function\n"
+            err "Can't have fixed arity function " .
+                "with more params than variadic function"
                 if @$sig > $variadic;
         }
         @body = (list([ symbol('do'), @body ]))
             if @body > 1;
         if (exists $functions->{$arity}) {
-            die $arity eq '*'
-                ? "Can't have more than 1 variadic overload\n"
-                : "Can't have 2 overloads with same arity\n";
+            err $arity eq '*'
+                ? "Can't have more than 1 variadic overload"
+                : "Can't have 2 overloads with same arity";
         }
         $functions->{$arity} = [$sig, @body];
     }
@@ -159,7 +173,7 @@ sub new {
         my $function =
             $functions->{$arity} ||
             $functions->{'*'}
-                or die "Wrong number of args ($arity) passed to function\n";
+                or err "Wrong number of args ($arity) passed to function";
         my ($sig, $ast) = @$function;
 
         return (

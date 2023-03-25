@@ -12,8 +12,8 @@
 
 # each impl is different, but this should return false
 # rather than throwing an exception
-- say: Testing *host-language*
-  mal: (= "something bogus" *host-language*)
+- say: Testing *host*
+  mal: (= "something bogus" *host*)
   out: 'false'
 
 

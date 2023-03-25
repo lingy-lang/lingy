@@ -17,6 +17,8 @@ sub test {
     my $got = $@;
     chomp $got;
 
+    $got =~ s/^Error: //;
+
     if (ref($want) eq 'Regexp') {
         like $got, $want, $label;
     } else {

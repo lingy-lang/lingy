@@ -10,6 +10,7 @@ our $env_class = 'Lingy::Env';
 our $printer_class = 'Lingy::Printer';
 our $reader_class = 'Lingy::Reader';
 
+our $host = 'perl';
 our $rt;                    # Lingy::Runtime singleton instance
 our $ns = 'lingy.core';     # Current namespace (*ns*)
 our %ns = ();               # Map of all namespaces
@@ -67,23 +68,14 @@ sub repl {
 
     $self->rep(q<
       (println
-        (str
-          "Welcome to Lingy ["
-          *host-language*
-          "]\n"
-        )) >);
+        (str "Welcome to Lingy [" *host* "]\n"))>);
 
     while (defined (my $line = readline)) {
         next unless length $line;
         eval {
             print "$_\n" for $self->rep("$line");
         };
-        if ($@) {
-            print "Error:" .
-                ($@ =~ /\n./ ? "\n" : ' ') .
-                (ref($@) ? $pr_str->($@) : $@) .
-                "\n";
-        }
+        print "$@" if $@;
     }
 
     print "\n";

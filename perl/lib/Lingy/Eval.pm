@@ -66,9 +66,9 @@ sub eval {
             my $val = eval { Lingy::Eval::eval($a1, $env) };
             return $val unless $@;
             my $err = $@;
-            die ref($err) ? Printer::pr_str($err) : $err
+            die ref($err) ? Lingy::Printer::pr_str($err) : $err
                 unless defined $a2;
-            die "Invalid 'catch' clause" unless
+            err "Invalid 'catch' clause" unless
                 $a2 and $a2->isa('Lingy::List') and
                 @$a2 and $a2->[0]->isa('symbol') and
                 ${$a2->[0]} =~ /^catch\*?$/;

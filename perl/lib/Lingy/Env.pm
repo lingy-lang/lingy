@@ -38,10 +38,7 @@ sub get {
         $self = $self->{outer};
     }
 
-    die "'$key' not found\n";
-
-    # XXX Use this clojure message: (adjust mal tests)
-    die "Unable to resolve symbol: $key in this context\n";
+    err "Unable to resolve symbol: $key in this context";
 }
 
 sub is_macro_call {
