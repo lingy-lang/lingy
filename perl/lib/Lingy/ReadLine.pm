@@ -46,6 +46,7 @@ sub readline {
 
     $tty->Attribs->{completion_function} = sub {
         my ($text, $line, $start) = @_;
+        grep {not /^-/}
         keys %{$env->space}, qw(
             catch
             do

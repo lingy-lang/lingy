@@ -3,24 +3,25 @@ package Lingy::Core;
 
 use base 'Lingy::NS';
 
-use Lingy::Types;
+use Lingy::Common;
 use Lingy::Eval;
 use Lingy::Printer;
+use Lingy::Runtime;
 
 use Exporter 'import';
 
-our @EXPORT = qw< slurp str >;
-
 our %meta;
+
+use constant name => 'lingy.core';
 
 sub new {
     my $class = shift;
 
     my $self = bless {
-        'add'       => fn('2' => \&add),
-        'subtract'  => fn('2' => \&subtract),
-        'multiply'  => fn('2' => \&multiply),
-        'divide'    => fn('2' => \&divide),
+        '-add'      => fn('2' => \&_add),
+        '-subtract' => fn('2' => \&_subtract),
+        '-multiply' => fn('2' => \&_multiply),
+        '-divide'   => fn('2' => \&_divide),
         '<'         => fn('2' => \&less_than),
         '<='        => fn('2' => \&less_equal),
         '='         => fn('2' => \&equal_to),
@@ -58,6 +59,7 @@ sub new {
         'map?'      => fn('1' => \&map_q),
         'meta'      => fn('1' => \&meta),
         'nil?'      => fn('1' => \&nil_q),
+        '-ns'       => fn('1' => \&_ns),
         'nth'       => fn('2' => \&nth),
         'number'    => fn('1' => \&number_),
         'number?'   => fn('1' => \&number_q),
@@ -73,7 +75,7 @@ sub new {
         'rest'      => fn('1' => \&rest),
         'seq'       => fn('1' => \&seq),
         'sequential?' => fn('1' => \&sequential_q),
-        'slurp'     => fn('1' => \&slurp),
+        'slurp'     => fn('1' => \&slurp_),
         'str'       => fn('*' => \&str),
         'string?'   => fn('1' => \&string_q),
         'swap!'     => fn('*' => \&swap),
@@ -106,74 +108,12 @@ sub init {
     $env->set('*command-line-args*', list([map string($_), @ARGV[1..$#ARGV]]));
     $env->set(eval => sub { Lingy::Eval::eval($_[0], $env) });
 
-    RT->rep(<<'...'
-      (defmacro! defmacro
-        (fn* [name args body]
-          `(defmacro! ~name (fn* ~args ~body))))
-
-      (defmacro def [& xs] (cons 'def! xs))
-
-      (defmacro fn [& xs] (cons 'fn* xs))
-
-      (defmacro defn [name & body]
-        `(def ~name (fn ~@body)))
-
-      (defmacro let [& xs] (cons 'let* xs))
-      (defmacro try [& xs] (cons 'try* xs))
-
-      (defn +
-        ([] 0)
-        ([a] a)
-        ([a b] (add a b))
-        ([a b & more]
-          (reduce + (+ a b) more)))
-
-      (defn -
-        ([] 0)
-        ([a] (subtract 0 a))
-        ([a b] (subtract a b))
-        ([a b & more]
-          (reduce - (- a b) more)))
-
-      (defn *
-        ([a] a)
-        ([a b] (multiply a b))
-        ([a b & more]
-          (reduce * (* a b) more)))
-
-      (defn /
-        ([a] (divide 1 a))
-        ([a b] (divide a b))
-        ([a b & more]
-          (reduce / (/ a b) more)))
-
-      (defmacro cond [& xs]
-        (if (> (count xs) 0)
-          (list 'if (first xs)
-            (if (> (count xs) 1)
-              (nth xs 1)
-              (throw "odd number of forms to cond"))
-            (cons 'cond (rest (rest xs))))))
-
-      (defn load-file [f]
-        (eval
-          (read-string
-            (str
-              "(do "
-              (slurp f)
-              "\nnil)"))))
-
-      (defn not [a]
-        (if a
-          false
-          true))
-...
-    );
+    $self->SUPER::init;
 
     RT->rep(qq((def *host* \"$Lingy::Runtime::host\")));
 }
 
-sub add { $_[0] + $_[1] }
+sub _add { $_[0] + $_[1] }
 
 sub apply {
     my ($fn, @args) = @_;
@@ -232,7 +172,7 @@ sub dissoc {
     hash_map([%$map]);
 }
 
-sub divide { $_[0] / $_[1] }
+sub _divide { $_[0] / $_[1] }
 
 sub empty_q { boolean(@{$_[0]} == 0) }
 
@@ -322,9 +262,13 @@ sub map_q { boolean(ref($_[0]) eq "hash_map") }
 
 sub meta { $meta{"$_[0]"} // nil}
 
-sub multiply { $_[0] * $_[1] }
+sub _multiply { $_[0] * $_[1] }
 
 sub nil_q { boolean(ref($_[0]) eq 'nil') }
+
+sub _ns {
+    my ($name) = @_;
+}
 
 sub nth {
     my ($list, $index) = @_;
@@ -364,7 +308,7 @@ sub range {
 }
 
 sub read_string {
-    my @forms = Lingy::Runtime->reader->read_str($_[0]);
+    my @forms = RT->reader->read_str($_[0]);
     return @forms ? $forms[0] : nil;
 }
 
@@ -411,19 +355,13 @@ sub seq {
 
 sub sequential_q { boolean(ref($_[0]) =~ /^(list|vector)/) }
 
-sub slurp {
-    my ($file) = @_;
-    open my $slurp, '<', "$file" or
-        die "Couldn't open '$file' for input";
-    local $/;
-    string(<$slurp>);
-}
+sub slurp_ { string(slurp($_[0])) }
 
 sub str { string(join '', map Lingy::Printer::pr_str($_, 1), @_) }
 
 sub string_q { boolean(ref($_[0]) eq "string") }
 
-sub subtract { $_[0] - $_[1] }
+sub _subtract { $_[0] - $_[1] }
 
 sub symbol_ { symbol($_[0]) }
 

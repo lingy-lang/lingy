@@ -1,75 +1,7 @@
 use strict; use warnings;
 package Lingy::Types;
 
-use Exporter 'import';
-
-our @EXPORT = qw<
-    atom
-    boolean
-    false
-    function
-    hash_map
-    keyword
-    list
-    macro
-    nil
-    number
-    string
-    symbol
-    true
-    vector
-
-    PPP
-    WWW
-    XXX
-    YYY
-    ZZZ
-
-    RT
-    err
-    fn
->;
-
-sub atom     { 'atom'    ->new(@_) }
-sub boolean  { 'boolean' ->new(@_) }
-sub function { 'function'->new(@_) }
-sub keyword  { 'keyword' ->new(@_) }
-sub hash_map { 'hash_map'->new(@_) }
-sub list     { 'list'    ->new(@_) }
-sub macro    { 'macro'   ->new(@_) }
-sub number   { 'number'  ->new(@_) }
-sub string   { 'string'  ->new(@_) }
-sub symbol   { 'symbol'  ->new(@_) }
-sub vector   { 'vector'  ->new(@_) }
-
-sub WWW { require XXX; goto &XXX::WWW }
-sub XXX { require XXX; goto &XXX::XXX }
-sub YYY { require XXX; goto &XXX::YYY }
-sub ZZZ { require XXX; goto &XXX::ZZZ }
-sub PPP { require Lingy::Printer; XXX(Lingy::Printer::pr_str(@_)) }
-
-sub RT { $Lingy::Runtime::rt }
-
-sub err {
-    my $msg = shift;
-    die "Error:" .
-        ($msg =~ /\n./ ? "\n" : ' ') .
-        $msg .
-        "\n";
-}
-
-sub fn {
-    my $functions = {@_};
-    sub {
-        my $arity = @_;
-        my $function =
-            $functions->{$arity} ||
-            $functions->{'*'}
-                or err "Wrong number of args ($arity) passed to function";
-        $function->(@_);
-    }
-}
-
+use Lingy::Common;
 
 #------------------------------------------------------------------------------
 # Base Classes:
@@ -146,10 +78,10 @@ sub clone {
 package
 function;
 
-*list = \&Lingy::Types::list;
-*symbol = \&Lingy::Types::symbol;
+*list = \&Lingy::Common::list;
+*symbol = \&Lingy::Common::symbol;
 sub err;
-*err = \&Lingy::Types::err;
+*err = \&Lingy::Common::err;
 
 sub new {
     my ($class, $ast, $env) = @_;
@@ -252,7 +184,7 @@ nil;
 use base 'Lingy::Scalar';
 
 {
-    package Lingy::Types;
+    package Lingy::Common;
     my $n;
     BEGIN { $n = 1 }
     use constant nil => bless \$n, 'nil';
@@ -264,7 +196,7 @@ boolean;
 use base 'Lingy::Scalar';
 
 {
-    package Lingy::Types;
+    package Lingy::Common;
     my ($t, $f);
     BEGIN { ($t, $f) = (1, 0) }
     use constant true => bless \$t, 'boolean';
@@ -274,10 +206,10 @@ use base 'Lingy::Scalar';
 sub new {
     my ($class, $scalar) = @_;
     my $type = ref($scalar);
-    (not $type) ? $scalar ? Lingy::Types::true : Lingy::Types::false :
-    $type eq 'nil' ? Lingy::Types::false :
+    (not $type) ? $scalar ? Lingy::Common::true : Lingy::Common::false :
+    $type eq 'nil' ? Lingy::Common::false :
     $type eq 'boolean' ? $scalar :
-    Lingy::Types::true;
+    Lingy::Common::true;
 }
 
 

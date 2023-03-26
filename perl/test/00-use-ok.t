@@ -1,6 +1,7 @@
 use Test::More;
 
 use_ok 'Lingy';
+use_ok 'Lingy::Common';
 use_ok 'Lingy::Core';
 use_ok 'Lingy::Env';
 use_ok 'Lingy::Eval';

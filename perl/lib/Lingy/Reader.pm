@@ -1,7 +1,7 @@
 use strict; use warnings;
 package Lingy::Reader;
 
-use Lingy::Types;
+use Lingy::Common;
 
 sub new {
     my $class = shift;

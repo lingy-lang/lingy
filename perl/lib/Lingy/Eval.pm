@@ -1,7 +1,7 @@
 use strict; use warnings;
 package Lingy::Eval;
 
-use Lingy::Types;
+use Lingy::Common;
 
 our $ENV;
 sub eval {

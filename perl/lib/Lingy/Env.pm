@@ -1,7 +1,7 @@
 use strict; use warnings;
 package Lingy::Env;
 
-use Lingy::Types;
+use Lingy::Common;
 
 sub space { shift->{space} }
 

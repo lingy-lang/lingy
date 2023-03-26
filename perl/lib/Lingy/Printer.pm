@@ -1,7 +1,7 @@
 use strict; use warnings;
 package Lingy::Printer;
 
-use Lingy::Types;
+use Lingy::Common;
 
 sub new { bless {}, shift }
 
