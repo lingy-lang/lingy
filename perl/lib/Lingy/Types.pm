@@ -25,7 +25,9 @@ our @EXPORT = qw<
     YYY
     ZZZ
 
+    RT
     err
+    fn
 >;
 
 sub atom     { 'atom'    ->new(@_) }
@@ -46,12 +48,26 @@ sub YYY { require XXX; goto &XXX::YYY }
 sub ZZZ { require XXX; goto &XXX::ZZZ }
 sub PPP { require Lingy::Printer; XXX(Lingy::Printer::pr_str(@_)) }
 
+sub RT { $Lingy::Runtime::rt }
+
 sub err {
     my $msg = shift;
     die "Error:" .
         ($msg =~ /\n./ ? "\n" : ' ') .
         $msg .
         "\n";
+}
+
+sub fn {
+    my $functions = {@_};
+    sub {
+        my $arity = @_;
+        my $function =
+            $functions->{$arity} ||
+            $functions->{'*'}
+                or err "Wrong number of args ($arity) passed to function";
+        $function->(@_);
+    }
 }
 
 
@@ -142,16 +158,17 @@ sub new {
     @exprs = (list([@exprs]))
         if ref($exprs[0]) eq 'vector';
 
-    my $functions = {};
+    my $functions = [];
     my $variadic = '';
+
     for my $expr (@exprs) {
         err "fn expr is not a list"
             unless ref($expr) eq 'list';
         my ($sig, @body) = @$expr;
         err "fn signature not a vector"
             unless ref($sig) eq 'vector';
-        my $arity = (grep {$$_ eq '&'} @$sig) ? '*' : @$sig;
-        if ($arity eq '*') {
+        my $arity = (grep {$$_ eq '&'} @$sig) ? -1 : @$sig;
+        if ($arity == -1) {
             $variadic = @$sig - 1;
         } elsif ($variadic) {
             err "Can't have fixed arity function " .
@@ -160,20 +177,20 @@ sub new {
         }
         @body = (list([ symbol('do'), @body ]))
             if @body > 1;
-        if (exists $functions->{$arity}) {
-            err $arity eq '*'
+        if (exists $functions->[$arity+1]) {
+            err $arity == -1
                 ? "Can't have more than 1 variadic overload"
                 : "Can't have 2 overloads with same arity";
         }
-        $functions->{$arity} = [$sig, @body];
+        $functions->[$arity+1] = [$sig, @body];
     }
 
     bless sub {
         my $arity = @_;
         my $function =
-            $functions->{$arity} ||
-            $functions->{'*'}
-                or err "Wrong number of args ($arity) passed to function";
+            $functions->[$arity+1] ? $functions->[$arity+1] :
+            $arity >= (@$functions-1) ? $functions->[0] :
+                err "Wrong number of args ($arity) passed to function";
         my ($sig, $ast) = @$function;
 
         return (
@@ -340,7 +357,7 @@ sub divide {
     my $class = ref($x);
     $x = ref($x) ? $$x : $x;
     $y = ref($y) ? $$y : $y;
-    $class->new(int($x / $y));
+    $class->new($x / $y);
 }
 
 1;

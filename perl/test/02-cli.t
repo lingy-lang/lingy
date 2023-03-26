@@ -1,23 +1,4 @@
-use strict; use warnings;
-
-use Test::More;
-
-use File::Temp qw( tempfile );
-
-$ENV{LINGY_TEST} = 1;
-
-my $lingy = './bin/lingy';
-
-sub run_is {
-    my ($cmd, $want) = @_;
-    my $got = `( $cmd ) 2>&1`;
-    if (ref($want) eq 'Regexp') {
-        like $got, $want, $cmd;
-    } else {
-        chomp $got;
-        is $got, $want, $cmd;
-    }
-}
+use Lingy::Test;
 
 note "Testing 'lingy' CLI usages:";
 

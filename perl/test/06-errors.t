@@ -1,30 +1,4 @@
-use strict; use warnings;
-
-use Test::More;
-
-use lib 'lib';
-
-use Lingy::Runtime;
-
-my $rt = Lingy::Runtime->new;
-
-sub test {
-    my ($input, $want, $label) = @_;
-
-    $label //= "'$input' -> '$want'";
-
-    eval { $rt->rep($input) };
-    my $got = $@;
-    chomp $got;
-
-    $got =~ s/^Error: //;
-
-    if (ref($want) eq 'Regexp') {
-        like $got, $want, $label;
-    } else {
-        is $got, $want, $label;
-    }
-}
+use Lingy::Test;
 
 test '(fn ())',
     "fn signature not a vector";

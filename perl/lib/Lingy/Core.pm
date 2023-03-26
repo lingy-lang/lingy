@@ -17,114 +17,135 @@ sub new {
     my $class = shift;
 
     my $self = bless {
-        '*' => \&multiply,
-        '+' => \&add,
-        '-' => \&subtract,
-        '/' => \&divide,
-        '<' => \&less_than,
-        '<=' => \&less_equal,
-        '=' => \&equal_to,
-        '==' => \&equal_to,
-        '>' => \&greater_than,
-        '>=' => \&greater_equal,
+        'add'       => fn('2' => \&add),
+        'subtract'  => fn('2' => \&subtract),
+        'multiply'  => fn('2' => \&multiply),
+        'divide'    => fn('2' => \&divide),
+        '<'         => fn('2' => \&less_than),
+        '<='        => fn('2' => \&less_equal),
+        '='         => fn('2' => \&equal_to),
+        '=='        => fn('2' => \&equal_to),
+        '>'         => fn('2' => \&greater_than),
+        '>='        => fn('2' => \&greater_equal),
 
-        'apply' => \&apply,
-        'assoc' => \&assoc,
-        'atom' => \&atom_,
-        'atom?' => \&atom_q,
-        'concat' => \&concat,
-        'conj' => \&conj,
-        'cons' => \&cons,
-        'contains?' => \&contains_q,
-        'count' => \&count,
-        'dec' => \&dec,
-        'deref' => \&deref,
-        'dissoc' => \&dissoc,
-        'empty?' => \&empty_q,
-        'false?' => \&false_q,
-        'first' => \&first,
-        'fn?' => \&fn_q,
-        'get' => \&get,
-        'getenv' => \&getenv,
-        'hash-map' => \&hash_map_,
-        'join' => \&join_,
-        'keys' => \&keys,
-        'keyword' => \&keyword_,
-        'keyword?' => \&keyword_q,
-        'list' => \&list_,
-        'list?' => \&list_q,
-        'macro?' => \&macro_q,
-        'map' => \&map_,
-        'map?' => \&map_q,
-        'meta' => \&meta,
-        'nil?' => \&nil_q,
-        'nth' => \&nth,
-        'number' => \&number_,
-        'number?' => \&number_q,
-        'pr-str' => \&pr_str,
-        'println' => \&println,
-        'prn' => \&prn,
-        'range' => \&range,
-        'read-string' => \&read_string,
-        'readline' => \&readline_,
-        'reset!' => \&reset,
-        'rest' => \&rest,
-        'seq' => \&seq,
-        'sequential?' => \&sequential_q,
-        'slurp' => \&slurp,
-        'str' => \&str,
-        'string?' => \&string_q,
-        'swap!' => \&swap,
-        'symbol' => \&symbol_,
-        'symbol?' => \&symbol_q,
-        'throw' => \&throw,
-        'time-ms' => \&time_ms,
-        'true?' => \&true_q,
-        'vals' => \&vals,
-        'vec' => \&vec,
-        'vector' => \&vector_,
-        'vector?' => \&vector_q,
-        'with-meta' => \&with_meta,
+        'apply'     => fn('*' => \&apply),
+        'assoc'     => fn('*' => \&assoc),
+        'atom'      => fn('*' => \&atom_),
+        'atom?'     => fn('1' => \&atom_q),
+        'concat'    => fn('*' => \&concat),
+        'conj'      => fn('*' => \&conj),
+        'cons'      => fn('2' => \&cons),
+        'contains?' => fn('2' => \&contains_q),
+        'count'     => fn('1' => \&count),
+        'dec'       => fn('1' => \&dec),
+        'deref'     => fn('1' => \&deref),
+        'dissoc'    => fn('*' => \&dissoc),
+        'empty?'    => fn('1' => \&empty_q),
+        'false?'    => fn('1' => \&false_q),
+        'first'     => fn('1' => \&first),
+        'fn?'       => fn('1' => \&fn_q),
+        'get'       => fn('2' => \&get),
+        'getenv'    => fn('1' => \&getenv),
+        'hash-map'  => fn('*' => \&hash_map_),
+        'join'      => fn('2' => \&join_),
+        'keys'      => fn('1' => \&keys),
+        'keyword'   => fn('1' => \&keyword_),
+        'keyword?'  => fn('1' => \&keyword_q),
+        'list'      => fn('*' => \&list_),
+        'list?'     => fn('1' => \&list_q),
+        'macro?'    => fn('1' => \&macro_q),
+        'map'       => fn('2' => \&map_),
+        'map?'      => fn('1' => \&map_q),
+        'meta'      => fn('1' => \&meta),
+        'nil?'      => fn('1' => \&nil_q),
+        'nth'       => fn('2' => \&nth),
+        'number'    => fn('1' => \&number_),
+        'number?'   => fn('1' => \&number_q),
+        'pr-str'    => fn('*' => \&pr_str),
+        'println'   => fn('*' => \&println),
+        'prn'       => fn('*' => \&prn),
+        'range'     => fn('2' => \&range),
+        'read-string' => fn('1' => \&read_string),
+        'readline'  => fn('0' => \&readline_),
+        'reduce'    => fn('2' => \&reduce_2,
+                          '3' => \&reduce_3),
+        'reset!'    => fn('2' => \&reset),
+        'rest'      => fn('1' => \&rest),
+        'seq'       => fn('1' => \&seq),
+        'sequential?' => fn('1' => \&sequential_q),
+        'slurp'     => fn('1' => \&slurp),
+        'str'       => fn('*' => \&str),
+        'string?'   => fn('1' => \&string_q),
+        'swap!'     => fn('*' => \&swap),
+        'symbol'    => fn('1' => \&symbol_),
+        'symbol?'   => fn('1' => \&symbol_q),
+        'throw'     => fn('1' => \&throw),
+        'time-ms'   => fn('0' => \&time_ms),
+        'true?'     => fn('1' => \&true_q),
+        'vals'      => fn('1' => \&vals),
+        'vec'       => fn('1' => \&vec),
+        'vector'    => fn('*' => \&vector_),
+        'vector?'   => fn('1' => \&vector_q),
+        'with-meta' => fn('2' => \&with_meta),
 
-        'ENV' => \&ENV,
-        'PPP' => \&PPP,
-        'WWW' => \&WWW,
-        'XXX' => \&XXX,
-        'YYY' => \&YYY,
-        'ZZZ' => \&ZZZ,
+        'ENV'       => fn('*' => \&ENV),
+        'PPP'       => fn('*' => \&PPP),
+        'WWW'       => fn('*' => \&WWW),
+        'XXX'       => fn('*' => \&XXX),
+        'YYY'       => fn('*' => \&YYY),
+        'ZZZ'       => fn('*' => \&ZZZ),
     }, $class;
 }
 
 sub init {
     my $self = shift;
 
-    my $env = ::rt->env;
+    my $env = RT->env;
     $env->set('*file*', string($ARGV[0]));
     $env->set('*ARGV*', list([map string($_), @ARGV[1..$#ARGV]]));
     $env->set('*command-line-args*', list([map string($_), @ARGV[1..$#ARGV]]));
     $env->set(eval => sub { Lingy::Eval::eval($_[0], $env) });
 
-    ::rt->rep(qq(
+    RT->rep(<<'...'
       (defmacro! defmacro
         (fn* [name args body]
           `(defmacro! ~name (fn* ~args ~body))))
 
       (defmacro def [& xs] (cons 'def! xs))
 
-      (def *host* "$Lingy::Runtime::host")
-
       (defmacro fn [& xs] (cons 'fn* xs))
 
-      (defmacro defn [name args body]
-        `(def ~name (fn ~args ~body)))
+      (defmacro defn [name & body]
+        `(def ~name (fn ~@body)))
 
       (defmacro let [& xs] (cons 'let* xs))
       (defmacro try [& xs] (cons 'try* xs))
 
-      (defn not [a]
-        (if a
-          false
-          true))
+      (defn +
+        ([] 0)
+        ([a] a)
+        ([a b] (add a b))
+        ([a b & more]
+          (reduce + (+ a b) more)))
+
+      (defn -
+        ([] 0)
+        ([a] (subtract 0 a))
+        ([a b] (subtract a b))
+        ([a b & more]
+          (reduce - (- a b) more)))
+
+      (defn *
+        ([a] a)
+        ([a b] (multiply a b))
+        ([a b & more]
+          (reduce * (* a b) more)))
+
+      (defn /
+        ([a] (divide 1 a))
+        ([a b] (divide a b))
+        ([a b & more]
+          (reduce / (/ a b) more)))
 
       (defmacro cond [& xs]
         (if (> (count xs) 0)
@@ -140,8 +161,16 @@ sub init {
             (str
               "(do "
               (slurp f)
-              "\\nnil)"))))
-    ));
+              "\nnil)"))))
+
+      (defn not [a]
+        (if a
+          false
+          true))
+...
+    );
+
+    RT->rep(qq((def *host* \"$Lingy::Runtime::host\")));
 }
 
 sub add { $_[0] + $_[1] }
@@ -251,8 +280,7 @@ sub get {
 }
 
 sub getenv {
-    my ($var) = @_;
-    my $val = $ENV{$var};
+    my $val = $ENV{$_[0]};
     defined($val) ? string($val) : nil;
 }
 
@@ -265,13 +293,13 @@ sub hash_map_ { hash_map([@_]) }
 sub join_ { string(join ${str($_[0])}, map ${str($_)}, @{$_[1]}) }
 
 sub keys {
-    my ($map) = @_;
-    my @keys = map {
-        s/^"// ? string($_) :
-        s/^:// ? keyword($_) :
-        symbol("$_");
-    } keys %$map;
-    list([@keys]);
+    list([
+        map {
+            s/^"// ? string($_) :
+            s/^:// ? keyword($_) :
+            symbol("$_");
+        } keys %{$_[0]}
+    ]);
 }
 
 sub keyword_ { keyword($_[0]) }
@@ -335,6 +363,11 @@ sub range {
     }
 }
 
+sub read_string {
+    my @forms = Lingy::Runtime->reader->read_str($_[0]);
+    return @forms ? $forms[0] : nil;
+}
+
 sub readline_ {
     require Lingy::ReadLine;
     my $l = Lingy::ReadLine::readline() // return;
@@ -342,9 +375,19 @@ sub readline_ {
     string($l);
 }
 
-sub read_string {
-    my @forms = Lingy::Runtime->reader->read_str(@_);
-    return @forms ? $forms[0] : nil;
+sub reduce_2 {
+    my ($fn, $coll) = @_;
+    (@$coll == 0) ? apply($fn, []) :
+    (@$coll == 1) ? $coll->[0] :
+    apply(\&reduce_3, [$fn, shift(@$coll), $coll]);
+}
+
+sub reduce_3 {
+    my ($fn, $val, $coll) = @_;
+    for my $e (@$coll) {
+        $val = apply($fn, [$val, $e]);
+    }
+    $val;
 }
 
 sub reset { $_[0]->[0] = $_[1] }
@@ -388,7 +431,7 @@ sub symbol_q { boolean(ref($_[0]) eq 'symbol') }
 
 sub swap {
     my ($atom, $fn, @args) = @_;
-    $atom->[0] = apply($fn, deref($atom), \@args);
+    $atom->[0] = apply($fn, [deref($atom), @args]);
 }
 
 sub throw { die $_[0] }

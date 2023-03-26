@@ -14,14 +14,10 @@ our $host = 'perl';
 our $rt;                    # Lingy::Runtime singleton instance
 our $ns = 'lingy.core';     # Current namespace (*ns*)
 our %ns = ();               # Map of all namespaces
-# sub ns {
-#     @_ eq 0 ? $ns{$ns} :
-#     @_ eq 0 ? $ns{$ns} : die
-# }
 
-my ($core, $env, $printer, $pr_str, $prompt, $reader);
+our $prompt;
+my ($core, $env, $printer, $pr_str, $reader);
 
-sub ::rt { $rt }
 sub core { $core }
 sub env { $env }
 sub printer { $printer }

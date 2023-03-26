@@ -1,12 +1,4 @@
-use strict; use warnings;
-
-use Test::More;
-use Capture::Tiny;
-
-use lib 'lib';
-
-use Lingy::Runtime;
-use Lingy::Printer;
+use Lingy::Test;
 
 my %plan = (
     2 => 14,
@@ -43,19 +35,21 @@ for my $file (@files) {
             if (my $note = $test->{note}) {
                 note $note;
             }
-            ($out) = Capture::Tiny::capture {
-                for (@{$test->{expr}}) {
-                    $expr .= $_;
-                    my @got = eval { $repl->rep($_) };
-                    if ($@) {
-                        die $@ if $@ =~ /(^>>|^---\s| via package ")/;
-                        $err .= ref($@)
-                        ? "Error: " . Lingy::Printer::pr_str($@)
-                        : $@;
+            ($out) = capture(
+                sub {
+                    for (@{$test->{expr}}) {
+                        $expr .= $_;
+                        my @got = eval { $repl->rep($_) };
+                        if ($@) {
+                            die $@ if $@ =~ /(^>>|^---\s| via package ")/;
+                            $err .= ref($@)
+                            ? "Error: " . Lingy::Printer::pr_str($@)
+                            : $@;
+                        }
+                        $got = $got[0];
                     }
-                    $got = $got[0];
-                }
-            };
+                },
+            );
 
 #             ::XXX { expr=>$expr, got=>$got, want=>$want, like=>$like, out=>$out, err=>$err};
 

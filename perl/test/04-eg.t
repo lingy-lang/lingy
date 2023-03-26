@@ -1,16 +1,7 @@
-use strict; use warnings;
+use Lingy::Test;
 
-use Test::More;
-use Capture::Tiny;
-
-use lib 'lib';
-
-use Lingy::Runtime;
-
-my $rt = Lingy::Runtime->new;
-
-my $cmd = './bin/lingy eg/99-bottles.ly 3';
-my ($out) = Capture::Tiny::capture { system $cmd };
+my $cmd = "$lingy eg/99-bottles.ly 3";
+my ($out) = capture { system $cmd };
 is $out, <<'...', "Program works: '$cmd'";
 3 bottles of beer on the wall
 3 bottles of beer

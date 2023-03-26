@@ -1,22 +1,4 @@
-use strict; use warnings;
-
-use Test::More;
-
-use lib 'lib';
-
-use Lingy::Runtime;
-
-my $rt = Lingy::Runtime->new;
-
-sub test {
-    my ($input, $want, $label) = @_;
-
-    $label //= "rep('$input') is ok";
-
-    is join("\n", $rt->rep($input)),
-        $want,
-        $label;
-}
+use Lingy::Test;
 
 $rt->rep(q<
   (def add1 (fn
