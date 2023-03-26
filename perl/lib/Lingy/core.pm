@@ -1,5 +1,5 @@
 use strict; use warnings;
-package Lingy::Core;
+package Lingy::core;
 
 use base 'Lingy::NS';
 
@@ -11,8 +11,6 @@ use Lingy::Runtime;
 use Exporter 'import';
 
 our %meta;
-
-use constant name => 'lingy.core';
 
 sub new {
     my $class = shift;

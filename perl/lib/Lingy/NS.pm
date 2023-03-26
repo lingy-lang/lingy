@@ -10,4 +10,12 @@ sub init {
     RT->rep(slurp($file)) if -f $file;
 }
 
+sub name {
+    my ($self) = @_;
+    my $name = ref($self);
+    $name =~ s/::/./g;
+    $name =~ s/^Lingy\./lingy./;
+    return $name;
+}
+
 1;

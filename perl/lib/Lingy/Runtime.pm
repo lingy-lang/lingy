@@ -5,7 +5,7 @@ use Lingy::Eval ();
 use Lingy::ReadLine 'readline';
 use Lingy::Types;
 
-our $core_class = 'Lingy::Core';
+our $core_class = 'Lingy::core';
 our $env_class = 'Lingy::Env';
 our $printer_class = 'Lingy::Printer';
 our $reader_class = 'Lingy::Reader';
