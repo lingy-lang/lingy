@@ -21,7 +21,7 @@ die() { printf '%s\n' "$*" >&2; exit 1; }
 # Get the right _lingy in development env:
 ROOT=$(cd "$(dirname "$0")/.." && pwd -P)
 if [[ -f $ROOT/lib/Lingy.pm ]]; then
-  export PATH=$ROOT/bin:$PATH
+  export PATH=$ROOT/bin:$ROOT/script:$PATH
   export PERL5LIB=$ROOT/lib
 fi
 

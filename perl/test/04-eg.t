@@ -1,6 +1,10 @@
 use Lingy::Test;
 
-my $cmd = "$lingy eg/99-bottles.ly 3";
+my $eg =
+    -d 'eg' ? 'eg' :
+    -d 'example' ? 'example' :
+    die "Can't find eg/example directory";
+my $cmd = "$lingy $eg/99-bottles.ly 3";
 my ($out) = capture { system $cmd };
 is $out, <<'...', "Program works: '$cmd'";
 3 bottles of beer on the wall

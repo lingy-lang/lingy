@@ -17,7 +17,10 @@ our $rt = Lingy::Runtime->new;
 
 $ENV{LINGY_TEST} = 1;
 
-our $lingy = './bin/lingy';
+our $lingy =
+    -f './blib/script/lingy' ? './blib/script/lingy' :
+    -f './bin/lingy' ? './bin/lingy' :
+    die "Can't find 'lingy' bin script to test";
 
 our @EXPORT = qw<
     done_testing
