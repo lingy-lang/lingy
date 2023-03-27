@@ -22,7 +22,7 @@ die() { printf '%s\n' "$*" >&2; exit 1; }
 ROOT=$(cd "$(dirname "$0")/.." && pwd -P)
 if [[ -f $ROOT/lib/Lingy.pm ]]; then
   export PATH=$ROOT/bin:$ROOT/script:$PATH
-  export PERL5LIB=$ROOT/lib
+  export PERL5LIB=${PERL5LIB:+$PERL5LIB:}$ROOT/lib
 fi
 
 # To support CTL-C handling in the Perl Lingy Runtime:

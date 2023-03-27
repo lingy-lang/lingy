@@ -9,7 +9,7 @@ my %plan = (
     7 => 144,   # 147
     8 => 54,    # 65
     9 => 138,   # 139
-    10 => 91,   # 108
+    A => 91,    # 108
 );
 
 my @files = sort
@@ -17,16 +17,18 @@ my @files = sort
     -d 't' ? glob("t/mal/*.yaml") :
     die "Can't find test directory";
 
-my $i = 1;
-for my $file (@files) {
-    my $repl = Lingy::Runtime->new;
+if (my $step = $ENV{LINGY_TEST_MAL_STEP}) {
+    @files = grep /$step/, @files;
+}
 
-    $i++;
-    # next unless $i == 6;
-    # last if $i == 9;
+my $runtime = Lingy::RT->init;
+
+for my $file (@files) {
+    $file =~ /step(.)/ or die;
+    my $n = $1;
 
     subtest $file => sub {
-        plan tests => $plan{$i};
+        plan tests => $plan{$n};
 
         my @tests = read_yaml_test_file($file);
 
@@ -39,7 +41,7 @@ for my $file (@files) {
                 sub {
                     for (@{$test->{expr}}) {
                         $expr .= $_;
-                        my @got = eval { $repl->rep($_) };
+                        my @got = eval { $runtime->rep($_) };
                         if ($@) {
                             die $@ if $@ =~ /(^>>|^---\s| via package ")/;
                             $err .= ref($@)
@@ -50,7 +52,6 @@ for my $file (@files) {
                     }
                 },
             );
-
 
             chomp $expr;
             $expr =~ s/\n/\\n/g;

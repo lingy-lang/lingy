@@ -9,12 +9,12 @@
 
 - mal: (try* abc (catch* exc (prn "exc is:" exc)))
   err: >-
-    "exc is:" "Error: Unable to resolve symbol: abc in this context"
+    "exc is:" "Error: Unable to resolve symbol: 'abc' in this context"
   out: nil
 
 - mal: (try* (abc 1 2) (catch* exc (prn "exc is:" exc)))
   err: >-
-    "exc is:" "Error: Unable to resolve symbol: abc in this context"
+    "exc is:" "Error: Unable to resolve symbol: 'abc' in this context"
   out: nil
 
 - say: Make sure error from core can be caught
@@ -242,7 +242,7 @@
   out: 1
 
 - mal: (def! hm1 (hash-map))
-  out: hm1
+  out: user/hm1
 
 - mal: (map? hm1)
   out: 'true'
@@ -263,7 +263,7 @@
   out: 'false'
 
 - mal: (def! hm2 (assoc hm1 "a" 1))
-  out: hm2
+  out: user/hm2
 
 - mal: (get hm1 "a")
   out: nil
@@ -397,7 +397,7 @@
 - say: Testing try* without catch*
   mal: (try* xyz)
   err: >-
-    Error: Unable to resolve symbol: xyz in this context
+    Error: Unable to resolve symbol: 'xyz' in this context
 
 
 - say: Testing throwing non-strings

@@ -49,9 +49,9 @@ sub tokenize {
 sub read_form {
     my ($self) = @_;
     local $_ = $self->{tokens}[0];
-    /^\($/ ? $self->read_list('list', ')') :
-    /^\[$/ ? $self->read_list('vector', ']') :
-    /^\{$/ ? $self->read_hash_map('hash_map', '}') :
+    /^\($/ ? $self->read_list('Lingy::Lang::List', ')') :
+    /^\[$/ ? $self->read_list('Lingy::Lang::Vector', ']') :
+    /^\{$/ ? $self->read_hash_map('Lingy::Lang::HashMap', '}') :
     /^'$/ ? $self->read_quote('quote') :
     /^`$/ ? $self->read_quote('quasiquote') :
     /^~$/ ? $self->read_quote('unquote') :
@@ -139,7 +139,7 @@ sub with_meta {
         symbol('with-meta'),
         $form,
         $meta,
-    ], 'list';
+    ], 'Lingy::Lang::List';
 }
 
 1;

@@ -290,7 +290,7 @@
   out: '{}'
 
 - mal: (def! l-wm (with-meta [4 5 6] {"b" 2}))
-  out: l-wm
+  out: user/l-wm
 
 - mal: (meta l-wm)
   out: '{"b" 2}'

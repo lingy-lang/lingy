@@ -29,26 +29,26 @@
 
 
 - say: Testing macroexpand
-  mal: (macroexpand (one))
+  mal: (macroexpand '(one))
   out: 1
 
-- mal: (macroexpand (unless PRED A B))
+- mal: (macroexpand '(unless PRED A B))
   out: (if PRED B A)
 
-- mal: (macroexpand (unless2 PRED A B))
+- mal: (macroexpand '(unless2 PRED A B))
   out: (if (not PRED) A B)
 
-- mal: (macroexpand (unless2 2 3 4))
+- mal: (macroexpand '(unless2 2 3 4))
   out: (if (not 2) 3 4)
 
 
 - say: Testing evaluation of macro result
   mal:
   - (defmacro! identity (fn* [x] x))
-  - (let* (a 123) (macroexpand (identity a)))
+  - (let* [a 123] (macroexpand '(identity a)))
   out: a
 
-- mal: (let* (a 123) (identity a))
+- mal: (let* [a 123] (identity a))
   out: 123
 
 
@@ -110,13 +110,13 @@
 
 
 - say: Testing cond macro
-  mal: (macroexpand (cond))
+  mal: (macroexpand '(cond))
   out: nil
 
 - mal: (cond)
   out: nil
 
-- mal: (macroexpand (cond X Y))
+- mal: (macroexpand '(cond X Y))
   out: (if X Y (cond))
 
 - mal: (cond true 7)
@@ -125,7 +125,7 @@
 - mal: (cond false 7)
   out: nil
 
-- mal: (macroexpand (cond X Y Z T))
+- mal: (macroexpand '(cond X Y Z T))
   out: (if X Y (cond Z T))
 
 - mal: (cond true 7 true 8)
@@ -145,7 +145,7 @@
 
 
 - say: Testing EVAL in let*
-  mal: (let* (x (cond false "no" true "yes")) x)
+  mal: (let* [x (cond false "no" true "yes")] x)
   out: '"yes"'
 
 
@@ -208,5 +208,5 @@
   - (a)
   out: 2
 
-- mal: (let* (x 3) (a))
+- mal: (let* [x 3] (a))
   out: 2

@@ -117,7 +117,7 @@
   out: 7
 
 - mal: (def! a 8)
-  out: a
+  out: user/a
 
 - mal: (quasiquote a)
   out: a
@@ -132,7 +132,7 @@
   out: (1 8 3)
 
 - mal: (def! b (quote (1 "b" "d")))
-  out: b
+  out: user/b
 
 - mal: (quasiquote (1 b 3))
   out: (1 b 3)
@@ -145,13 +145,13 @@
 
 
 - say: Quasiquote and environments
-- mal: (let* (x 0) (quasiquote (unquote x)))
+- mal: (let* [x 0] (quasiquote (unquote x)))
   out: 0
 
 
 - say: Testing splice-unquote
 - mal: (def! c (quote (1 "b" "d")))
-  out: c
+  out: user/c
 
 - mal: (quasiquote (1 c 3))
   out: (1 c 3)
@@ -244,13 +244,13 @@
   out: 7
 
 - mal: (def! a 8)
-  out: a
+  out: user/a
 
 - mal: '`(1 ~a 3)'
   out: (1 8 3)
 
 - mal: (def! b '(1 "b" "d"))
-  out: b
+  out: user/b
 
 - mal: '`(1 b 3)'
   out: (1 b 3)
@@ -261,7 +261,7 @@
 
 - say: Testing ~@ (splice-unquote) reader macro
 - mal: (def! c '(1 "b" "d"))
-  out: c
+  out: user/c
 
 - mal: '`(1 c 3)'
   out: (1 c 3)
@@ -317,7 +317,7 @@
   out: ([])
 
 - mal: (def! a 8)
-  out: a
+  out: user/a
 
 - mal: '`[1 a 3]'
   out: '[1 a 3]'
@@ -348,7 +348,7 @@
 
 - say: Testing splice-unquote with vectors
   mal: (def! c '(1 "b" "d"))
-  out: c
+  out: user/c
 
 - mal: '`[~@c]'
   out: '[1 "b" "d"]'

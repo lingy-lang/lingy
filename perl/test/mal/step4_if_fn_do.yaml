@@ -261,13 +261,13 @@
 
 
 - say: Testing recursive function in environment.
-  mal: (let* (f (fn* [] x) x 3) (f))
+  mal: (let* [f (fn* [] x) x 3] (f))
   out: 3
 
-- mal: (let* (cst (fn* [n] (if (= n 0) nil (cst (- n 1))))) (cst 1))
+- mal: (let* [cst (fn* [n] (if (= n 0) nil (cst (- n 1))))] (cst 1))
   out: nil
 
-- mal: (let* (f (fn* [n] (if (= n 0) 0 (g (- n 1)))) g (fn* [n] (f n))) (f 2))
+- mal: (let* [f (fn* [n] (if (= n 0) 0 (g (- n 1)))) g (fn* [n] (f n))] (f 2))
   out: 0
 
 

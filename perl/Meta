@@ -24,6 +24,11 @@ devel:
 
 requires:
   perl: 5.12
+  Capture::Tiny: 0
+  Sub::Name: 0
+  Sub::Identify: 0
+  Term::ReadLine: 0
+  Term::ReadLine::Gnu: 0
   Tie::IxHash: 0
   YAML::PP: 0
   YAMLTest: 0

@@ -3,49 +3,66 @@ package Lingy::Common;
 
 use Exporter 'import';
 
+BEGIN {
+    our @EXPORT = qw<
+        atom
+        boolean
+        false
+        function
+        hash_map
+        keyword
+        list
+        macro
+        nil
+        number
+        string
+        symbol
+        true
+        type
+        var
+        vector
+
+        err
+
+        PPP
+        WWW
+        XXX
+        YYY
+        ZZZ
+    >;
+}
+
 use Lingy::Types;
 
-our @EXPORT = qw<
-    atom
-    boolean
-    false
-    function
-    hash_map
-    keyword
-    list
-    macro
-    nil
-    number
-    string
-    symbol
-    true
-    vector
+use Lingy::Lang::Atom;
+use Lingy::Lang::Boolean;
+use Lingy::Lang::Function;
+use Lingy::Lang::HashMap;
+use Lingy::Lang::Keyword;
+use Lingy::Lang::List;
+use Lingy::Lang::Nil;
+use Lingy::Lang::Number;
+use Lingy::Lang::String;
+use Lingy::Lang::Symbol;
+use Lingy::Lang::Type;
+use Lingy::Lang::Var;
+use Lingy::Lang::Vector;
 
-    RT
-    err
-    fn
-    slurp
+use Lingy::Printer;
 
-    PPP
-    WWW
-    XXX
-    YYY
-    ZZZ
->;
-
-sub atom     { 'atom'    ->new(@_) }
-sub boolean  { 'boolean' ->new(@_) }
-sub function { 'function'->new(@_) }
-sub keyword  { 'keyword' ->new(@_) }
-sub hash_map { 'hash_map'->new(@_) }
-sub list     { 'list'    ->new(@_) }
+sub atom     { Lingy::Lang::Atom->new(@_) }
+sub boolean  { Lingy::Lang::Boolean->new(@_) }
+sub function { Lingy::Lang::Function->new(@_) }
+sub keyword  { Lingy::Lang::Keyword->new(@_) }
+sub hash_map { Lingy::Lang::HashMap->new(@_) }
+sub list     { Lingy::Lang::List->new(@_) }
 sub macro    { 'macro'   ->new(@_) }
-sub number   { 'number'  ->new(@_) }
-sub string   { 'string'  ->new(@_) }
-sub symbol   { 'symbol'  ->new(@_) }
-sub vector   { 'vector'  ->new(@_) }
-
-sub RT { $Lingy::Runtime::rt }
+sub number   { Lingy::Lang::Number->new(@_) }
+sub string   { Lingy::Lang::String->new(@_) }
+sub symbol   { Lingy::Lang::Symbol->new(@_) }
+sub type     { Lingy::Lang::Type->new(@_) }
+sub var      { Lingy::Lang::Var->new(@_) }
+sub vector   { Lingy::Lang::Vector->new(@_) }
 
 sub err {
     my $msg = shift;
@@ -53,26 +70,6 @@ sub err {
         ($msg =~ /\n./ ? "\n" : ' ') .
         $msg .
         "\n";
-}
-
-sub fn {
-    my $functions = {@_};
-    sub {
-        my $arity = @_;
-        my $function =
-            $functions->{$arity} ||
-            $functions->{'*'}
-                or err "Wrong number of args ($arity) passed to function";
-        $function->(@_);
-    }
-}
-
-sub slurp {
-    my ($file) = @_;
-    open my $slurp, '<', "$file" or
-        err "Couldn't read file '$file'";
-    local $/;
-    <$slurp>;
 }
 
 sub PPP {

@@ -4,10 +4,6 @@ package Lingy::ReadLine;
 BEGIN { $ENV{PERL_RL} = 'Gnu' }
 use Term::ReadLine;
 
-use Exporter 'import';
-
-our @EXPORT = qw( readline );
-
 my $history_file = "$ENV{HOME}/.lingy_history";
 
 my $tty;
@@ -20,11 +16,15 @@ my $tty;
 die "Please install Term::ReadLine::Gnu from CPAN\n"
     if $tty->ReadLine ne 'Term::ReadLine::Gnu';
 
+my $tested = 0;
 sub readline {
-    my $rt = $Lingy::Runtime::rt;
+    if (my $input = $ENV{LINGY_TEST_INPUT}) {
+        return if $tested++;
+        return $input;
+    }
 
-    my $prompt = $rt->prompt;
-    my $env = $rt->env;
+    my $prompt = $Lingy::RT::ns or die;
+    $prompt .= '> ';
 
     $tty->ornaments(0);
 
@@ -44,10 +44,11 @@ sub readline {
         );
     }
 
+    $tty->Attribs->{completion_query_items} = 1000;
     $tty->Attribs->{completion_function} = sub {
         my ($text, $line, $start) = @_;
-        grep {not /^-/}
-        keys %{$env->space}, qw(
+        return $Lingy::RT::env->space->names,
+        qw(
             catch
             do
             false
@@ -68,7 +69,8 @@ sub readline {
 $tty->ReadHistory($history_file);
 
 END {
-    $tty->WriteHistory($history_file);
+    $tty->WriteHistory($history_file)
+        unless $ENV{LINGY_TEST};
 }
 
 1;

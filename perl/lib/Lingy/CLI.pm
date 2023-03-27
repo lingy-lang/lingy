@@ -4,6 +4,9 @@ package Lingy::CLI;
 
 use Getopt::Long;
 
+use Lingy::RT;
+use Lingy::Common;
+
 use constant default => '--repl';
 use constant options => +{
     repl => 'bool',
@@ -16,28 +19,14 @@ use constant options => +{
 sub new {
     my $class = shift;
 
-    my $self = bless {
+    bless {
         map( ($_, ''), keys %{$class->options} ),
         @_,
     }, $class;
-
-    $self->{runtime} = $self->runtime;
-
-    return $self;
-}
-
-sub runtime {
-    my ($self) = @_;
-    my $runtime = ref($self) || $self;
-    $runtime =~ s/::CLI$/::Runtime/ or
-        die "Can't infer runtime class from '$runtime'";
-    eval "use $runtime; 1" or
-        die "Can't use '$runtime': $@";
-    return $runtime;
 }
 
 sub from_stdin {
-    not -t STDIN;
+    not -t STDIN or exists $ENV{LINGY_TEST_STDIN};
 }
 
 sub run {
@@ -45,50 +34,40 @@ sub run {
 
     $self->getopt(@args);
 
-    my ($runtime, $repl, $run, $eval, $ppp, $xxx, $args) =
-        @{$self}{qw<runtime repl run eval ppp xxx args>};
+    my ($repl, $run, $eval, $ppp, $xxx, $args) =
+        @{$self}{qw<repl run eval ppp xxx args>};
     local @ARGV = @$args;
 
-    if (@ARGV) {
-        $run = $ARGV[0];
-        $run = '/dev/stdin' if $run eq '-';
-
-    } else {
-        if ($self->from_stdin) {
-            $run = '/dev/stdin';
-            unshift @ARGV, '<stdin>';
-        } else {
-            unshift @ARGV, 'NO_SOURCE_PATH';
-        }
-    }
+    Lingy::RT->init;
 
     if ($eval) {
         if ($repl) {
-            my $runner = $runtime->new;
-            $runner->rep(qq<(do $eval\n)>);
-            $runner->repl;
+            Lingy::RT->rep(qq<(do $eval\n)>);
+            Lingy::RT->repl;
         } else {
             if ($ppp) {
-                $runtime->new->rep(qq<(PPP (quote $eval\n))>);
+                Lingy::RT->rep(qq<(PPP (quote $eval\n))>);
             } elsif ($xxx) {
-                $runtime->new->rep(qq<(XXX (quote $eval\n))>);
+                Lingy::RT->rep(qq<(XXX (quote $eval\n))>);
             } else {
                 unshift @ARGV, '-';
-                $runtime->new->rep(qq<(do $eval\n)>);
+                map print("$_\n"),
+                    grep $_ ne 'nil',
+                    Lingy::RT->rep($eval);
             }
         }
 
     } elsif ($repl) {
-        $runtime->new->repl;
+        Lingy::RT->repl;
 
     } elsif ($run) {
         if ($run ne '/dev/stdin') {
-            -f $run or die "No such file '$run'";
+            -f $run or err "No such file '$run'";
         }
-        $runtime->new->rep(qq<(load-file "$run")>);
+        Lingy::RT->rep(qq<(load-file "$run")>);
 
     } else {
-        $runtime->new->repl;
+        Lingy::RT->repl;
     }
 }
 
@@ -113,12 +92,30 @@ sub getopt {
             $spec->{"$key=s"} = \$self->{$key};
         } elsif ($type eq 'arg') {
         } else {
-            die "Option type '$type' not supported";
+            err "Option type '$type' not supported";
         }
     }
 
     GetOptions (%$spec) or
-        die "Error in command line arguments";
+        err "Error in command line arguments";
+
+    if (@ARGV) {
+        if ($self->{repl}) {
+            unshift @ARGV, 'NO_SOURCE_PATH';
+        } else {
+            $self->{run} = $ARGV[0];
+            $self->{run} = '/dev/stdin'
+                if $self->{run} eq '-';
+        }
+
+    } else {
+        if ($self->from_stdin) {
+            $self->{run} = '/dev/stdin';
+            unshift @ARGV, '<stdin>';
+        } else {
+            unshift @ARGV, 'NO_SOURCE_PATH';
+        }
+    }
 
     $self->{args} = [@ARGV];
 }
