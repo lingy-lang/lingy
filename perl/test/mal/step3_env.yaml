@@ -48,6 +48,7 @@
   - (def! w (abc))
   - w
   out: 123
+  eok: true
 
 - say: Testing let*
   mal: (let* (z 9) z)

@@ -27,17 +27,17 @@
 - mal: (eval (read-string "(+ 2 3)"))
   out: 5
 
-- mal: (slurp "../tests/test.txt")
-  out: "A line of text\n"
+- mal: (slurp "test/mal/test.txt")
+  out: '"A line of text\n"'
 
 
 - say: Load the same file twice.
-  mal: (slurp "../tests/test.txt")
-  out: "A line of text\n"
+  mal: (slurp "test/mal/test.txt")
+  out: '"A line of text\n"'
 
 
 - say: Testing load-file
-  mal: (load-file "../tests/inc.mal")
+  mal: (load-file "test/mal/inc.mal")
   out: nil
 
 - mal: (inc1 7)
@@ -113,7 +113,7 @@
 # -------- Deferrable Functionality --------
 
 - say: Testing reading of large files
-  mal: (load-file "../tests/computations.mal")
+  mal: (load-file "test/mal/computations.mal")
   out: nil
 
 - mal: (sumdown 2)
@@ -158,7 +158,7 @@
 # -------- Optional Functionality --------
 
 - say: Testing comments in a file
-  mal: (load-file "../tests/incB.mal")
+  mal: (load-file "test/mal/incB.mal")
   out: nil
 
 - mal: (inc4 7)
@@ -169,7 +169,7 @@
 
 
 - say: Testing map literal across multiple lines in a file
-  mal: (load-file "../tests/incC.mal")
+  mal: (load-file "test/mal/incC.mal")
   out: nil
 
 - mal: mymap

@@ -88,6 +88,7 @@
   - (def! x (nth (list 1 2) 2))
   - x
   out: '"x"'
+  eok: true
 
 - mal: (first (list))
   out: nil
@@ -163,6 +164,7 @@
   - (def! x (nth [1 2] 2))
   - x
   out: '"x"'
+  eok: true
 
 - mal: (first [])
   out: nil

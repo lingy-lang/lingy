@@ -6,9 +6,9 @@ use base 'Exporter';
 
 use Test::More;
 
-use Lingy::Runtime;
+use Lingy::Common;
 use Lingy::Printer;
-use Lingy::Types;
+use Lingy::Runtime;
 
 use Capture::Tiny 'capture';
 use File::Temp 'tempfile';

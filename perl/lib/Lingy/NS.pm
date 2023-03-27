@@ -3,6 +3,12 @@ package Lingy::NS;
 
 use Lingy::Common;
 
+sub new {
+    my $class = shift;
+    no strict 'refs';
+    bless \%{"${class}::ns"}, $class;
+}
+
 sub init {
     my ($self) = @_;
     (my $key = ref($self) . '.pm') =~ s{::}{/}g;

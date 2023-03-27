@@ -1,20 +1,20 @@
 use Lingy::Test;
 
 my %plan = (
-    2 => 14,
-    3 => 28,
-    4 => 187,
-    5 => 4,
-    6 => 41,
-    7 => 144,
-    8 => 54,
-    9 => 138,
-    10 => 89,
+    2 => 14,    # 14
+    3 => 28,    # 31
+    4 => 187,   # 178
+    5 => 4,     # 8
+    6 => 55,    # 65
+    7 => 144,   # 147
+    8 => 54,    # 65
+    9 => 138,   # 139
+    10 => 91,   # 108
 );
 
 my @files = sort
-    -d 'test' ? glob("test/mal/*") :
-    -d 't' ? glob("t/mal/*") :
+    -d 'test' ? glob("test/mal/*.yaml") :
+    -d 't' ? glob("t/mal/*.yaml") :
     die "Can't find test directory";
 
 my $i = 1;
@@ -51,7 +51,6 @@ for my $file (@files) {
                 },
             );
 
-#             ::XXX { expr=>$expr, got=>$got, want=>$want, like=>$like, out=>$out, err=>$err};
 
             chomp $expr;
             $expr =~ s/\n/\\n/g;
@@ -68,6 +67,15 @@ for my $file (@files) {
                     like $out, $like,
                         sprintf("o %-40s -> '%s'", "'$expr'", $like);
                 }
+            } elsif (defined $err and not $test->{eok}) {
+                XXX $test, {
+                    expr=>$expr,
+                    got=>$got,
+                    want=>$want,
+                    like=>$like,
+                    out=>$out,
+                    err=>$err,
+                };
             }
 
             if (length($got) and $want = $test->{want}) {
@@ -95,6 +103,7 @@ sub read_yaml_test_file {
             if defined $_->{out};
         $t->{like} = ref($_->{err}) ? $_->{err} : [ $_->{err} ]
             if defined $_->{err};
+        $t->{eok} = defined($_->{eok});
         defined($t->{expr}) ? ($t) : ();
     } @$tests;
 }

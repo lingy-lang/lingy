@@ -314,7 +314,7 @@
   out: nil
 
 - say: Loading sumdown from computations.mal
-  mal: (load-file "../tests/computations.mal")
+  mal: (load-file "test/mal/computations.mal")
   out: nil
 
 - say: Testing time-ms function
