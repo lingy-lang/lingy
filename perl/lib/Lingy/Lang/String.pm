@@ -1,8 +1,14 @@
 package Lingy::Lang::String;
 
-use Lingy::Base 'Scalar';
+use Lingy::Lang::Base 'Scalar';
 
-use constant lingy_class => 'host.lang.String';
+# TODO define lingy.string/join
+sub join {
+    string(
+        CORE::join ${Lingy::Lang::RT::str($_[0])},
+            map ${Lingy::Lang::RT::str($_)}, @{$_[1]}
+    );
+}
 
 sub replaceAll {
     my ($str, $pat, $rep) = @_;

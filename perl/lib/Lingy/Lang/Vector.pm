@@ -1,7 +1,5 @@
 package Lingy::Lang::Vector;
 
-use Lingy::Base 'List';
-
-use constant lingy_class => 'host.lang.Vector';
+use Lingy::Lang::Base 'List';
 
 1;

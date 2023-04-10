@@ -1,10 +1,6 @@
 package Lingy::Lang::Function;
 
-use Lingy::Common();
-
-use Lingy::Base;
-
-use constant lingy_class => 'host.lang.Function';
+use Lingy::Lang::Base;
 
 *list = \&Lingy::Common::list;
 *symbol = \&Lingy::Common::symbol;

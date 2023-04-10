@@ -1,5 +1,5 @@
 use strict; use warnings;
-package Lingy::NS;
+package Lingy::Namespace;
 
 use base 'Exporter';
 
@@ -7,24 +7,28 @@ use Lingy::Common;
 
 use Sub::Name 'subname';
 
-@Lingy::NS::EXPORT = (
+@Lingy::Namespace::EXPORT = (
     'fn',
-    'slurp',
     @Lingy::Common::EXPORT,
 );
 
 sub name { shift->{' NAME'} }
 
 sub import {
-    my ($pkg, $name) = @_;
+    my ($pkg) = @_;
     strict->import;
     warnings->import;
     {
         my $caller = caller;
         no strict 'refs';
         no warnings 'redefine';
-        push @{"${caller}::ISA"}, $pkg;
-        *{"${caller}::name"} = sub { $name };
+        unshift @{"${caller}::ISA"}, $pkg;
+        *{"${caller}::name"} = sub {
+            my ($self) = @_;
+            my $name = lc(ref($self));
+            $name =~ s/::/./g;
+            return $name;
+        };
     }
     $pkg->export_to_level(1);
 }
@@ -56,18 +60,11 @@ sub new {
         );
     }
 
-    $self->load unless $args{delay};
+    $self->_load_ly_file;
 
     $Lingy::RT::ns{$name} = $self;
 
     return $self;
-}
-
-sub load {
-    my ($self) = @_;
-    (my $key = ref($self) . '.pm') =~ s{::}{/}g;
-    (my $file = $INC{$key} // '') =~ s/\.pm$/.ly/;
-    Lingy::RT->rep(slurp($file)) if -f $file;
 }
 
 sub current {
@@ -106,12 +103,12 @@ sub fn {
     );
 }
 
-sub slurp {
-    my ($file) = @_;
-    open my $slurp, '<', "$file" or
-        err "Couldn't read file '$file'";
-    local $/;
-    <$slurp>;
+sub _load_ly_file {
+    my ($self) = @_;
+    (my $key = ref($self) . '.pm') =~ s{::}{/}g;
+    (my $file = $INC{$key} // '') =~ s/\.pm$/.ly/;
+    Lingy::RT->rep(Lingy::RT::slurp($file)) if -f $file;
+    return $self;
 }
 
 1;

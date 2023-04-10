@@ -1,8 +1,6 @@
 package Lingy::Lang::Number;
 
-use Lingy::Base 'Scalar';
-
-use constant lingy_class => 'host.lang.Number';
+use Lingy::Lang::Base 'Scalar';
 
 use overload
     '""' => sub { ${$_[0]} },

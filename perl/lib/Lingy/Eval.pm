@@ -50,9 +50,9 @@ sub eval {
 
 sub eval_ast {
     my ($ast, $env) = @_;
-    $ast->isa('Lingy::Base::List')
+    $ast->isa('Lingy::Lang::BaseList')
         ? ref($ast)->new([ map Lingy::Eval::eval($_, $env), @$ast ]) :
-    $ast->isa('Lingy::Base::Map')
+    $ast->isa('Lingy::Lang::HashMap')
         ? ref($ast)->new([map Lingy::Eval::eval($_, $env), %$ast]) :
     $ast->isa('Lingy::Lang::Symbol')
         ? $env->get($$ast) :
@@ -231,7 +231,7 @@ sub special_try {
     die ref($err) ? Lingy::Printer::pr_str($err) : $err
         unless defined $a2;
     err "Invalid 'catch' clause" unless
-        $a2 and $a2->isa('Lingy::Base::List') and
+        $a2 and $a2->isa('Lingy::Lang::BaseList') and
         @$a2 and $a2->[0]->isa('Lingy::Lang::Symbol') and
         ${$a2->[0]} =~ /^catch\*?$/;
     my $e;
@@ -287,7 +287,7 @@ sub macroexpand {
             return list([symbol('.'), $instance, $member, @rest]);
         }
         if (($call = $env->get($$sym, 1)) and
-            ref($call) eq 'macro'
+            ref($call) eq 'Lingy::Lang::Macro'
         ) {
             # expand macro call form
             $ast = Lingy::Eval::eval($call->(@{$ast}[1..(@$ast-1)]));
@@ -303,10 +303,14 @@ sub quasiquote {
     return list([symbol('vec'), quasiquote_loop($ast)])
         if $ast->isa('Lingy::Lang::Vector');
     return list([symbol('quote'), $ast])
-        if $ast->isa('Lingy::Base::Map') or $ast->isa('Lingy::Lang::Symbol');
+        if $ast->isa('Lingy::Lang::HashMap') or
+            $ast->isa('Lingy::Lang::Symbol');
     return $ast unless $ast->isa('Lingy::Lang::List');
     my ($a0, $a1) = @$ast;
-    return $a1 if $a0 and $a0->isa('Lingy::Lang::Symbol') and "$a0" eq 'unquote';
+    return $a1
+        if $a0 and
+            $a0->isa('Lingy::Lang::Symbol') and
+            "$a0" eq 'unquote';
     return quasiquote_loop($ast);
 }
 
@@ -314,7 +318,7 @@ sub quasiquote_loop {
     my ($ast) = @_;
     my $list = list([]);
     for my $elt (reverse @$ast) {
-        if ($elt->isa('Lingy::Base::List') and
+        if ($elt->isa('Lingy::Lang::BaseList') and
             $elt->[0] and
             $elt->[0]->isa('Lingy::Lang::Symbol') and
             "$elt->[0]" eq 'splice-unquote'

@@ -1,8 +1,6 @@
 package Lingy::Lang::Keyword;
 
-use Lingy::Base 'Scalar';
-
-use constant lingy_class => 'host.lang.Keyword';
+use Lingy::Lang::Base 'Scalar';
 
 sub new {
     my ($class, $scalar) = @_;

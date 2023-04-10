@@ -36,9 +36,9 @@ sub tokenize {
                 ~@ |                    # Unquote-splice token
                 [\[\]{}()'`~^@] |       # Single character tokens
                 "(?:                    # Quoted string
-                    \\. |                 # Escaped char
-                    [^\\"]                # Any other char
-                )*"? |                    # Match if missing ending quote
+                    \\. |                   # Escaped char
+                    [^\\"]                  # Any other char
+                )*"? |                      # Match if missing ending quote
                                         # Other tokens
                 [^\s\[\]\{\}\(\)\'\"\`\,\;]*
             )

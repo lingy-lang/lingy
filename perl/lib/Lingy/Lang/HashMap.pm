@@ -1,8 +1,6 @@
 package Lingy::Lang::HashMap;
 
-use Lingy::Base 'Map';
-
-use constant lingy_class => 'host.lang.HashMap';
+use Lingy::Lang::Base;
 
 use Tie::IxHash;
 use Lingy::Common();
@@ -15,7 +13,7 @@ sub new {
         my $key = $list->[$i];
         if (my $type = ref($key)) {
             err "Type '$type' not supported as a hash-map key"
-                if not($key->isa('Lingy::Base::Scalar')) or $type eq 'Lingy::Lang::Symbol';
+                if not($key->isa('Lingy::Lang::BaseScalar')) or $type eq 'Lingy::Lang::Symbol';
             $list->[$i] = $type eq 'Lingy::Lang::String'
                 ? qq<"$key>
                 : qq<$key>;

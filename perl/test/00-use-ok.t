@@ -1,20 +1,17 @@
-use Test::More;
+use Lingy::Test;
 
-use_ok 'Lingy';
-use_ok 'Lingy::CLI';
-use_ok 'Lingy::Common';
-use_ok 'Lingy::Env';
-use_ok 'Lingy::Eval';
-use_ok 'Lingy::NS';
-use_ok 'Lingy::Printer';
-use_ok 'Lingy::ReadLine';
-use_ok 'Lingy::Reader';
-use_ok 'Lingy::RT';
-use_ok 'Lingy::Test';
-use_ok 'Lingy::Types';
+use File::Find;
 
-use_ok 'Lingy::Core';
-use_ok 'Lingy::Lang::Numbers';
-use_ok 'Lingy::Lang::Util';
+my @modules;
+File::Find::find sub {
+    if ($File::Find::name =~ /\.pm$/) {
+        my $module = $File::Find::name;
+        $module =~ s{^lib/(.*)\.pm$}{$1};
+        $module =~ s{/}{::}g;
+        push @modules, $module;
+    }
+}, 'lib';
+
+use_ok $_ for sort @modules;
 
 done_testing;

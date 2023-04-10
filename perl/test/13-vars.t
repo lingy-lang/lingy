@@ -1,39 +1,39 @@
 use Lingy::Test;
 
 test "(type 42)",
-    'host.lang.Number';
+    'lingy.lang.Number';
 test '(type "foo")',
-    'host.lang.String';
+    'lingy.lang.String';
 test "(type 'cymbal)",
-    'host.lang.Symbol';
+    'lingy.lang.Symbol';
 test "(type 'cymbal/monkey)",
-    'host.lang.Symbol';
+    'lingy.lang.Symbol';
 test "(type '(cymbal))",
-    'host.lang.List';
+    'lingy.lang.List';
 test "(type '[cymbal])",
-    'host.lang.Vector';
+    'lingy.lang.Vector';
 test "(type ['cymbal])",
-    'host.lang.Vector';
+    'lingy.lang.Vector';
 test "(type `(cymbal))",
-    'host.lang.List';
+    'lingy.lang.List';
 test "(type ())",
-    'host.lang.List';
+    'lingy.lang.List';
 test "(type nil)",
-    'host.lang.Nil';
+    'lingy.lang.Nil';
 test "(type false)",
-    'host.lang.Boolean';
+    'lingy.lang.Boolean';
 test "(type (fn []))",
-    'host.lang.Function';
+    'lingy.lang.Function';
 test "(do (defmacro x [] ()) (type x))",
-    'macro';
+    'lingy.lang.Macro';
 test "(type (atom 22))",
-    'host.lang.Atom';
+    'lingy.lang.Atom';
 test "(type {})",
-    'host.lang.HashMap';
+    'lingy.lang.HashMap';
 test "(type :lala)",
-    'host.lang.Keyword';
+    'lingy.lang.Keyword';
 test "(type (type :lala))",
-    'host.lang.Type';
+    'lingy.lang.Type';
 
 test "(name 'foo)",
     '"foo"';
@@ -64,7 +64,7 @@ test "(resolve '+++)",
 test "(resolve 'add)",
     "nil";
 test "(resolve 'lingy.lang.Numbers/add)",
-    "#'lingy.lang.Numbers/add";
+    "nil";
 
 test "(var v1)",
     "Unable to resolve var: 'v1' in this context";

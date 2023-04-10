@@ -1,8 +1,6 @@
 package Lingy::Lang::Symbol;
 
-use Lingy::Base 'Scalar';
-
-use constant lingy_class => 'host.lang.Symbol';
+use Lingy::Lang::Base 'Scalar';
 
 sub intern {
     $Lingy::Eval::ENV->set($_[0], nil);

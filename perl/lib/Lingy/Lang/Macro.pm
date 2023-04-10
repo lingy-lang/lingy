@@ -1,9 +1,7 @@
-use strict; use warnings;
-package Lingy::Types;
+package Lingy::Lang::Macro;
 
-package
-macro;
-# use base 'function';
+use Lingy::Lang::Base;
+
 sub new {
     my ($class, $function) = @_;
     XXX $function unless ref($function) eq 'Lingy::Lang::Function';

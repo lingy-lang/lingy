@@ -47,19 +47,21 @@ sub readline {
     $tty->Attribs->{completion_query_items} = 1000;
     $tty->Attribs->{completion_function} = sub {
         my ($text, $line, $start) = @_;
-        return $Lingy::RT::env->space->names,
-        qw(
-            catch
-            do
-            false
-            if
-            macroexpand
-            nil
-            quasiquote
-            quasiquoteexpand
-            quote
-            true
-        );
+        return
+            $Lingy::RT::env->space->names,
+            (keys %Lingy::RT::class),
+            qw(
+                catch
+                do
+                false
+                if
+                macroexpand
+                nil
+                quasiquote
+                quasiquoteexpand
+                quote
+                true
+            );
         # Internal only: def! defmacro! fn* let* try* catch*
     };
 

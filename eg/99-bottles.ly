@@ -1,8 +1,8 @@
 (defn main [n]
   (let [
-    paragraphs (map paragraph (range n 0)) ]
+    paragraphs (map paragraph (range n 0 -1)) ]
     (println
-      (join "\n" paragraphs))))
+      (lingy.lang.String/join "\n" paragraphs))))
 
 (defn paragraph [num]
   (str

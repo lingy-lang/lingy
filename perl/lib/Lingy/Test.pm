@@ -11,7 +11,7 @@ use Lingy::Common;
 use Capture::Tiny 'capture';
 use File::Temp 'tempfile';
 
-use lib './test/lib', './t/lib';
+use lib 'lib', './test/lib', './t/lib';
 
 symlink 't', 'test' if -d 't' and not -e 'test';
 
@@ -32,6 +32,7 @@ our @EXPORT = qw<
     pass
     plan
     subtest
+    use_ok
 
     capture
     tempfile

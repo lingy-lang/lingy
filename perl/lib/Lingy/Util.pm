@@ -1,6 +1,7 @@
-package Lingy::Lang::Util;
+use strict; use warnings;
+package Lingy::Util;
 
-use Lingy::NS 'lingy.lang.Util';
+use Lingy::Namespace;
 
 our %ns = (
     fn('env'        => '0' => sub { $Lingy::RT::env }),
