@@ -3,6 +3,6 @@ use warnings;
 
 package Lingy;
 
-our $VERSION = '0.1.0';
+our $VERSION = '0.1.1';
 
 1;
