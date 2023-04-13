@@ -50,6 +50,7 @@ runners=(
       -type f \
       2>/dev/null |
       uniq |
+      grep -v '\.plenv/versions/' |
       grep '^/' || true
   )
 )
