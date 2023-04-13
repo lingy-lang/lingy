@@ -260,7 +260,7 @@
    `(let [or0000 ~x]
       (if or0000 or0000 (or ~@next)))))
 
-(defn number [string] (apply lingy.lang.RT/number_ string))
+(defn number [string] (lingy.lang.RT/number_ string))
 
 (defn number? [value] (lingy.lang.RT/number_Q value))
 

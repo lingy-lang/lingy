@@ -1,8 +1,9 @@
-; usage: lingy fizzbuzz <fizzbuzz fn #> [<count>]
+; usage: lingy fizzbuzz [<count>] [<fizzbuzz fn #>]
+
 (defn run-a-fizzbuzz-implementation []
   (let [
-    fizzbuzz (resolve (symbol (str "fizzbuzz-" (nth *ARGV* 0 "1"))))
-    count (number (nth *ARGV* 1 "100"))
+    count (number (nth *ARGV* 0 "100"))
+    fizzbuzz (resolve (symbol (str "fizzbuzz-" (nth *ARGV* 1 "1"))))
     result (fizzbuzz count)]
     (if (seq result)
       (map println result))))
