@@ -1,8 +1,9 @@
+use strict; use warnings;
 package Lingy::Lang::Numbers;
 
 use Lingy::Common;
 
-use constant lingy_class => 'lingy.lang.Numbers';
+use constant _lingy_class_name => 'lingy.lang.Numbers';
 
 sub add { $_[0] + $_[1] }
 
@@ -12,10 +13,10 @@ sub equiv {
     my ($x, $y) = @_;
     return false
         unless
-            ($x->isa('Lingy::Lang::BaseList') and
-            $y->isa('Lingy::Lang::BaseList')) or
+            ($x->isa('Lingy::Lang::ListClass') and
+            $y->isa('Lingy::Lang::ListClass')) or
             (ref($x) eq ref($y));
-    if ($x->isa('Lingy::Lang::BaseList')) {
+    if ($x->isa('Lingy::Lang::ListClass')) {
         return false unless @$x == @$y;
         for (my $i = 0; $i < @$x; $i++) {
             my $bool = equiv($x->[$i], $y->[$i]);

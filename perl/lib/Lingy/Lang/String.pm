@@ -1,6 +1,8 @@
+use strict; use warnings;
 package Lingy::Lang::String;
 
-use Lingy::Lang::Base 'Scalar';
+use base 'Lingy::Lang::ScalarClass';
+use Lingy::Common;
 
 # TODO define lingy.string/join
 sub join {

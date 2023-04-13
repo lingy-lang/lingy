@@ -1,36 +1,19 @@
 use strict; use warnings;
 package Lingy::Namespace;
 
-use base 'Exporter';
-
 use Lingy::Common;
+
+use base 'Exporter';
 
 use Sub::Name 'subname';
 
-@Lingy::Namespace::EXPORT = (
+our @EXPORT = (
     'fn',
-    @Lingy::Common::EXPORT,
 );
 
-sub name { shift->{' NAME'} }
-
-sub import {
-    my ($pkg) = @_;
-    strict->import;
-    warnings->import;
-    {
-        my $caller = caller;
-        no strict 'refs';
-        no warnings 'redefine';
-        unshift @{"${caller}::ISA"}, $pkg;
-        *{"${caller}::name"} = sub {
-            my ($self) = @_;
-            my $name = lc(ref($self));
-            $name =~ s/::/./g;
-            return $name;
-        };
-    }
-    $pkg->export_to_level(1);
+sub name {
+    my ($self) = @_;
+    $self->{' NAME'} // '';
 }
 
 sub new {

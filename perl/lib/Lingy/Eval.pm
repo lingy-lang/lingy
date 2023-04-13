@@ -50,7 +50,7 @@ sub eval {
 
 sub eval_ast {
     my ($ast, $env) = @_;
-    $ast->isa('Lingy::Lang::BaseList')
+    $ast->isa('Lingy::Lang::ListClass')
         ? ref($ast)->new([ map Lingy::Eval::eval($_, $env), @$ast ]) :
     $ast->isa('Lingy::Lang::HashMap')
         ? ref($ast)->new([map Lingy::Eval::eval($_, $env), %$ast]) :
@@ -109,14 +109,14 @@ sub special_dot {
     $target = $env->get($target)
         if $target->isa('Lingy::Lang::Symbol');
 
-    if ($target->can('lingy_class')) {
+    if ($target->can('_lingy_class_name')) {
         my $member = shift(@args);
 
         @args = map { $_->isa('Lingy::Lang::Symbol')
             ? $env->get($_) : $_; } @args;
 
         if (not $target->can($member)) {
-            my $class = "$target"->lingy_class;
+            my $class = "$target"->_lingy_class_name;
             err "No matching field found: '$member' " .
                 "for class '$class'";
         }
@@ -231,7 +231,7 @@ sub special_try {
     die ref($err) ? Lingy::Printer::pr_str($err) : $err
         unless defined $a2;
     err "Invalid 'catch' clause" unless
-        $a2 and $a2->isa('Lingy::Lang::BaseList') and
+        $a2 and $a2->isa('Lingy::Lang::ListClass') and
         @$a2 and $a2->[0]->isa('Lingy::Lang::Symbol') and
         ${$a2->[0]} =~ /^catch\*?$/;
     my $e;
@@ -318,7 +318,7 @@ sub quasiquote_loop {
     my ($ast) = @_;
     my $list = list([]);
     for my $elt (reverse @$ast) {
-        if ($elt->isa('Lingy::Lang::BaseList') and
+        if ($elt->isa('Lingy::Lang::ListClass') and
             $elt->[0] and
             $elt->[0]->isa('Lingy::Lang::Symbol') and
             "$elt->[0]" eq 'splice-unquote'

@@ -1,6 +1,7 @@
+use strict; use warnings;
 package Lingy::Lang::Function;
 
-use Lingy::Lang::Base;
+use base 'Lingy::Lang::Class';
 
 *list = \&Lingy::Common::list;
 *symbol = \&Lingy::Common::symbol;

@@ -6,7 +6,7 @@ use Lingy::Eval;
 use Lingy::Namespace();
 use Lingy::Printer;
 
-use constant lingy_class => 'lingy.lang.RT';
+use constant _lingy_class_name => 'lingy.lang.RT';
 
 my $nextID = int(rand 5000) + 1000;
 
@@ -341,7 +341,7 @@ sub seq {
     throw("seq does not support type '$type'");
 }
 
-sub seq_Q {$_[0]->isa('Lingy::Lang::BaseList')}
+sub seq_Q {$_[0]->isa('Lingy::Lang::ListClass')}
 
 sub sequential_Q {
     boolean(ref($_[0]) =~ /^(Lingy::Lang::List|Lingy::Lang::Vector)/);
@@ -388,8 +388,8 @@ sub true_Q {
 
 sub type_ {
     type(
-        $_[0]->can('lingy_class')
-            ? $_[0]->lingy_class
+        $_[0]->can('_lingy_class_name')
+            ? $_[0]->_lingy_class_name
             : ref($_[0])
     );
 }

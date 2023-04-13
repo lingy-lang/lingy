@@ -1,5 +1,6 @@
+use strict; use warnings;
 package Lingy::Lang::Vector;
 
-use Lingy::Lang::Base 'List';
+use base 'Lingy::Lang::ListClass';
 
 1;

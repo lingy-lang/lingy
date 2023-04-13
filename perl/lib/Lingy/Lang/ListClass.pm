@@ -1,6 +1,7 @@
-package Lingy::Lang::BaseList;
+use strict; use warnings;
+package Lingy::Lang::ListClass;
 
-use base 'Lingy::Lang::Base';
+use base 'Lingy::Lang::Class';
 
 sub new {
     my ($class, $list) = @_;
