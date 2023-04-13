@@ -98,12 +98,11 @@
   [x & forms]
   (loop [x x, forms forms]
     (if forms
-      (let [
-        form (first forms)
-        threaded (
-          if (seq? form)
-            `(~(first form) ~x ~@(next form))
-            (list form x))]
+      (let [form (first forms)
+            threaded (
+              if (seq? form)
+                `(~(first form) ~x ~@(next form))
+                (list form x))]
         (recur threaded (next forms)))
       x)))
 
@@ -111,12 +110,11 @@
   [x & forms]
   (loop [x x, forms forms]
     (if forms
-      (let [
-        form (first forms)
-        threaded (
-          if (seq? form)
-            `(~(first form) ~@(next form) ~x)
-            (list form x))]
+      (let [form (first forms)
+            threaded (
+              if (seq? form)
+                `(~(first form) ~@(next form) ~x)
+                (list form x))]
         (recur threaded (next forms)))
       x)))
 
@@ -204,6 +202,14 @@
 
 (defn list? [value] (lingy.lang.RT/list_Q value))
 
+(defn list*
+  ([args] (seq args))
+  ([a args] (cons a args))
+  ([a b args] (cons a (cons b args)))
+  ([a b c args] (cons a (cons b (cons c args))))
+  ([a b c d & more]
+    (cons a (cons b (cons c (cons d (-spread more)))))))
+
 (defn load-file [f]
   (eval
     (read-string
@@ -282,17 +288,15 @@
 
 (defn reduce
   ([fn coll]
-    (let [
-      len (count coll)]
+    (let [len (count coll)]
       (cond
         (= len 0) (apply fn [])
         (= len 1) (nth coll 0)
         :else (apply reduce [fn (first coll) (rest coll)] ))))
   ([fn val coll]
     (loop [v val, x (first coll), xs (rest coll)]
-      (let [
-        v1 (apply fn [v x])
-        cnt (count xs)]
+      (let [v1 (apply fn [v x])
+            cnt (count xs)]
         (if (= 0 cnt)
           v1
           (recur v1 (first xs) (rest xs)))))))
@@ -370,5 +374,12 @@
 
 (defn zero?
   [num] (. lingy.lang.Numbers (isZero num)))
+
+; Private functions:
+(defn -spread [arglist]
+  (cond
+    (nil? arglist) nil
+    (nil? (next arglist)) (seq (first arglist))
+    :else (cons (first arglist) (-spread (next arglist)))))
 
 ; vim: ft=clojure:

@@ -80,13 +80,16 @@ sub core_namespace {
         map Lingy::Lang::String->new($_), @ARGV[1..$#ARGV]]
     );
 
+    # Define these fns first for bootstrapping:
     $env->set(cons => \&Lingy::Lang::RT::cons);
     $env->set(concat => \&Lingy::Lang::RT::concat);
+    $env->set(eval => sub { Lingy::Eval::eval($_[0], $env) });
+
+
     $env->set('*file*', Lingy::Lang::String->new($ARGV[0]));
     $env->set('*ARGV*', $argv);
     $env->set('*command-line-args*', $argv);
     $env->set('*host*', Lingy::Lang::String->new(host));
-    $env->set(eval => sub { Lingy::Eval::eval($_[0], $env) });
 
     my $core_ly = $INC{'Lingy/RT.pm'};
     $core_ly =~ s/RT\.pm$/core.ly/;
