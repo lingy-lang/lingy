@@ -48,7 +48,6 @@ runners=(
     find $(IFS=:; echo $PATH) \
       -name '_lingy*' \
       -type f \
-      -executable \
       2>/dev/null |
       uniq |
       grep '^/' || true
