@@ -270,9 +270,9 @@
 
 (defn number? [value] (lingy.lang.RT/number_Q value))
 
-(defn pos? [value] (lingy.lang.RT/pos_Q value))
+(defn pos? [num] (. lingy.lang.Numbers (isPos num)))
 
-(defn pr-str [& args] (apply lingy.lang.RT/pr_str args))
+(defn pr-str [& xs] (apply lingy.lang.RT/pr_str xs))
 
 (defn println [& args] (apply lingy.lang.RT/println args))
 

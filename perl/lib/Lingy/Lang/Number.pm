@@ -10,7 +10,7 @@ use overload
     '-' => \&subtract,
     '*' => \&multiply,
     '/' => \&divide,
-    '=' => \&equal_to,
+    '==' => \&equal_to,
     '>' => \&greater_than,
     '>=' => \&greater_equal,
     '<' => \&less_than,

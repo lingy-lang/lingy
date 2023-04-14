@@ -24,7 +24,7 @@ sub readline {
     }
 
     my $prompt = $Lingy::RT::ns or die;
-    $prompt .= '> ';
+    $prompt .= '=> ';
 
     $tty->ornaments(0);
 
@@ -45,27 +45,33 @@ sub readline {
     }
 
     $tty->Attribs->{completion_query_items} = 1000;
-    $tty->Attribs->{completion_function} = sub {
-        my ($text, $line, $start) = @_;
-        return
-            $Lingy::RT::env->space->names,
-            (keys %Lingy::RT::class),
-            qw(
-                catch
-                do
-                false
-                if
-                macroexpand
-                nil
-                quasiquote
-                quasiquoteexpand
-                quote
-                true
-            );
-        # Internal only: def! defmacro! fn* let* try* catch*
-    };
-
+    $tty->Attribs->{completion_function} = \&complete;
     $tty->readline($prompt);
+}
+
+sub complete {
+    my ($text, $line, $start) = @_;
+
+    if ($text =~ m{^(\w+(\.\w+)*)/}) {
+        my $prefix = $1;
+        if (defined (my $class = $Lingy::RT::class{$prefix})) {
+            return map "$prefix/$_", $class->_method_names;
+        }
+        if (my $ns = $Lingy::RT::ns{$prefix}) {
+            return map "$prefix/$_", keys %$ns;
+        }
+        return;
+    }
+
+    map {
+        /^-\w/ ? () :
+        ($text eq '' and /^(\w+\.)/) ? $1 :
+        $_
+    }
+    $Lingy::RT::env->space->names,
+    (keys %Lingy::RT::class),
+    (keys %Lingy::Eval::special_dispatch),
+    ();
 }
 
 $tty->ReadHistory($history_file);

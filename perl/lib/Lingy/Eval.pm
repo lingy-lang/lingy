@@ -4,7 +4,7 @@ package Lingy::Eval;
 use Lingy::Common;
 
 # Lingy Special Forms:
-my $special_dispatch = {
+our %special_dispatch = (
     'def!'              => \&special_def,
     'defmacro!'         => \&special_defmacro,
     'do'                => \&special_do,
@@ -19,7 +19,7 @@ my $special_dispatch = {
     'quote'             => \&special_quote,
     'try*'              => \&special_try,
     'var'               => \&special_var,
-};
+);
 
 
 # Main eval functions:
@@ -35,7 +35,7 @@ sub eval {
 
         return $ast unless @$ast;   # Empty list
 
-        if (my $fn = $special_dispatch->{$ast->[0]}) {
+        if (my $fn = $special_dispatch{$ast->[0]}) {
             ($ast, $env) = $fn->($ast, $env);
             return $ast unless $env;
 
