@@ -1,0 +1,11 @@
+{
+  "name": "lingy",
+  "version": "0.0.1",
+  "description": "A Clojure for JavaScript",
+  "main": "lib/lingy/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Ingy döt Net",
+  "license": "MIT"
+}
