@@ -1,11 +1,12 @@
 use strict; use warnings;
 package Lingy::RT;
 
-use Lingy::ReadLine;
 use Lingy::Eval;
+use Lingy::Lang::Class;
 use Lingy::Lang::List;
 use Lingy::Lang::String;
 use Lingy::Namespace();
+use Lingy::ReadLine;
 
 use constant host => 'perl';
 
@@ -18,24 +19,27 @@ our $util_class = 'Lingy::Util';
 our $ns = '';               # Current namespace name
 our %ns = ();               # Map of all namespaces
 our %refer = ();            # Map of all namespace refers
+
+sub class { Lingy::Lang::Class->_new(@_) }
+
 our %class = (              # Preload lingy.lang.Xyz classes:
-    'lingy.lang.Atom'       => 'Lingy::Lang::Atom',
-    'lingy.lang.Boolean'    => 'Lingy::Lang::Boolean',
-    'lingy.lang.Function'   => 'Lingy::Lang::Function',
-    'lingy.lang.HashMap'    => 'Lingy::Lang::HashMap',
-    'lingy.lang.Keyword'    => 'Lingy::Lang::Keyword',
-    'lingy.lang.List'       => 'Lingy::Lang::List',
-    'lingy.lang.Macro'      => 'Lingy::Lang::Macro',
-    'lingy.lang.Nil'        => 'Lingy::Lang::Nil',
-    'lingy.lang.Number'     => 'Lingy::Lang::Number',
-    'lingy.lang.Macro'      => 'Lingy::Lang::Macro',
-    'lingy.lang.Numbers'    => 'Lingy::Lang::Numbers',
-    'lingy.lang.RT'         => 'Lingy::Lang::RT',
-    'lingy.lang.String'     => 'Lingy::Lang::String',
-    'lingy.lang.Symbol'     => 'Lingy::Lang::Symbol',
-    'lingy.lang.Type'       => 'Lingy::Lang::Type',
-    'lingy.lang.Var'        => 'Lingy::Lang::Var',
-    'lingy.lang.Vector'     => 'Lingy::Lang::Vector',
+    'lingy.lang.Atom'       => class('Lingy::Lang::Atom'),
+    'lingy.lang.Boolean'    => class('Lingy::Lang::Boolean'),
+    'lingy.lang.Class'      => class('Lingy::Lang::Class'),
+    'lingy.lang.Function'   => class('Lingy::Lang::Function'),
+    'lingy.lang.HashMap'    => class('Lingy::Lang::HashMap'),
+    'lingy.lang.Keyword'    => class('Lingy::Lang::Keyword'),
+    'lingy.lang.List'       => class('Lingy::Lang::List'),
+    'lingy.lang.Macro'      => class('Lingy::Lang::Macro'),
+    'lingy.lang.Nil'        => class('Lingy::Lang::Nil'),
+    'lingy.lang.Number'     => class('Lingy::Lang::Number'),
+    'lingy.lang.Macro'      => class('Lingy::Lang::Macro'),
+    'lingy.lang.Numbers'    => class('Lingy::Lang::Numbers'),
+    'lingy.lang.RT'         => class('Lingy::Lang::RT'),
+    'lingy.lang.String'     => class('Lingy::Lang::String'),
+    'lingy.lang.Symbol'     => class('Lingy::Lang::Symbol'),
+    'lingy.lang.Var'        => class('Lingy::Lang::Var'),
+    'lingy.lang.Vector'     => class('Lingy::Lang::Vector'),
 );
 
 our ($env, $reader, $printer);
@@ -45,9 +49,13 @@ our ($core, $user);
 my $pr_str;
 
 sub init {
-    for my $package (values %class) {
+    for my $class (keys %class) {
+        my $package = $class{$class};
         eval "require $package";
         die $@ if $@;
+        if ($class =~ /\.(\w+)$/) {
+            $class{$1} = $package;
+        }
     }
 
     $env     = require_new($env_class);
@@ -62,8 +70,8 @@ sub init {
     $user = Lingy::Namespace->new(
         name => 'user',
         refer => [
-            $core->name,
-            $util->name,
+            $core->NAME,
+            $util->NAME,
         ],
     )->current;
 

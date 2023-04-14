@@ -4,13 +4,14 @@ use lib './test/lib';
 
 test "(require 'test.lang)", 'nil';
 test "(test.lang/foo)", '"called test.lang/foo"';
+test "(ns-name 'test.lang)", "test.lang";
 
-test "(ns-name *ns*)", '"user"';
+test "(ns-name *ns*)", 'user';
 
 test "(require 'test.lingy)", 'nil';
 test "(test.lingy/foo)", '"called test.lingy/foo"';
 
-test "(ns-name *ns*)", '"user"';
+test "(ns-name *ns*)", 'user';
 
 test "(foo)", "Unable to resolve symbol: 'foo' in this context";
 test "(refer 'test.lingy)", 'nil';

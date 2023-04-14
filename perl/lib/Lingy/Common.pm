@@ -7,6 +7,7 @@ BEGIN {
     our @EXPORT = qw<
         atom
         boolean
+        class
         false
         function
         hash_map
@@ -18,7 +19,6 @@ BEGIN {
         string
         symbol
         true
-        type
         var
         vector
 
@@ -36,6 +36,7 @@ use Lingy::Printer;
 
 sub atom     { Lingy::Lang::Atom->new(@_) }
 sub boolean  { Lingy::Lang::Boolean->new(@_) }
+sub class    { Lingy::Lang::Class->_new(@_) }
 sub function { Lingy::Lang::Function->new(@_) }
 sub keyword  { Lingy::Lang::Keyword->new(@_) }
 sub hash_map { Lingy::Lang::HashMap->new(@_) }
@@ -44,7 +45,6 @@ sub macro    { Lingy::Lang::Macro->new(@_) }
 sub number   { Lingy::Lang::Number->new(@_) }
 sub string   { Lingy::Lang::String->new(@_) }
 sub symbol   { Lingy::Lang::Symbol->new(@_) }
-sub type     { Lingy::Lang::Type->new(@_) }
 sub var      { Lingy::Lang::Var->new(@_) }
 sub vector   { Lingy::Lang::Vector->new(@_) }
 

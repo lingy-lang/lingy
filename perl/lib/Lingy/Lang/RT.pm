@@ -6,7 +6,7 @@ use Lingy::Eval;
 use Lingy::Namespace();
 use Lingy::Printer;
 
-use constant _lingy_class_name => 'lingy.lang.RT';
+use constant NAME => 'lingy.lang.RT';
 
 my $nextID = int(rand 5000) + 1000;
 
@@ -72,7 +72,7 @@ sub create_ns {
         unless $name =~ /^\w+(\.\w+)*$/;
     Lingy::Namespace->new(
         name => $name,
-        refer => $Lingy::RT::core->name,
+        refer => $Lingy::RT::core->NAME,
     );
 }
 
@@ -198,12 +198,10 @@ sub ns {
         unless $name =~ /^\w+(\.\w+)*$/;
     Lingy::Namespace->new(
         name => $name,
-        refer => $Lingy::RT::core->name,
+        refer => $Lingy::RT::core->NAME,
     )->current;
     nil;
 }
-
-sub ns_name { string($_[0]->name) }
 
 sub nth { $_[0][$_[1]] }
 
@@ -387,9 +385,9 @@ sub true_Q {
 }
 
 sub type_ {
-    type(
-        $_[0]->can('_lingy_class_name')
-            ? $_[0]->_lingy_class_name
+    class(
+        $_[0]->can('NAME')
+            ? $_[0]->NAME
             : ref($_[0])
     );
 }

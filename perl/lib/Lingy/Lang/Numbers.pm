@@ -3,7 +3,7 @@ package Lingy::Lang::Numbers;
 
 use Lingy::Common;
 
-use constant _lingy_class_name => 'lingy.lang.Numbers';
+use constant NAME => 'lingy.lang.Numbers';
 
 sub add { $_[0] + $_[1] }
 

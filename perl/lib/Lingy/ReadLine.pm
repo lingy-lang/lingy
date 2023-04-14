@@ -63,6 +63,7 @@ sub complete {
         return;
     }
 
+    grep /^\Q$text/,
     map {
         /^-\w/ ? () :
         ($text eq '' and /^(\w+\.)/) ? $1 :

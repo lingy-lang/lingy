@@ -11,9 +11,13 @@ our @EXPORT = (
     'fn',
 );
 
-sub name {
+sub NAME {
     my ($self) = @_;
     $self->{' NAME'} // '';
+}
+
+sub getName {
+    symbol($_[0]->NAME);
 }
 
 sub new {
@@ -21,7 +25,7 @@ sub new {
 
     my $self = bless {}, $class;
 
-    my $name = $self->{' NAME'} = $args{name} // $self->name;
+    my $name = $self->{' NAME'} = $args{name} // $self->NAME;
 
     if (my $refer_list = $args{refer}) {
         $refer_list = [$refer_list]
@@ -52,7 +56,7 @@ sub new {
 
 sub current {
     my ($self) = @_;
-    my $name = $self->name or die;
+    my $name = $self->NAME or die;
     $Lingy::RT::ns = $name;
     $Lingy::RT::ns{$name} = $self;
     $Lingy::RT::env->{space} = $self;
@@ -67,7 +71,7 @@ sub names {
         grep {not /^ /}
         keys(%$self),
         keys(%Lingy::RT::ns),
-        keys(%{$Lingy::RT::refer{$self->name}});
+        keys(%{$Lingy::RT::refer{$self->NAME}});
     return keys %names;
 }
 

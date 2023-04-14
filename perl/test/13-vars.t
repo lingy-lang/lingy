@@ -33,7 +33,7 @@ test "(type {})",
 test "(type :lala)",
     'lingy.lang.Keyword';
 test "(type (type :lala))",
-    'lingy.lang.Type';
+    'lingy.lang.Class';
 
 test "(name 'foo)",
     '"foo"';

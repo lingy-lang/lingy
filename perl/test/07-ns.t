@@ -2,7 +2,7 @@ use Lingy::Test;
 
 test '*ns*', '#<Namespace user>';
 
-test '(ns-name *ns*)', '"user"';
+test '(ns-name *ns*)', 'user';
 
 rep <<'';
   (ns foo)
@@ -33,9 +33,9 @@ rep "(lingy.core/in-ns 'user)";
 
 test "(create-ns 'ns3)", '#<Namespace ns3>';
 
-test '(ns-name *ns*)', '"user"';
+test '(ns-name *ns*)', 'user';
 
-test "(ns-name (the-ns 'lingy.core))", '"lingy.core"';
+test "(ns-name (the-ns 'lingy.core))", 'lingy.core';
 
 test "(the-ns 'nope)", "No namespace: 'nope' found";
 

@@ -247,7 +247,8 @@
 
 (defmacro ns [name] `(lingy.lang.RT/ns '~name))
 
-(defn ns-name [ns] (lingy.lang.RT/ns_name ns))
+(defn ns-name [ns]
+  (.getName (the-ns ns)))
 
 (defn nth
   ([list index]

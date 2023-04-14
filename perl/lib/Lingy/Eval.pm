@@ -109,14 +109,16 @@ sub special_dot {
     $target = $env->get($target)
         if $target->isa('Lingy::Lang::Symbol');
 
-    if ($target->can('_lingy_class_name')) {
+    if ($target->isa('Lingy::Lang::Class') or
+        $target->isa('Lingy::Namespace')
+    ) {
         my $member = shift(@args);
 
         @args = map { $_->isa('Lingy::Lang::Symbol')
             ? $env->get($_) : $_; } @args;
 
         if (not $target->can($member)) {
-            my $class = "$target"->_lingy_class_name;
+            my $class = $target->NAME;
             err "No matching field found: '$member' " .
                 "for class '$class'";
         }
