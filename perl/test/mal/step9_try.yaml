@@ -351,7 +351,7 @@
   out: '"A{:abc val}Z"'
 
 - mal: (str true "." false "." nil "." :keyw "." 'symb)
-  out: '"true.false.nil.:keyw.symb"'
+  out: '"true.false..:keyw.symb"'
 
 - mal: (pr-str "A" {:abc "val"} "Z")
   out: '"\"A\" {:abc \"val\"} \"Z\""'

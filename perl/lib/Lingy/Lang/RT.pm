@@ -112,10 +112,10 @@ sub fn_Q {
 }
 
 sub get {
-    my ($map, $key) = @_;
+    my ($map, $key, $default) = @_;
     return nil unless ref($map) eq 'Lingy::Lang::HashMap';
     $key = qq<"$key> if $key->isa('Lingy::Lang::String');
-    $map->{"$key"} // nil;
+    $map->{"$key"} // $default // nil;
 }
 
 sub getenv {
@@ -348,7 +348,12 @@ sub sequential_Q {
 sub slurp { string(Lingy::RT::slurp($_[0])) }
 
 sub str {
-    string(join '', map Lingy::Printer::pr_str($_, 1), @_);
+    string(
+        join '',
+            map Lingy::Printer::pr_str($_, 1),
+            grep {ref($_) ne 'Lingy::Lang::Nil'}
+            @_
+    );
 }
 
 sub string_Q { boolean(ref($_[0]) eq "Lingy::Lang::String") }

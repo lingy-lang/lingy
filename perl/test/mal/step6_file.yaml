@@ -144,10 +144,12 @@
 
 - say: Testing that *ARGV* exists and is an empty list
   mal: (list? *ARGV*)
-  out: 'true'
+  # out: 'true'
+  out: 'false'
 
 - mal: '*ARGV*'
-  out: ()
+  # out: ()
+  out: nil
 
 
 - say: Testing that eval sets aa in root scope, and that it is found in nested scope

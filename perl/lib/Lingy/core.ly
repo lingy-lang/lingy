@@ -1,3 +1,21 @@
+; Define dynamic variables:
+(def! *lingy-version*
+  {
+    :major       0
+    :minor       1
+    :incremental 0
+    :qualifier   nil
+  })
+
+(def! *clojure-version*
+  {
+    :major       1
+    :minor       11
+    :incremental 1
+    :qualifier   nil
+  })
+
+
 ; Create standard calls from special forms:
 (defmacro! defmacro
   (fn* [name & body]
@@ -137,6 +155,18 @@
 
 (defn boolean? [value] (apply lingy.lang.RT/boolean_Q value))
 
+(defn clojure-version []
+  (str
+    (:major *clojure-version*)
+    "."
+    (:minor *clojure-version*)
+    (when-let [i (:incremental *clojure-version*)]
+      (str "." i))
+    (when-let [q (:qualifier *clojure-version*)]
+      (when (pos? (count q)) (str "-" q)))
+    (when (:interim *clojure-version*)
+      "-SNAPSHOT")))
+
 (defn concat [& args] (apply lingy.lang.RT/concat args))
 
 (defmacro cond [& xs]
@@ -173,7 +203,7 @@
 
 (defn fn? [fn] (lingy.lang.RT/fn_Q fn))
 
-(defn get [map key] (lingy.lang.RT/get map key))
+(defn get [map key & default] (apply lingy.lang.RT/get map key default))
 
 (defn getenv [key] (lingy.lang.RT/getenv key))
 
@@ -197,6 +227,18 @@
 (defn keyword [string] (lingy.lang.RT/keyword_ string))
 
 (defn keyword? [value] (lingy.lang.RT/keyword_Q value))
+
+(defn lingy-version []
+  (str
+    (:major *lingy-version*)
+    "."
+    (:minor *lingy-version*)
+    (when-let [i (:incremental *lingy-version*)]
+      (str "." i))
+    (when-let [q (:qualifier *lingy-version*)]
+      (when (pos? (count q)) (str "-" q)))
+    (when (:interim *lingy-version*)
+      "-SNAPSHOT")))
 
 (defn list [& args] (apply lingy.lang.RT/list_ args))
 
@@ -369,6 +411,15 @@
 (defn vector [& args] (apply lingy.lang.RT/vector_ args))
 
 (defn vector? [value] (lingy.lang.RT/vector_Q value))
+
+(defmacro when-let [bindings & body]
+  (let [
+    form (nth bindings 0)
+    tst (nth bindings 1)]
+    `(let [temp0000 ~tst]
+      (when temp0000
+        (let [~form temp0000]
+          ~@body)))))
 
 (defn with-meta [object meta]
   (lingy.lang.RT/with_meta object meta))

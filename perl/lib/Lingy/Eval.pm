@@ -42,7 +42,21 @@ sub eval {
         } else {
             my ($fn, @args) = @{eval_ast($ast, $env)};
             return $fn->(@args) if ref($fn) eq 'CODE';
-            $fn = $env->get($$fn) if ref($fn) eq 'Lingy::Lang::Var';
+
+            while ((my $ref = ref($fn)) ne 'Lingy::Lang::Function') {
+                if ($ref eq 'Lingy::Lang::Var') {
+                    $fn = $env->get($$fn);
+
+                } elsif ($ref eq 'Lingy::Lang::Keyword') {
+                    return special_keyword($env, $fn, @args);
+
+                } elsif ($ref eq 'Lingy::Lang::Vector') {
+                    return special_vector($env, $fn, @args);
+
+                } else {
+                    err "Can't use '$ref' object as function";
+                }
+            }
             ($ast, $env) = $fn->(@args);
         }
     }
@@ -140,6 +154,22 @@ sub special_if {
     $ast = ${boolean(Lingy::Eval::eval($a1, $env))} ? $a2 :
         defined $a3 ? $a3 : nil;
     return ($ast, $env);
+}
+
+sub special_keyword {
+    my ($env, $keyword, @args) = @_;
+    err "Wrong number of args (${\ scalar @args}) passed to: '$keyword'"
+        unless @args == 1 or @args == 2;
+    my $map = shift @args;
+    Lingy::Eval::eval(
+        list([
+            symbol('get'),
+            $map,
+            $keyword,
+            @args,
+        ]),
+        $env,
+    );
 }
 
 sub special_let {
@@ -258,6 +288,21 @@ sub special_var {
     $env->get($a1, 1)
         or err "Unable to resolve var: '$a1' in this context";
     return var($a1);
+}
+
+sub special_vector {
+    my ($env, $vector, @args) = @_;
+    err "Wrong number of args (${\ scalar @args}) passed to: " .
+        "'lingy.lang.Vector'"
+        unless @args == 1;
+    Lingy::Eval::eval(
+        list([
+            symbol('nth'),
+            $vector,
+            @args,
+        ]),
+        $env,
+    );
 }
 
 

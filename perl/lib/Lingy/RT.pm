@@ -84,17 +84,19 @@ sub core_namespace {
         delay => 1,
     )->current;
 
-    my $argv = Lingy::Lang::List->new([
-        map Lingy::Lang::String->new($_), @ARGV[1..$#ARGV]]
-    );
+    my $argv = @ARGV
+        ? Lingy::Lang::List->new([
+            map Lingy::Lang::String->new($_), @ARGV[1..$#ARGV]]
+        ) : Lingy::Lang::Nil->new;
 
     # Define these fns first for bootstrapping:
     $env->set(cons => \&Lingy::Lang::RT::cons);
     $env->set(concat => \&Lingy::Lang::RT::concat);
     $env->set(eval => sub { Lingy::Eval::eval($_[0], $env) });
 
-
-    $env->set('*file*', Lingy::Lang::String->new($ARGV[0]));
+    $env->set('*file*', Lingy::Lang::String->new(
+        $ARGV[0] || "NO_SOURCE_PATH"
+    ));
     $env->set('*ARGV*', $argv);
     $env->set('*command-line-args*', $argv);
     $env->set('*host*', Lingy::Lang::String->new(host));
