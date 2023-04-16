@@ -1,4 +1,18 @@
 ---
+version: 0.1.2
+date:    Sun Apr 16 10:45:48 AM PDT 2023
+changes:
+- Major refactoring of Perl modules
+- Remove a 'find' option not supported on Mac
+- Adjust PATH for plenv paths
+- Fixes and testing for fizzbuzz.ly
+- Add list* to core
+- Rename class module names to be more like Clojure's
+- Improve ReadLine to handle classes and namespaces
+- Add lingy.lang.Class object support
+- Support keywords and vectors as functions
+- Add Character and Thread/sleep support
+---
 version: 0.1.1
 date:    Mon Apr 10 06:18:38 AM PDT 2023
 changes:

@@ -18,6 +18,8 @@ DOCKER_HISTORY := /tmp/lingy-docker-bash-history
 test ?= test/
 v ?= -v
 
+export RELEASE_BRANCH := main
+
 
 default:
 
