@@ -113,6 +113,7 @@ sub read_scalar {
     return nil if $_ eq 'nil';
     return number($_) if /^-?\d+$/;
     return keyword($_) if /^:/;
+    return char($_) if /^\\/;
     return $self->read_symbol($_);
 }
 

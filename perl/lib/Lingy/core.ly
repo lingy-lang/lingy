@@ -155,6 +155,8 @@
 
 (defn boolean? [value] (apply lingy.lang.RT/boolean_Q value))
 
+(defn char [x] (. lingy.lang.RT (charCast x)))
+
 (defn clojure-version []
   (str
     (:major *clojure-version*)

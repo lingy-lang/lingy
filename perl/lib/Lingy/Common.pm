@@ -7,6 +7,7 @@ BEGIN {
     our @EXPORT = qw<
         atom
         boolean
+        char
         class
         false
         function
@@ -36,6 +37,7 @@ use Lingy::Printer;
 
 sub atom     { Lingy::Lang::Atom->new(@_) }
 sub boolean  { Lingy::Lang::Boolean->new(@_) }
+sub char     { Lingy::Lang::Character->read(@_) }
 sub class    { Lingy::Lang::Class->_new(@_) }
 sub function { Lingy::Lang::Function->new(@_) }
 sub keyword  { Lingy::Lang::Keyword->new(@_) }

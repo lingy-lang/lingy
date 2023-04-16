@@ -6,8 +6,6 @@ use Lingy::Eval;
 use Lingy::Namespace();
 use Lingy::Printer;
 
-use constant NAME => 'lingy.lang.RT';
-
 my $nextID = int(rand 5000) + 1000;
 
 our %meta;
@@ -41,6 +39,14 @@ sub atom_ { atom($_[0]) }
 sub atom_Q { boolean(ref($_[0]) eq 'Lingy::Lang::Atom') }
 
 sub boolean_Q { boolean($_[0]->isa('Lingy::Lang::Boolean')) }
+
+sub charCast {
+    my ($char) = @_;
+    my $type = ref($char);
+    err "Class '$type' cannot be cast to 'lingy.lang.Character'"
+        unless $type =~ /^Lingy::Lang::(?:Symbol|Number)$/;
+    return Lingy::Lang::Character->read($char);
+}
 
 sub concat { list([map @$_, @_]) }
 

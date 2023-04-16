@@ -1,6 +1,8 @@
 use strict; use warnings;
 package Lingy::RT;
 
+use base 'Lingy::Lang::Class';
+
 use Lingy::Eval;
 use Lingy::Lang::Class;
 use Lingy::Lang::List;
@@ -26,6 +28,7 @@ our %class = (              # Preload lingy.lang.Xyz classes:
     'lingy.lang.Atom'       => class('Lingy::Lang::Atom'),
     'lingy.lang.Boolean'    => class('Lingy::Lang::Boolean'),
     'lingy.lang.Class'      => class('Lingy::Lang::Class'),
+    'lingy.lang.Character'  => class('Lingy::Lang::Character'),
     'lingy.lang.Function'   => class('Lingy::Lang::Function'),
     'lingy.lang.HashMap'    => class('Lingy::Lang::HashMap'),
     'lingy.lang.Keyword'    => class('Lingy::Lang::Keyword'),
@@ -38,6 +41,7 @@ our %class = (              # Preload lingy.lang.Xyz classes:
     'lingy.lang.RT'         => class('Lingy::Lang::RT'),
     'lingy.lang.String'     => class('Lingy::Lang::String'),
     'lingy.lang.Symbol'     => class('Lingy::Lang::Symbol'),
+    'lingy.lang.Thread'     => class('Lingy::Lang::Thread'),
     'lingy.lang.Var'        => class('Lingy::Lang::Var'),
     'lingy.lang.Vector'     => class('Lingy::Lang::Vector'),
 );
