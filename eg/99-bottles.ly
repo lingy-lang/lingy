@@ -2,7 +2,7 @@
   (let [
     paragraphs (map paragraph (range n 0 -1)) ]
     (println
-      (lingy.lang.String/join "\n" paragraphs))))
+      (String/join "\n" paragraphs))))
 
 (defn paragraph [num]
   (str
