@@ -18,12 +18,18 @@ die "Please install Term::ReadLine::Gnu from CPAN\n"
 
 my $tested = 0;
 sub readline {
+    my ($continue) = @_;
+
     if (my $input = $ENV{LINGY_TEST_INPUT}) {
         return if $tested++;
         return $input;
     }
 
     my $prompt = $Lingy::RT::ns or die;
+    if ($continue) {
+        no warnings;
+        $prompt = (' ' x (length($prompt) - 2)) . '#_';
+    }
     $prompt .= '=> ';
 
     $tty->ornaments(0);

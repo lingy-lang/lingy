@@ -32,5 +32,8 @@ tst "'(foo#)",
 tst '`(foo#)',
     qr/^\Q(quasiquote (foo__\E\d+\Q__auto__))\E$/;
 
+tst "(1) (2)", '(1)';
+tst "(1) (2)", '(1)';
+
 
 done_testing;

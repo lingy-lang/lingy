@@ -129,10 +129,10 @@ sub slurp {
 }
 
 sub rep {
-    my ($self, $str, $prn) = @_;
+    my ($self, $str, $repl) = @_;
     my @ret;
-    for ($reader->read_str($str)) {
-        if ($prn) {
+    for ($reader->read_str($str, $repl)) {
+        if ($repl) {
             my $ret = eval { $pr_str->(Lingy::Eval::eval($_, $env)) };
             $ret = $@ if $@;
             chomp $ret;
@@ -150,7 +150,7 @@ sub repl {
         unless $ENV{LINGY_TEST};
     while (defined (my $line = Lingy::ReadLine::readline)) {
         next unless length $line;
-        eval { $self->rep("$line", 'prn') };
+        eval { $self->rep("$line", 'repl') };
         print $@ if $@;
     }
     print "\n";
