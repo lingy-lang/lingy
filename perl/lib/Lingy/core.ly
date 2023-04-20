@@ -142,8 +142,8 @@
   ([] true)
   ([x] x)
   ([x & next]
-   `(let [and0000 ~x]
-      (if and0000 (and ~@next) and0000))))
+   `(let [and# ~x]
+      (if and# (and ~@next) and#))))
 
 (defn apply [fn & args] (lingy.lang.RT/apply fn args))
 
@@ -308,8 +308,8 @@
   ([] nil)
   ([x] x)
   ([x & next]
-   `(let [or0000 ~x]
-      (if or0000 or0000 (or ~@next)))))
+   `(let [or# ~x]
+      (if or# or# (or ~@next)))))
 
 (defn number [string] (lingy.lang.RT/number_ string))
 
@@ -418,9 +418,9 @@
   (let [
     form (nth bindings 0)
     tst (nth bindings 1)]
-    `(let [temp0000 ~tst]
-      (when temp0000
-        (let [~form temp0000]
+    `(let [temp# ~tst]
+      (when temp#
+        (let [~form temp#]
           ~@body)))))
 
 (defn with-meta [object meta]

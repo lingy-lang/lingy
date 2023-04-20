@@ -120,13 +120,27 @@ sub read_scalar {
 # Defined separately to allow subclassing:
 sub read_symbol {
     my ($self, $symbol) = @_;
+    if (my $ids = $self->{autogensym}) {
+        if ($symbol =~ m{^([^/]+)#$}) {
+            my $id = $ids->{$1} //= Lingy::Lang::RT::nextID();
+            $symbol =~ s/#$/__${id}__auto__/;
+        }
+    }
     symbol($symbol);
 }
 
 sub read_quote {
     my ($self, $quote) = @_;
     shift @{$self->{tokens}};
-    return list([symbol($quote), $self->read_form]);
+    my $form;
+    if ($quote eq 'quasiquote') {
+        $self->{autogensym} = {};
+        $form = $self->read_form;
+        delete $self->{autogensym};
+    } else {
+        $form = $self->read_form;
+    }
+    return list([symbol($quote), $form]);
 }
 
 sub with_meta {

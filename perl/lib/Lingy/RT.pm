@@ -41,6 +41,7 @@ our %class = (              # Preload lingy.lang.Xyz classes:
     'lingy.lang.RT'         => class('Lingy::Lang::RT'),
     'lingy.lang.String'     => class('Lingy::Lang::String'),
     'lingy.lang.Symbol'     => class('Lingy::Lang::Symbol'),
+    'lingy.lang.Term'       => class('Lingy::Lang::Term'),
     'lingy.lang.Thread'     => class('Lingy::Lang::Thread'),
     'lingy.lang.Var'        => class('Lingy::Lang::Var'),
     'lingy.lang.Vector'     => class('Lingy::Lang::Vector'),
