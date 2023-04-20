@@ -143,6 +143,7 @@ sub read_scalar {
     return number($_) if /^-?\d+$/;
     return keyword($_) if /^:/;
     return char($_) if /^\\/;
+    err "Unmatched delimiter: '$_'" if /^[\)\]\}]$/;
     return $self->read_symbol($_);
 }
 

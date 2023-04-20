@@ -35,5 +35,12 @@ tst '`(foo#)',
 tst "(1) (2)", '(1)';
 tst "(1) (2)", '(1)';
 
+test "())",
+     "Unmatched delimiter: ')'";
+test "foo]",
+     "Unmatched delimiter: ']'";
+test ",}",
+     "Unmatched delimiter: '}'";
+
 
 done_testing;
