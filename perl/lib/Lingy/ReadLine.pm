@@ -27,7 +27,7 @@ sub readline {
 
     my $prompt = $Lingy::RT::ns or die;
     if ($continue) {
-        no warnings;
+        no warnings 'numeric';
         $prompt = (' ' x (length($prompt) - 2)) . '#_';
     }
     $prompt .= '=> ';
