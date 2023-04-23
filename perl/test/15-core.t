@@ -23,4 +23,11 @@ test q<(type (type 42))>,
 test q<(type Number)>,
      q<lingy.lang.Class>;
 
-done_testing;
+test q<(instance? String "")>,
+     'true';
+test q<(instance? String (str "x" "y"))>,
+     'true';
+test q<(instance? String 123)>,
+     'false';
+# test q<(instance? String (String.))>,
+#      'false';

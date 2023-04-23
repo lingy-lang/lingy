@@ -108,5 +108,3 @@ sub read_yaml_test_file {
         defined($t->{expr}) ? ($t) : ();
     } @$tests;
 }
-
-done_testing;

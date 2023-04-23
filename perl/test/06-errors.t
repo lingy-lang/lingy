@@ -8,7 +8,3 @@ test '(fn ([x]) ([y]))',
     "Can't have 2 overloads with same arity";
 test '(fn ([& x]) ([y z]))',
     "Can't have fixed arity function with more params than variadic function";
-test "(def a {b c})",
-    "Type 'Lingy::Lang::Symbol' not supported as a hash-map key";
-
-done_testing;

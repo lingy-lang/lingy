@@ -3,6 +3,8 @@ package Lingy::Lang::Character;
 
 use base 'Lingy::Lang::ScalarClass';
 
+use overload cmp => \&comp_pair;
+
 use Lingy::Common;
 
 my %name_to_char = (
@@ -36,11 +38,16 @@ sub read {
 }
 
 sub print {
-    my ($char) = @_;
+    my ($char, $raw) = @_;
+    return $char if $raw;
     if (my $name = $char_to_name{$char}) {
         return "\\$name";
     }
     return "\\$char";
+}
+
+sub _to_str {
+    my ($char) = @_;
 }
 
 1;

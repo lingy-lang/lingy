@@ -36,6 +36,15 @@ sub set {
         : symbol($space->NAME . "/$symbol");
 }
 
+sub ns_set {
+    my ($self, $symbol, $value) = @_;
+    my $space = Lingy::RT::NS();
+    $space->{$symbol} = $value;
+    return ref($space) eq 'HASH'
+        ? $symbol
+        : symbol($space->NAME . "/$symbol");
+}
+
 sub get {
     my ($self, $symbol, $optional) = @_;
 

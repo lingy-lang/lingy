@@ -5,6 +5,7 @@ use Lingy::Common;
 use Lingy::Eval;
 use Lingy::Namespace();
 use Lingy::Printer;
+use Lingy::Lang::Class;
 
 my $nextID = int(rand 5000) + 1000;
 
@@ -78,7 +79,7 @@ sub create_ns {
         unless $name =~ /^\w+(\.\w+)*$/;
     Lingy::Namespace->new(
         name => $name,
-        refer => $Lingy::RT::core->NAME,
+        refer => Lingy::RT->core,
     );
 }
 
@@ -130,6 +131,36 @@ sub getenv {
 }
 
 sub hash_map_ { hash_map([@_]) }
+
+sub import_ {
+    my ($specs) = @_;
+
+    my $return = nil;
+
+    for my $spec (@$specs) {
+        if (ref($spec) eq 'Lingy::Lang::Symbol') {
+            $spec = list([$spec]);
+        }
+
+        err "Invalid import spec" unless
+            $spec->isa('Lingy::Lang::List') and
+            @$spec > 0 and
+            not grep { ref($_) ne 'Lingy::Lang::Symbol' } @$spec;
+
+        my ($module_name, $imports) = @$spec;
+        my $name = $$module_name;
+        (my $module = $name) =~ s/\./::/g;
+        eval "require $module; 1" or die $@;
+        my $class = $Lingy::RT::class{$name} =
+            Lingy::Lang::Class->_new($name);
+        if ($module->can('new')) {
+            $return = $class;
+        }
+        # TODO - imports
+    }
+
+    return $return;
+}
 
 sub in_ns {
     my ($name) = @_;
@@ -199,13 +230,37 @@ sub nextID {
 }
 
 sub ns {
-    my ($name) = @_;
+    my ($name, $args) = @_;
     err "Invalid ns name '$name'"
         unless $name =~ /^\w+(\.\w+)*$/;
+
     Lingy::Namespace->new(
         name => $name,
-        refer => $Lingy::RT::core->NAME,
+        refer => Lingy::RT->core,
     )->current;
+
+    for my $arg (@$args) {
+        err "Invalid ns arg" unless
+            $arg->isa('Lingy::Lang::List') and
+            @$arg == 2 and
+            ref($arg->[0]) eq 'Lingy::Lang::Keyword' and
+            $arg->[1]->isa('Lingy::Lang::ListClass');
+
+        my ($keyword, $args) = @$arg;
+        if ($$keyword eq ':use') {
+            Lingy::Eval::eval(
+                list([
+                    symbol('use'),
+                    list([symbol('quote'), $args->[0]]),
+                ]),
+                $Lingy::Eval::ENV,
+            );
+        }
+        else {
+            err "Invalid keyword arg '$keyword' in ns";
+        }
+    }
+
     nil;
 }
 
@@ -336,13 +391,9 @@ sub rest {
 
 sub seq {
     my ($o) = @_;
-    my $type = ref($o);
-    $type eq 'Lingy::Lang::List' ? @$o ? $o : nil :
-    $type eq 'Lingy::Lang::Vector' ? @$o ? list([@$o]) : nil :
-    $type eq 'Lingy::Lang::String' ? length($$o)
-        ? list([map string($_), split //, $$o]) : nil :
-    $type eq 'Lingy::Lang::Nil' ? nil :
-    throw("seq does not support type '$type'");
+    $o->can('_to_seq') or
+        err(sprintf "Don't know how to create ISeq from: %s", $o->NAME);
+    $o->_to_seq;
 }
 
 sub seq_Q {$_[0]->isa('Lingy::Lang::ListClass')}
@@ -351,7 +402,13 @@ sub sequential_Q {
     boolean(ref($_[0]) =~ /^(Lingy::Lang::List|Lingy::Lang::Vector)/);
 }
 
-sub slurp { string(Lingy::RT::slurp($_[0])) }
+sub slurp { string(Lingy::RT->slurp($_[0])) }
+
+sub sort {
+    list([
+        CORE::sort @{$_[0]}
+    ]);
+}
 
 sub str {
     string(
@@ -381,7 +438,10 @@ sub the_ns {
     } : err "Invalid argument for the-ns: '$_[0]'";
 }
 
-sub throw { die $_[0] }
+sub throw {
+    require Carp;
+    Carp::confess $_[0];
+}
 
 sub time_ms {
     require Time::HiRes;

@@ -5,17 +5,19 @@ use Lingy::Namespace;
 use base 'Lingy::Namespace';
 use Lingy::Common;
 
-# use constant getName => symbol('lingy.Util');
-use constant NAME => 'lingy.Util';
+use constant NAME => 'lingy.util';
 
 our %ns = (
-    fn('env'        => '0' => sub { $Lingy::RT::env }),
-    fn('core'       => '0' => sub { $Lingy::RT::core }),
-    fn('user'       => '0' => sub { $Lingy::RT::user }),
+    fn('x-ns'        => 0 => sub { Lingy::RT->rt->ns }),
+    fn('x-refer'     => 0 => sub { Lingy::RT->rt->refer }),
+    fn('x-env'       => 0 => sub { Lingy::RT->rt->env }),
+    fn('x-core'      => 0 => sub { Lingy::RT->rt->core }),
+    fn('x-user'      => 0 => sub { Lingy::RT->rt->user }),
+    fn('x-eval'      => 1 => sub { eval("$_[0]") }),
+    fn('x-carp-on'   => 0 => sub { eval "use Carp::Always"; nil }),
+    fn('x-carp-off'  => 0 => sub { eval "no Carp::Always"; nil }),
 
-    fn('HOST'       => '1' => sub { WWW eval "$_[0]" }),
-
-    fn('ENV'        => '*' => sub {
+    fn('x-pp-env' => '*' => sub {
         my $env = $Lingy::Eval::ENV;
         my $www = {};
         my $w = $www;
@@ -26,13 +28,12 @@ our %ns = (
             $w = $w->{'^'};
             $e = $e->{outer};
         }
-        WWW($www);      # Print the env
-        nil;
+        bless $www, 'lingy-internal';
     }),
 
-    fn('PPP'        => '*' => \&PPP),
-    fn('WWW'        => '*' => \&WWW),
-    fn('XXX'        => '*' => \&XXX),
-    fn('YYY'        => '*' => \&YYY),
-    fn('ZZZ'        => '*' => \&ZZZ),
+    fn('PPP' => '*' => \&PPP),
+    fn('WWW' => '*' => \&WWW),
+    fn('XXX' => '*' => \&XXX),
+    fn('YYY' => '*' => \&YYY),
+    fn('ZZZ' => '*' => \&ZZZ),
 );

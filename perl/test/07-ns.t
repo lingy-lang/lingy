@@ -38,5 +38,3 @@ test '(ns-name *ns*)', 'user';
 test "(ns-name (the-ns 'lingy.core))", 'lingy.core';
 
 test "(the-ns 'nope)", "No namespace: 'nope' found";
-
-done_testing;

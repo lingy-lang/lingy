@@ -21,5 +21,3 @@ test '(add2 5)', "5";
 test '(add2 4 5)', "9";
 test '(add2 4 5 6)', "15";
 test '(add2 1 2 3 4 5 6 7 8 9)', "45";
-
-done_testing;

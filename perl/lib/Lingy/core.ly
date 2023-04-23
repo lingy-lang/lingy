@@ -29,6 +29,23 @@
   `(def ~name (fn ~@body)))
 
 (defmacro let [& xs] (cons 'let* xs))
+
+; (defmacro assert-args
+;   [& pairs]
+;   `(do (when-not ~(first pairs)
+;          (throw (IllegalArgumentException.
+;                   (str (first ~'&form) " requires " ~(second pairs) " in " ~'*ns* ":" (:line (meta ~'&form))))))
+;      ~(let [more (nnext pairs)]
+;         (when more
+;           (list* `assert-args more)))))
+; 
+; (defmacro let
+;   [bindings & body]
+;   (assert-args
+;      (vector? bindings) "a vector for its binding"
+;      (even? (count bindings)) "an even number of forms in binding vector")
+;   `(let* ~(destructure bindings) ~@body))
+
 (defmacro try [& xs] (cons 'try* xs))
 
 
@@ -220,9 +237,13 @@
 
 (defn hash-map [& args] (apply lingy.lang.RT/hash_map_ args))
 
+(defmacro import [& mods] `(lingy.lang.RT/import_ '~mods))
+
 (defn in-ns [name] (lingy.lang.RT/in_ns name))
 
 (defn inc [num] (lingy.lang.RT/inc num))
+
+(defn instance? [c x] (. c (isInstance x)))
 
 (defn keys [map] (lingy.lang.RT/keys_ map))
 
@@ -289,7 +310,13 @@
 
 (defn not [a] (if a false true))
 
-(defmacro ns [name] `(lingy.lang.RT/ns '~name))
+(defmacro ns [name & xs] `(lingy.lang.RT/ns '~name '~xs))
+
+(defn ns-interns [ns]
+  (.getInterns (the-ns ns)))
+
+(defn ns-map [ns]
+  (.getMappings (the-ns ns)))
 
 (defn ns-name [ns]
   (.getName (the-ns ns)))
@@ -346,6 +373,12 @@
           v1
           (recur v1 (first xs) (rest xs)))))))
 
+(defn re-find [re s] (lingy.lang.Regex/find re s))
+
+(defn re-matches [re s] (lingy.lang.Regex/matches re s))
+
+(defn re-pattern [s] (lingy.lang.Regex/pattern s))
+
 (defn refer [& xs]
   (apply lingy.lang.RT/refer xs)
   nil)
@@ -371,6 +404,8 @@
 (defn sequential? [value] (lingy.lang.RT/sequential_Q value))
 
 (defn slurp [file] (lingy.lang.RT/slurp file))
+
+(defn sort [coll] (lingy.lang.RT/sort (seq coll)))
 
 (defn str [& args] (apply lingy.lang.RT/str args))
 

@@ -13,5 +13,3 @@ File::Find::find sub {
 }, 'lib';
 
 use_ok $_ for sort @modules;
-
-done_testing;

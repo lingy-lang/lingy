@@ -1,5 +1,7 @@
 SHELL := bash
 
+ROOT_PERL := $(shell pwd)
+
 ZILD := \
     clean \
     cpan \
@@ -19,6 +21,8 @@ test ?= test/
 v ?= -v
 
 export RELEASE_BRANCH := main
+
+export PATH := $(ROOT_PERL)/bin:$(PATH)
 
 
 default:

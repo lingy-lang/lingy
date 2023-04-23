@@ -80,13 +80,13 @@ sub special_def {
     my (undef, $a1, $a2) = @$ast;
     err "Can't def a qualified symbol: '$a1'"
         if $a1 =~ m{./.};
-    return $env->set($$a1, Lingy::Eval::eval($a2, $env));
+    return $env->ns_set($$a1, Lingy::Eval::eval($a2, $env));
 }
 
 sub special_defmacro {
     my ($ast, $env) = @_;
     my (undef, $a1, $a2) = @$ast;
-    return $env->set($$a1, macro(Lingy::Eval::eval($a2, $env)));
+    return $env->ns_set($$a1, macro(Lingy::Eval::eval($a2, $env)));
 }
 
 sub special_do {
@@ -132,7 +132,8 @@ sub special_dot {
             ? $env->get($_) : $_; } @args;
 
         if (not $target->can($member)) {
-            my $class = $target->NAME;
+            my $class = $target->isa('Lingy::Namespace')
+                ? 'lingy.Namespace' : $target->NAME;
             err "No matching field found: '$member' " .
                 "for class '$class'";
         }
@@ -328,12 +329,16 @@ sub macroexpand {
         $sym = $ast->[0] and
         ref($sym) eq "Lingy::Lang::Symbol"
     ) {
-        if ($$sym =~ /^\.(\S+)$/) {
+        $sym = $$sym;
+        if ($sym =~ /^\.(\S+)$/) {
             my ($member, $instance, @rest) = @$ast;
             $member = symbol(substr($$member, 1));
             return list([symbol('.'), $instance, $member, @rest]);
         }
-        if (($call = $env->get($$sym, 1)) and
+#         if ($sym =~ /^(.*)\.$/) {
+#             XXX my $class = $Lingy::RT::class->{String};
+#         }
+        if (($call = $env->get($sym, 1)) and
             ref($call) eq 'Lingy::Lang::Macro'
         ) {
             # expand macro call form

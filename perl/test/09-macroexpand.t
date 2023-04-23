@@ -17,5 +17,3 @@ test "(macroexpand '(-> 42 (/ 6) (* 3) prn))",
 
 test "(macroexpand '(->> 42 (/ 6) (* 3) prn))",
     '(prn (* 3 (/ 6 42)))';
-
-done_testing;

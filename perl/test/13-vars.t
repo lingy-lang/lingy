@@ -71,5 +71,3 @@ test "(var v1)",
 rep "(def v1 123)";
 test "(var v1)",
     "#'v1";
-
-done_testing;

@@ -18,12 +18,12 @@ die "Please install Term::ReadLine::Gnu from CPAN\n"
 
 my $tested = 0;
 sub readline {
-    my ($continue) = @_;
-
     if (my $input = $ENV{LINGY_TEST_INPUT}) {
         return if $tested++;
         return $input;
     }
+
+    my ($continue) = @_;
 
     my $prompt = $Lingy::RT::ns or die;
     if ($continue) {
@@ -41,14 +41,10 @@ sub readline {
       $tty->redisplay;
     };
 
-    if (not $ENV{LINGY_TEST}) {
-        # These settings make the interactive repl nice to use but severely
-        # slow down the self-hosting tests.
-        $tty->parse_and_bind($_) for (
-            'set blink-matching-paren on',
-            'set show-all-if-ambiguous on',
-        );
-    }
+    $tty->parse_and_bind($_) for (
+        'set blink-matching-paren on',
+        'set show-all-if-ambiguous on',
+    );
 
     $tty->Attribs->{completion_query_items} = 1000;
     $tty->Attribs->{completion_function} = \&complete;

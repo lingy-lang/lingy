@@ -23,5 +23,3 @@ test '(let [x ([42] 0)] x)',
 rep '(defn f1 [v] (let [x (v 0)] x))';
 test '(f1 [3 4])',
      '3';
-
-done_testing;

@@ -46,5 +46,3 @@ cmd "$lingy $eg/fizzbuzz.ly 16", $want;
 cmd "$lingy $eg/fizzbuzz.ly 16 1", $want;
 cmd "$lingy $eg/fizzbuzz.ly 16 2", $want;
 # cmd "$lingy $eg/fizzbuzz.ly 16 3", $want;
-
-done_testing;

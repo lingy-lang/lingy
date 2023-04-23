@@ -26,7 +26,7 @@ sub new {
 
 sub rt {
     require Lingy::RT;
-    return 'Lingy::RT';
+    return Lingy::RT->new;
 }
 
 sub from_stdin {

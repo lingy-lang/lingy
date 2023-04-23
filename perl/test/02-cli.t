@@ -50,5 +50,3 @@ sub note_repl_input {
 
     run_is "$lingy -e '(def foo 42)'", 'user/foo';
 }
-
-done_testing;

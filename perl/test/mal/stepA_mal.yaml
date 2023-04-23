@@ -12,8 +12,8 @@
 
 # each impl is different, but this should return false
 # rather than throwing an exception
-- say: Testing *host*
-  mal: (= "something bogus" *host*)
+- say: Testing *HOST*
+  mal: (= "something bogus" *HOST*)
   out: 'false'
 
 
@@ -225,7 +225,7 @@
 
 - say: Testing seq function
   mal: (seq "abc")
-  out: ("a" "b" "c")
+  out: (\a \b \c)
 
 - mal: (apply str (seq "this is a test"))
   out: '"this is a test"'

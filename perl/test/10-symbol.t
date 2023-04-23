@@ -12,5 +12,3 @@ test "not", "#<Function>";
 test "user/abc", "Unable to resolve symbol: 'user/abc' in this context";
 
 test "(def foo/bar 42)", "Can't def a qualified symbol: 'foo/bar'";
-
-done_testing;

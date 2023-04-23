@@ -72,6 +72,7 @@ sub rep {
 sub test {
     my ($input, $want, $label) = @_;
     $label //= "'${\ collapse $input}' -> '${\line $want}'";
+
     my $got = eval { join("\n", $rt->rep($input)) };
     $got = $@ if $@;
     chomp $got;
@@ -123,6 +124,7 @@ sub collapse {
     local $_ = shift;
     s/\s\s+/ /g;
     s/^ //;
+    chomp;
     $_;
 }
 
@@ -130,6 +132,19 @@ sub line {
     local $_ = shift;
     s/\n/\\n/g;
     $_;
+}
+
+no warnings 'redefine';
+
+my $done_testing = 0;
+sub done_testing {
+    return if $done_testing++;
+    goto &Test::More::done_testing;
+}
+
+END {
+    package main;
+    done_testing();
 }
 
 1;

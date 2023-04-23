@@ -26,7 +26,7 @@ tst '(fn [x])';
 tst '(defn f1 [x] (prn x))';
 tst '[1,  2,3]',
     '[1 2 3]';
-tst '{:foo 1 :bar 2}';
+tst '{:foo 1, :bar 2}';
 tst "'(foo#)",
     "(quote (foo#))";
 tst '`(foo#)',
@@ -45,6 +45,3 @@ test ",}",
 test '111 222 #!/bin/bash 333',
      "111\n222",
      "Shebang syntax is a comment";
-
-
-done_testing;

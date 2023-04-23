@@ -11,5 +11,3 @@ test '\space',
 
 test '(char 32)',
      '\space';
-
-done_testing;

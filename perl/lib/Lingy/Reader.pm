@@ -3,6 +3,25 @@ package Lingy::Reader;
 
 use Lingy::Common;
 
+my $tokenize_re = qr/
+    (?:                     # Ignore:
+        \#\!.* |                # hashbang line
+        [\s,] |                 # whitespace, commas,
+        ;.*                     # comments
+    )*
+    (                       # Capture all these tokens:
+        ~@ |                    # Unquote-splice token
+        [\[\]{}()'`~^@] |       # Single character tokens
+        \#?                     # Possibly a regex
+        "(?:                    # Quoted string
+            \\. |                   # Escaped char
+            [^\\"]                  # Any other char
+        )*"? |                      # Match if missing ending quote
+                                # Other tokens
+        [^\s\[\]\{\}\(\)\'\"\`\,\;]*
+    )
+/xo;
+
 sub new {
     my $class = shift;
     bless {
@@ -14,23 +33,7 @@ sub new {
 sub tokenize {
     [
         grep length,
-        $_[0] =~ /
-            (?:                     # Ignore:
-                \#\!.* |                # hashbang line
-                [\s,] |                 # whitespace, commas,
-                ;.*                     # comments
-            )*
-            (                       # Capture all these tokens:
-                ~@ |                    # Unquote-splice token
-                [\[\]{}()'`~^@] |       # Single character tokens
-                "(?:                    # Quoted string
-                    \\. |                   # Escaped char
-                    [^\\"]                  # Any other char
-                )*"? |                      # Match if missing ending quote
-                                        # Other tokens
-                [^\s\[\]\{\}\(\)\'\"\`\,\;]*
-            )
-        /xog
+        $_[0] =~ /$tokenize_re/g
     ];
 }
 
@@ -81,7 +84,7 @@ sub read_list {
     shift @$tokens;
     my $list = $type->new([]);
     while (1) {
-        while (@$tokens > 0) {
+        while (@$tokens) {
             if ($tokens->[0] eq $end) {
                 shift @$tokens;
                 return $list;
@@ -113,7 +116,7 @@ sub read_hash_map {
     }
 }
 
-my $string_re = qr/"((?:\\.|[^\\"])*)"/;
+my $string_re = qr/#?"((?:\\.|[^\\"])*)"/;
 my $unescape = {
     'n' => "\n",
     't' => "\t",
@@ -124,10 +127,12 @@ sub read_scalar {
     my ($self) = @_;
     my $scalar = local $_ = shift @{$self->{tokens}};
 
-    while (/^"/) {
-        if (s/^$string_re$/$1/) {
+    while (/^#?"/) {
+        if (/^$string_re$/) {
+            my $is_regex = /^#/;
+            s/^$string_re$/$1/;
             s/\\([nt\"\\])/$unescape->{$1}/ge;
-            return string($_);
+            return $is_regex ? regex($_) : string($_);
         }
         if ($self->{repl}) {
             my $line = Lingy::ReadLine::readline(1);
@@ -140,9 +145,9 @@ sub read_scalar {
     }
     return true if $_ eq 'true';
     return false if $_ eq 'false';
+    return keyword($_) if /^:/;
     return nil if $_ eq 'nil';
     return number($_) if /^-?\d+$/;
-    return keyword($_) if /^:/;
     return char($_) if /^\\/;
     err "Unmatched delimiter: '$_'" if /^[\)\]\}]$/;
     return $self->read_symbol($_);

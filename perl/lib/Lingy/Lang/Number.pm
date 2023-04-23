@@ -16,6 +16,7 @@ use overload
     '<' => \&less_than,
     '<=' => \&less_equal,
     '%' => \&modulo,
+    cmp => \&comp_pair,
     ;
 
 sub greater_than {

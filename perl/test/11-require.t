@@ -19,5 +19,3 @@ test "(foo)", '"called test.lingy/foo"';
 
 test "(require 'x.y.z)", "Can't find library for (require 'x.y.z)";
 test "(refer 'x.y.z)", "No namespace: 'x.y.z'";
-
-done_testing;

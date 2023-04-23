@@ -31,8 +31,8 @@ sub new {
         $refer_list = [$refer_list]
             unless ref($refer_list) eq 'ARRAY';
         my $refer_map = $Lingy::RT::refer{$name} //= {};
-        for my $ns_name (@$refer_list) {
-            my $ns = $Lingy::RT::ns{$ns_name} or die;
+        for my $ns (@$refer_list) {
+            my $ns_name = $ns->NAME;
             map $refer_map->{$_} = $ns_name,
                 grep /^\S/, keys %$ns;
         }
@@ -94,8 +94,31 @@ sub _load_ly_file {
     my ($self) = @_;
     (my $key = ref($self) . '.pm') =~ s{::}{/}g;
     (my $file = $INC{$key} // '') =~ s/\.pm$/.ly/;
-    Lingy::RT->rep(Lingy::RT::slurp($file)) if -f $file;
+    Lingy::RT->rep(Lingy::RT->slurp($file)) if -f $file;
     return $self;
+}
+
+sub getInterns {
+    my $map = {
+        %{$_[0]},
+    };
+    delete $map->{' NAME'};
+    hash_map([ %$map ]);
+}
+
+sub getMappings {
+    my $map = {
+        %{$_[0]},
+    };
+    my $name = delete $map->{' NAME'};
+    my $refer = Lingy::RT->refer->{$name} // {};
+    for my $key (keys %$refer) {
+        my $ns = $refer->{$key};
+        $map->{$key} =
+            $Lingy::RT::ns{$ns}->{$key} //
+            $Lingy::RT::ns{$key};
+    }
+    hash_map([ %$map ]);
 }
 
 1;

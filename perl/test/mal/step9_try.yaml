@@ -361,12 +361,12 @@
 
 - mal:
   - (def! s (str {:abc "val1" :def "val2"}))
-  - (cond (= s "{:abc val1 :def val2}") true (= s "{:def val2 :abc val1}") true)
+  - (cond (= s "{:abc val1, :def val2}") true (= s "{:def val2, :abc val1}") true)
   out: 'true'
 
 - mal:
   - (def! p (pr-str {:abc "val1" :def "val2"}))
-  - (cond (= p "{:abc \"val1\" :def \"val2\"}") true (= p "{:def \"val2\" :abc \"val1\"}") true)
+  - (cond (= p "{:abc \"val1\", :def \"val2\"}") true (= p "{:def \"val2\", :abc \"val1\"}") true)
   out: 'true'
 
 

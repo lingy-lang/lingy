@@ -4,6 +4,7 @@
 use strict; use warnings;
 package Lingy::Lang::Class;
 
+use Lingy::Common;
 
 # This section is base class support for all Lingy object classes.
 # They all inherit from this:
@@ -55,6 +56,13 @@ sub _name {
     my $name = ${$_[0]};
     $name =~ s/^Lingy::Lang::/lingy.lang./;
     return $name;
+}
+
+# Public methods:
+sub isInstance {
+    my ($base_class, $instance) = @_;
+    my $instance_class = ref($instance);
+    $instance->isa($base_class) ? true : false;
 }
 
 1;

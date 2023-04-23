@@ -20,5 +20,3 @@ test q<(.replaceAll "foo" "o" "-")>, '"f--"';
 test q<(. lingy.lang.Numbers (remainder 8 3))>, '2';
 rep "(def x 8) (def y 3)";
 test q<(. lingy.lang.Numbers (remainder x y))>, '2';
-
-done_testing;

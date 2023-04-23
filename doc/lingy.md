@@ -1,7 +1,7 @@
 Lingy
 =====
 
-A Modern Acmeist Lisp Dialect
+Do for Perl what Clojure did for Java
 
 
 # Synopsis
@@ -12,10 +12,12 @@ Run the Lingy REPL:
 $ lingy
 Welcome to Lingy [perl]
 
-user> (prn "Hello, world!")
+user=> (p<TAB>
+pos?     println  prn      pr-str
+user=> (prn "Hello, world!")
 "Hello, world!"
 nil
-user>
+user=>
 ```
 
 or a Lingy one-liner:
@@ -54,28 +56,64 @@ Take one down, pass it around
 ```
 
 
+# Status
+
+Lingy is in ALPHA status.
+
+It has:
+
+* The `eg` directory of example programs that work
+* A pretty good REPL
+  * Tab completion
+  * Command history
+  * History search
+  * Parentheses visual matching
+  * Other nice readline features
+
+To Do:
+
+* AOT and JIT compile to LLVM bytecode
+* Compile to native Perl code
+
+
 # Description
 
-Lingy is a Lisp dialect written in many languages, including: Perl.
+Lingy is an implementation of the Clojure language that is written in Perl and
+hosted by Perl and LLVM.
+Programs and modules written in Lingy have full access to Perl and its CPAN
+modules.
 
-Clojure is a Lisp dialect that compiles to run on the JVM.
+Perl modules can be written in Lingy and distributed on CPAN.
+Since Lingy code is compiled to LLVM, it should perform on the same order of
+magnitude as XS modules.
 
-ClojureScript uses the same Clojure source code but compiles to NodeJS.
+Since Lingy is a complete Clojure implementation, it should be able to run
+programs written in Clojure and make use of libraries written in Clojure.
 
-Lingy is the runtime that supports the YAMLScript language.
+Clojure is a language that cleanly solves many of the problems of Java
+including making concurrency simple, and writing functional programs with
+mostly immutable data types.
+It is a Lisp dialect that is hosted by Java and compiles to JVM byte code.
+It has access to any libraries that target the JVM.
 
-YAMLScript is meant to be implemented in all the same languages as Lingy.
-
-Lingy is heavily influenced by the Clojure (Lisp) language.
-It aspires to be largely interoperable with Clojure.
-Currently it supports just a tiny subset of Clojure but supports Lisp basics
-like function application and macros.
+Much of the Clojure language is written in Clojure (self hosted) and Lingy
+actually uses the Clojure source code.
+A variant of Clojure called ClojureScript uses the same Clojure source code but
+is hosted by JavaScript with full access to NPM modules.
+Lingy also intends to eventually be ported to and hosted by many other
+programming languages.
 
 Lingy started as a Perl [implementation](
 https://github.com/ingydotnet/mal/tree/perl.2/impls/perl.2) of the
 [Make a Lisp](https://github.com/kanaka/mal) project.
-This provided a bare-bones Clojure-inspired Lisp interpreter.
+This provided a bare-bones Clojure-inspired Lisp interpreter from which Lingy
+has grown upon.
 
+# Installation
+
+```
+cpanm Lingy
+```
 
 # `lingy` CLI Usage
 
@@ -133,113 +171,13 @@ Lingy one-liner expressions.
   YAML dump the Lingy compiled AST for a `-e` expression.
 
 
-# Supported Functions
-
-* `*`
-* `+`
-* `-`
-* `/`
-* `<`
-* `<=`
-* `=`
-* `==`
-* `>`
-* `>=`
-* `apply`
-* `*ARGV*`
-* `assoc`
-* `atom`
-* `atom?`
-* `catch`
-* `concat`
-* `cond`
-* `conj`
-* `cons`
-* `contains?`
-* `count`
-* `dec`
-* `def`
-* `defmacro`
-* `deref`
-* `dissoc`
-* `do`
-* `empty?`
-* `eval`
-* `false`
-* `false?`
-* `*file*`
-* `first`
-* `fn`
-* `fn?`
-* `get`
-* `getenv`
-* `hash-map`
-* `*host-language*`
-* `if`
-* `join`
-* `keys`
-* `keyword`
-* `keyword?`
-* `let`
-* `list`
-* `list?`
-* `load-file`
-* `macro?`
-* `macroexpand`
-* `map`
-* `map?`
-* `meta`
-* `nil`
-* `nil?`
-* `not`
-* `nth`
-* `number`
-* `number?`
-* `println`
-* `prn`
-* `pr-str`
-* `quasiquote`
-* `quasiquoteexpand`
-* `quote`
-* `range`
-* `readline`
-* `read-string`
-* `reset!`
-* `rest`
-* `seq`
-* `sequential?`
-* `slurp`
-* `str`
-* `string?`
-* `swap!`
-* `symbol`
-* `symbol?`
-* `throw`
-* `time-ms`
-* `true`
-* `true?`
-* `try`
-* `vals`
-* `vec`
-* `vector`
-* `vector?`
-* `with-meta`
-* `PPP`
-* `WWW`
-* `XXX`
-* `YYY`
-* `ZZZ`
-
-
 # Roadmap
 
 The next major things to add are:
 
-* Multi-arity function/macro definition and application
-* Namespaces
+* Compilation to Perl code
+* Compilation to LLVM bytecode
 * Lambdas
-* lingy.core libary
-* Regex support
 
 
 # See Also
@@ -247,10 +185,6 @@ The next major things to add are:
 * [YAMLScript](https://metacpan.org/pod/YAMLScript)
 * [YAMLTest](https://metacpan.org/pod/YAMLTest)
 
-
-# Status
-
-Lingy is in ALPHA status.
 
 
 # Authors

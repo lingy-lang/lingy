@@ -26,5 +26,3 @@ test '(:foo {} 111 222)',
 
 test '((keyword "foo") (assoc {} :foo 123) (number 42))',
      '123';
-
-done_testing;

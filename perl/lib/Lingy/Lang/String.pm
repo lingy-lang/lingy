@@ -4,6 +4,8 @@ package Lingy::Lang::String;
 use base 'Lingy::Lang::ScalarClass';
 use Lingy::Common;
 
+use overload cmp => \&comp_pair;
+
 # TODO define lingy.string/join
 sub join {
     string(
@@ -20,6 +22,14 @@ sub replaceAll {
 
 sub toUpperCase {
     string(uc $_[0]);
+}
+
+sub _to_seq {
+    my ($str) = @_;
+    return nil unless length $str;
+    list([
+        map char("\\$_"), split //, $$str
+    ]);
 }
 
 1;

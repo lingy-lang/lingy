@@ -51,5 +51,3 @@ test "
       (recur (dec i) (cons i l))
       l))",
   "(1 2 3)";
-
-done_testing;
