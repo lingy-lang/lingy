@@ -42,5 +42,9 @@ test "foo]",
 test ",}",
      "Unmatched delimiter: '}'";
 
+test '111 222 #!/bin/bash 333',
+     "111\n222",
+     "Shebang syntax is a comment";
+
 
 done_testing;

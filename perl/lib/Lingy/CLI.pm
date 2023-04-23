@@ -4,7 +4,6 @@ package Lingy::CLI;
 
 use Getopt::Long;
 
-use Lingy::RT;
 use Lingy::Common;
 
 use constant default => '--repl';
@@ -25,6 +24,11 @@ sub new {
     }, $class;
 }
 
+sub rt {
+    require Lingy::RT;
+    return 'Lingy::RT';
+}
+
 sub from_stdin {
     not -t STDIN or exists $ENV{LINGY_TEST_STDIN};
 }
@@ -32,42 +36,44 @@ sub from_stdin {
 sub run {
     my ($self, @args) = @_;
 
+    my $rt = $self->rt;
+
     $self->getopt(@args);
 
     my ($repl, $run, $eval, $ppp, $xxx, $args) =
         @{$self}{qw<repl run eval ppp xxx args>};
     local @ARGV = @$args;
 
-    Lingy::RT->init;
+    $rt->init;
 
     if ($eval) {
         if ($repl) {
-            Lingy::RT->rep(qq<(do $eval\n)>);
-            Lingy::RT->repl;
+            $rt->rep(qq<(do $eval\n)>);
+            $rt->repl;
         } else {
             if ($ppp) {
-                Lingy::RT->rep(qq<(PPP (quote $eval\n))>);
+                $rt->rep(qq<(PPP (quote $eval\n))>);
             } elsif ($xxx) {
-                Lingy::RT->rep(qq<(XXX (quote $eval\n))>);
+                $rt->rep(qq<(XXX (quote $eval\n))>);
             } else {
                 unshift @ARGV, '-';
                 map print("$_\n"),
                     grep $_ ne 'nil',
-                    Lingy::RT->rep($eval);
+                    $rt->rep($eval);
             }
         }
 
     } elsif ($repl) {
-        Lingy::RT->repl;
+        $rt->repl;
 
     } elsif ($run) {
         if ($run ne '/dev/stdin') {
             -f $run or err "No such file '$run'";
         }
-        Lingy::RT->rep(qq<(load-file "$run")>);
+        $rt->rep(qq<(load-file "$run")>);
 
     } else {
-        Lingy::RT->repl;
+        $rt->repl;
     }
 }
 

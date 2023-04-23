@@ -16,6 +16,7 @@ sub tokenize {
         grep length,
         $_[0] =~ /
             (?:                     # Ignore:
+                \#\!.* |                # hashbang line
                 [\s,] |                 # whitespace, commas,
                 ;.*                     # comments
             )*
