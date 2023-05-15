@@ -1,8 +1,8 @@
 use strict; use warnings;
 package Lingy::Lang::Number;
 
-use base 'Lingy::Lang::ScalarClass';
 use Lingy::Common;
+use base SCALARTYPE;
 
 use overload
     '""' => sub { ${$_[0]} },

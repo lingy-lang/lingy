@@ -3,31 +3,64 @@ package Lingy::Common;
 
 use Exporter 'import';
 
+use constant SCALARTYPE => 'Lingy::Lang::ScalarClass';
+use constant LISTTYPE   => 'Lingy::Lang::ListClass';
+
+use constant NUMBERS    => 'Lingy::Lang::Numbers';
+use constant RT         => 'Lingy::Lang::RT';
+use constant TERM       => 'Lingy::Lang::Term';
+use constant THREAD     => 'Lingy::Lang::Thread';
+
+use constant ATOM       => 'Lingy::Lang::Atom';
+use constant BOOLEAN    => 'Lingy::Lang::Boolean';
+use constant CHARACTER  => 'Lingy::Lang::Character';
+use constant CLASS      => 'Lingy::Lang::Class';
+use constant FUNCTION   => 'Lingy::Lang::Function';
+use constant HASHMAP    => 'Lingy::Lang::HashMap';
+use constant KEYWORD    => 'Lingy::Lang::Keyword';
+use constant LIST       => 'Lingy::Lang::List';
+use constant MACRO      => 'Lingy::Lang::Macro';
+use constant NIL        => 'Lingy::Lang::Nil';
+use constant NUMBER     => 'Lingy::Lang::Number';
+use constant REGEX      => 'Lingy::Lang::Regex';
+use constant STRING     => 'Lingy::Lang::String';
+use constant SYMBOL     => 'Lingy::Lang::Symbol';
+use constant VECTOR     => 'Lingy::Lang::Vector';
+use constant VAR        => 'Lingy::Lang::Var';
+
 BEGIN {
     our @EXPORT = qw<
         READY
         $symbol_re
 
-        atom
-        boolean
-        char
-        class
-        false
-        function
-        hash_map
-        keyword
-        list
-        macro
-        nil
-        number
-        regex
-        string
-        symbol
-        true
-        var
-        vector
+        SCALARTYPE
+        LISTTYPE
+
+        NUMBERS
+        RT
+        TERM
+        THREAD
+
+        atom        ATOM
+        boolean     BOOLEAN
+        char        CHARACTER
+        class       CLASS
+        function    FUNCTION
+        hash_map    HASHMAP
+        keyword     KEYWORD
+        list        LIST
+        macro       MACRO
+        nil         NIL
+        number      NUMBER
+        regex       REGEX
+        string      STRING
+        symbol      SYMBOL
+        var         VAR
+        vector      VECTOR
 
         err
+        false
+        true
         comp_pair
 
         PPP
@@ -51,21 +84,22 @@ our $symbol_re = qr{^(
 
 sub READY { $Lingy::RT::ready // 0 }
 
-sub atom     { Lingy::Lang::Atom->new(@_) }
-sub boolean  { Lingy::Lang::Boolean->new(@_) }
-sub char     { Lingy::Lang::Character->read(@_) }
-sub class    { Lingy::Lang::Class->_new(@_) }
-sub function { Lingy::Lang::Function->new(@_) }
-sub keyword  { Lingy::Lang::Keyword->new(@_) }
-sub hash_map { Lingy::Lang::HashMap->new(@_) }
-sub list     { Lingy::Lang::List->new(@_) }
-sub macro    { Lingy::Lang::Macro->new(@_) }
-sub number   { Lingy::Lang::Number->new(@_) }
-sub regex    { Lingy::Lang::Regex->new(@_) }
-sub string   { Lingy::Lang::String->new(@_) }
-sub symbol   { Lingy::Lang::Symbol->new(@_) }
-sub var      { Lingy::Lang::Var->new(@_) }
-sub vector   { Lingy::Lang::Vector->new(@_) }
+
+sub atom     { ATOM->new(@_) }
+sub boolean  { BOOLEAN->new(@_) }
+sub char     { CHARACTER->read(@_) }
+sub class    { CLASS->_new(@_) }
+sub function { FUNCTION->new(@_) }
+sub keyword  { KEYWORD->new(@_) }
+sub hash_map { HASHMAP->new(@_) }
+sub list     { LIST->new(@_) }
+sub macro    { MACRO->new(@_) }
+sub number   { NUMBER->new(@_) }
+sub regex    { REGEX->new(@_) }
+sub string   { STRING->new(@_) }
+sub symbol   { SYMBOL->new(@_) }
+sub var      { VAR->new(@_) }
+sub vector   { VECTOR->new(@_) }
 
 sub err {
     my $msg = shift;
@@ -78,14 +112,14 @@ sub err {
 
 sub comp_pair {
     my ($x, $y) = @_;
-    if (ref($x) eq 'Lingy::Lang::Nil') {
-        return ref($y) eq 'Lingy::Lang::Nil' ? 0 : -1;
+    if (ref($x) eq NIL) {
+        return ref($y) eq NIL ? 0 : -1;
     }
-    return 1 if ref($y) eq 'Lingy::Lang::Nil';
+    return 1 if ref($y) eq NIL;
     ref($x) eq ref($y) or
         err "Can't compare values of type '%s' and '%s'",
             ref($x), ref($y);
-    if (ref($x) eq 'Lingy::Lang::Vector') {
+    if (ref($x) eq VECTOR) {
         return @$x cmp @$y unless @$x == @$y;
         my $i = 0;
         for my $e (@$x) {

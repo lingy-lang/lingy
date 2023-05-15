@@ -1,7 +1,7 @@
 use strict; use warnings;
 package Lingy::Lang::Function;
 
-use base 'Lingy::Lang::Class';
+use Lingy::Common;
 
 *list = \&Lingy::Common::list;
 *symbol = \&Lingy::Common::symbol;
@@ -13,17 +13,17 @@ sub new {
 
     my (undef, @exprs) = @$ast;
     @exprs = (list([@exprs]))
-        if ref($exprs[0]) eq 'Lingy::Lang::Vector';
+        if ref($exprs[0]) eq VECTOR;
 
     my $functions = [];
     my $variadic = '';
 
     for my $expr (@exprs) {
         err "fn expr is not a list"
-            unless ref($expr) eq 'Lingy::Lang::List';
+            unless ref($expr) eq LIST;
         my ($sig, @body) = @$expr;
         err "fn signature not a vector"
-            unless ref($sig) eq 'Lingy::Lang::Vector';
+            unless ref($sig) eq VECTOR;
         my $arity = (grep {$$_ eq '&'} @$sig) ? -1 : @$sig;
         if ($arity == -1) {
             $variadic = @$sig - 1;

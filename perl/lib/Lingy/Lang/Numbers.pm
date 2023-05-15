@@ -13,10 +13,11 @@ sub equiv {
     my ($x, $y) = @_;
     return false
         unless
-            ($x->isa('Lingy::Lang::ListClass') and
-            $y->isa('Lingy::Lang::ListClass')) or
-            (ref($x) eq ref($y));
-    if ($x->isa('Lingy::Lang::ListClass')) {
+            (
+                $x->isa(LISTTYPE) and
+                $y->isa(LISTTYPE)
+            ) or ref($x) eq ref($y);
+    if ($x->isa(LISTTYPE)) {
         return false unless @$x == @$y;
         for (my $i = 0; $i < @$x; $i++) {
             my $bool = equiv($x->[$i], $y->[$i]);
@@ -24,7 +25,7 @@ sub equiv {
         }
         return true;
     }
-    if ($x->isa('Lingy::Lang::HashMap')) {
+    if ($x->isa(HASHMAP)) {
         my @xkeys = sort map "$_", keys %$x;
         my @ykeys = sort map "$_", keys %$y;
         return false unless @xkeys == @ykeys;

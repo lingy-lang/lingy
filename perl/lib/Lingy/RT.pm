@@ -1,10 +1,10 @@
 use strict; use warnings;
 package Lingy::RT;
 
+use Lingy::Common;
+
 use Lingy::Eval;
 use Lingy::Lang::Class;
-use Lingy::Lang::List;
-use Lingy::Lang::String;
 use Lingy::Namespace();
 use Lingy::ReadLine;
 
@@ -23,32 +23,31 @@ bless \%ns, 'lingy-internal';
 bless \%refer, 'lingy-internal';
 
 our @class = (
-    'Lingy::Lang::Atom',
-    'Lingy::Lang::Boolean',
-    'Lingy::Lang::Class',
-    'Lingy::Lang::Character',
-    'Lingy::Lang::Function',
-    'Lingy::Lang::HashMap',
-    'Lingy::Lang::Keyword',
-    'Lingy::Lang::List',
-    'Lingy::Lang::Macro',
-    'Lingy::Lang::Nil',
-    'Lingy::Lang::Number',
-    'Lingy::Lang::Macro',
-    'Lingy::Lang::Numbers',
-    'Lingy::Lang::Regex',
-    'Lingy::Lang::RT',
-    'Lingy::Lang::String',
-    'Lingy::Lang::Symbol',
-    'Lingy::Lang::Term',
-    'Lingy::Lang::Thread',
-    'Lingy::Lang::Var',
-    'Lingy::Lang::Vector',
+    ATOM,
+    BOOLEAN,
+    CHARACTER,
+    CLASS,
+    FUNCTION,
+    HASHMAP,
+    KEYWORD,
+    LIST,
+    MACRO,
+    NIL,
+    NUMBER,
+    REGEX,
+    STRING,
+    SYMBOL,
+    VAR,
+    VECTOR,
+    NUMBERS,
+    RT,
+    TERM,
+    THREAD,
 );
 
 # Preload classes:
 our %class = map {
-    my $class = Lingy::Lang::Class->_new($_);
+    my $class = CLASS->_new($_);
     ($class->_name, $class);
 } @class;
 
@@ -108,9 +107,9 @@ sub core_namespace {
     )->current;
 
     my $argv = @ARGV
-        ? Lingy::Lang::List->new([
-            map Lingy::Lang::String->new($_), @ARGV[1..$#ARGV]]
-        ) : Lingy::Lang::Nil->new;
+        ? LIST->new([
+            map STRING->new($_), @ARGV[1..$#ARGV]]
+        ) : NIL->new;
 
     # Define these fns first for bootstrapping:
     $env->set(cons => \&Lingy::Lang::RT::cons);
@@ -118,15 +117,15 @@ sub core_namespace {
     $env->set(eval => sub { Lingy::Eval::eval($_[0], $env) });
 
     # Clojure dynamic vars:
-    $env->set('*file*', Lingy::Lang::String->new(
+    $env->set('*file*', STRING->new(
         $ARGV[0] || "NO_SOURCE_PATH"
     ));
     $env->set('*command-line-args*', $argv);
 
     # Lingy dynamic vars:
     $env->set('*ARGV*', $argv);
-    $env->set('*LANG*', Lingy::Lang::String->new($self->LANG));
-    $env->set('*HOST*', Lingy::Lang::String->new($self->HOST));
+    $env->set('*LANG*', STRING->new($self->LANG));
+    $env->set('*HOST*', STRING->new($self->HOST));
 
     my $core_ly = $INC{'Lingy/RT.pm'};
     $core_ly =~ s/RT\.pm$/core.ly/;

@@ -1,7 +1,8 @@
 use strict; use warnings;
 package Lingy::Lang::ListClass;
 
-use base 'Lingy::Lang::Class';
+use Lingy::Common;
+use base CLASS;
 
 sub new {
     my ($class, $list) = @_;

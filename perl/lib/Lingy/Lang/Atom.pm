@@ -1,7 +1,8 @@
 use strict; use warnings;
 package Lingy::Lang::Atom;
 
-use base 'Lingy::Lang::ScalarClass';
+use Lingy::Common;
+use base SCALARTYPE;
 
 sub new {
     bless [$_[1] // die], $_[0];

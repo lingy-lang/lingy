@@ -26,29 +26,28 @@ sub pr_str {
 
     $type or XXX $o, "Don't know how to print internal value '$o'";
 
-    $type eq 'Lingy::Lang::Atom' ? "(atom ${\pr_str($o->[0], $raw)})" :
-    $type eq 'Lingy::Lang::String' ? $raw ? $$o :
+    $type eq ATOM ? "(atom ${\pr_str($o->[0], $raw)})" :
+    $type eq STRING ? $raw ? $$o :
         qq{"${local $_ = $$o; s/([\n\t\"\\])/$escape->{$1}/ge; \$_}"} :
-    $type eq 'Lingy::Lang::Regex' ? $raw ? $$o :
+    $type eq REGEX ? $raw ? $$o :
         qq{#"${local $_ = $$o; s/([\n\t\"\\])/$escape->{$1}/ge; \$_}"} :
     $type eq 'Lingy::Lang::KeySymbol' ? $o :
-    $type eq 'Lingy::Lang::Symbol' ? $$o :
-    $type eq 'Lingy::Lang::Keyword' ? $$o :
-    $type eq 'Lingy::Lang::Number' ? $$o :
-    $type eq 'Lingy::Lang::Boolean' ? $$o ? 'true' : 'false' :
-    $type eq 'Lingy::Lang::Nil' ? 'nil' :
-    $type eq 'Lingy::Lang::Var' ? ("#'" . $$o) :
-    $type eq 'Lingy::Lang::Class' ? $o->_name :
-    $type eq 'Lingy::Lang::Character' ? $o->print($raw) :
-    $type eq 'Lingy::Lang::Type' ? $$o :
+    $type eq SYMBOL ? $$o :
+    $type eq KEYWORD ? $$o :
+    $type eq NUMBER ? $$o :
+    $type eq BOOLEAN ? $$o ? 'true' : 'false' :
+    $type eq NIL ? 'nil' :
+    $type eq VAR ? ("#'" . $$o) :
+    $type eq CLASS ? $o->_name :
+    $type eq CHARACTER ? $o->print($raw) :
     $type eq 'CODE' ? "#<function ${\ sub_name($o)}>" :
-    $type eq 'Lingy::Lang::Function' ? '#<Function>' :
-    $type eq 'Lingy::Lang::Macro' ? '#<Macro>' :
-    $type eq 'Lingy::Lang::List' ?
+    $type eq FUNCTION ? '#<Function>' :
+    $type eq MACRO ? '#<Macro>' :
+    $type eq LIST ?
         "(${\ join(' ', map pr_str($_, $raw), @$o)})" :
-    $type eq 'Lingy::Lang::Vector' ?
+    $type eq VECTOR ?
         "[${\ join(' ', map pr_str($_, $raw), @$o)}]" :
-    $type eq 'Lingy::Lang::HashMap' ?
+    $type eq HASHMAP ?
         "{${\ join(', ', map {
             my ($key, $val) = ($_, $o->{$_});
             if ($key =~ /^:/) {

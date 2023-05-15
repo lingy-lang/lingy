@@ -1,8 +1,8 @@
 use strict; use warnings;
 package Lingy::Lang::HashMap;
 
-use base 'Lingy::Lang::Class';
 use Lingy::Common;
+use base CLASS;
 
 use Tie::IxHash;
 
@@ -15,14 +15,14 @@ sub new {
         my $type = ref($key);
         $list->[$i] =
             $type eq '' ? qq<$key> :
-            $type eq 'Lingy::Lang::String' ? qq<"$key> :
-            $type eq 'Lingy::Lang::Symbol' ? qq<$key > :
-            $type->isa('Lingy::Lang::ScalarClass') ? qq<$key> :
+            $type eq STRING ? qq<"$key> :
+            $type eq SYMBOL ? qq<$key > :
+            $type->isa(SCALARTYPE) ? qq<$key> :
             (   # Quoted symbol:
-                $type eq 'Lingy::Lang::List' and
-                ref($key->[0]) eq 'Lingy::Lang::Symbol' and
+                $type eq LIST and
+                ref($key->[0]) eq SYMBOL and
                 ${$key->[0]} eq 'quote' and
-                ref($key->[1]) eq 'Lingy::Lang::Symbol'
+                ref($key->[1]) eq SYMBOL
             ) ? ${$key->[1]} . ' ' :
             err "Type '$type' not supported as a hash-map key";
     }

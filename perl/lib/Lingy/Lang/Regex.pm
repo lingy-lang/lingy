@@ -1,8 +1,8 @@
 use strict; use warnings;
 package Lingy::Lang::Regex;
 
-use base 'Lingy::Lang::ScalarClass';
 use Lingy::Common;
+use base SCALARTYPE;
 
 use constant NAME => 'lingy.lang.Regex';
 

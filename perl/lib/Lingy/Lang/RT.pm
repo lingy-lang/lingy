@@ -30,23 +30,23 @@ sub assoc {
     my ($map, @pairs) = @_;
     for (my $i = 0; $i < @pairs; $i += 2) {
         $pairs[$i] = qq<"$pairs[$i]>
-            if $pairs[$i]->isa('Lingy::Lang::String');
+            if $pairs[$i]->isa(STRING);
     }
     hash_map([%$map, @pairs]);
 }
 
 sub atom_ { atom($_[0]) }
 
-sub atom_Q { boolean(ref($_[0]) eq 'Lingy::Lang::Atom') }
+sub atom_Q { boolean(ref($_[0]) eq ATOM) }
 
-sub boolean_Q { boolean($_[0]->isa('Lingy::Lang::Boolean')) }
+sub boolean_Q { boolean($_[0]->isa(BOOLEAN)) }
 
 sub charCast {
     my ($char) = @_;
     my $type = ref($char);
     err "Class '$type' cannot be cast to 'lingy.lang.Character'"
-        unless $type =~ /^Lingy::Lang::(?:Symbol|Number)$/;
-    return Lingy::Lang::Character->read($char);
+        unless $type eq SYMBOL or $type eq NUMBER;
+    return CHARACTER->read($char);
 }
 
 sub concat { list([map @$_, @_]) }
@@ -54,9 +54,9 @@ sub concat { list([map @$_, @_]) }
 sub conj {
     my ($o, @args) = @_;
     my $type = ref($o);
-    $type eq 'Lingy::Lang::List' ? list([reverse(@args), @$o]) :
-    $type eq 'Lingy::Lang::Vector' ? vector([@$o, @args]) :
-    $type eq 'Lingy::Lang::Nil' ? nil :
+    $type eq LIST ? list([reverse(@args), @$o]) :
+    $type eq VECTOR ? vector([@$o, @args]) :
+    $type eq NIL ? nil :
     throw("conj first arg type '$type' not allowed");
 }
 
@@ -64,13 +64,13 @@ sub cons { list([$_[0], @{$_[1]}]) }
 
 sub contains_Q {
     my ($map, $key) = @_;
-    return false unless ref($map) eq 'Lingy::Lang::HashMap';
-    $key = qq<"$key> if $key->isa('Lingy::Lang::String');
+    return false unless ref($map) eq HASHMAP;
+    $key = qq<"$key> if $key->isa(STRING);
     boolean(exists $map->{"$key"});
 }
 
 sub count {
-    number(ref($_[0]) eq 'Lingy::Lang::Nil' ? 0 : scalar @{$_[0]});
+    number(ref($_[0]) eq NIL ? 0 : scalar @{$_[0]});
 }
 
 sub create_ns {
@@ -90,7 +90,7 @@ sub deref { $_[0]->[0] }
 sub dissoc {
     my ($map, @keys) = @_;
     @keys = map {
-        $_->isa('Lingy::Lang::String') ? qq<"$_> : "$_";
+        $_->isa(STRING) ? qq<"$_> : "$_";
     } @keys;
     $map = { %$map };
     delete $map->{$_} for @keys;
@@ -101,7 +101,7 @@ sub empty_Q { boolean(@{$_[0]} == 0) }
 
 sub false_Q {
     boolean(
-        ref($_[0]) eq 'Lingy::Lang::Boolean' and not "$_[0]"
+        ref($_[0]) eq BOOLEAN and not "$_[0]"
     );
 }
 
@@ -110,18 +110,18 @@ sub find_ns {
 }
 
 sub first {
-    ref($_[0]) eq 'Lingy::Lang::Nil'
+    ref($_[0]) eq NIL
         ? nil : @{$_[0]} ? $_[0]->[0] : nil;
 }
 
 sub fn_Q {
-    boolean(ref($_[0]) =~ /^(Lingy::Lang::Function|CODE)$/);
+    boolean(ref($_[0]) eq FUNCTION or ref($_[0]) eq 'CODE');
 }
 
 sub get {
     my ($map, $key, $default) = @_;
-    return nil unless ref($map) eq 'Lingy::Lang::HashMap';
-    $key = qq<"$key> if $key->isa('Lingy::Lang::String');
+    return nil unless ref($map) eq HASHMAP;
+    $key = qq<"$key> if $key->isa(STRING);
     $map->{"$key"} // $default // nil;
 }
 
@@ -138,21 +138,21 @@ sub import_ {
     my $return = nil;
 
     for my $spec (@$specs) {
-        if (ref($spec) eq 'Lingy::Lang::Symbol') {
+        if (ref($spec) eq SYMBOL) {
             $spec = list([$spec]);
         }
 
         err "Invalid import spec" unless
-            $spec->isa('Lingy::Lang::List') and
+            $spec->isa(LIST) and
             @$spec > 0 and
-            not grep { ref($_) ne 'Lingy::Lang::Symbol' } @$spec;
+            not grep { ref($_) ne SYMBOL } @$spec;
 
         my ($module_name, $imports) = @$spec;
         my $name = $$module_name;
         (my $module = $name) =~ s/\./::/g;
         eval "require $module; 1" or die $@;
         my $class = $Lingy::RT::class{$name} =
-            Lingy::Lang::Class->_new($name);
+            CLASS->_new($name);
         if ($module->can('new')) {
             $return = $class;
         }
@@ -187,13 +187,13 @@ sub keys_ {
 
 sub keyword_ { keyword($_[0]) }
 
-sub keyword_Q { boolean(ref($_[0]) eq 'Lingy::Lang::Keyword') }
+sub keyword_Q { boolean(ref($_[0]) eq KEYWORD) }
 
 sub list_ { list([@_]) }
 
-sub list_Q { boolean(ref($_[0]) eq 'Lingy::Lang::List') }
+sub list_Q { boolean(ref($_[0]) eq LIST) }
 
-sub macro_Q { boolean(ref($_[0]) eq 'Lingy::Lang::Macro') }
+sub macro_Q { boolean(ref($_[0]) eq MACRO) }
 
 sub macroexpand {
     Lingy::Eval::macroexpand($_[0], $Lingy::Eval::ENV);
@@ -206,7 +206,7 @@ sub map {
 }
 
 sub map_Q {
-    boolean(ref($_[0]) eq "Lingy::Lang::HashMap");
+    boolean(ref($_[0]) eq HASHMAP);
 }
 
 sub meta {
@@ -222,7 +222,7 @@ sub namespace {
 }
 
 sub nil_Q {
-    boolean(ref($_[0]) eq 'Lingy::Lang::Nil');
+    boolean(ref($_[0]) eq NIL);
 }
 
 sub nextID {
@@ -241,10 +241,10 @@ sub ns {
 
     for my $arg (@$args) {
         err "Invalid ns arg" unless
-            $arg->isa('Lingy::Lang::List') and
+            $arg->isa(LIST) and
             @$arg == 2 and
-            ref($arg->[0]) eq 'Lingy::Lang::Keyword' and
-            $arg->[1]->isa('Lingy::Lang::ListClass');
+            ref($arg->[0]) eq KEYWORD and
+            $arg->[1]->isa(LISTTYPE);
 
         my ($keyword, $args) = @$arg;
         if ($$keyword eq ':use') {
@@ -268,7 +268,7 @@ sub nth { $_[0][$_[1]] }
 
 sub number_ { number("$_[0]" + 0) }
 
-sub number_Q { boolean(ref($_[0]) eq 'Lingy::Lang::Number') }
+sub number_Q { boolean(ref($_[0]) eq NUMBER) }
 
 sub pos_Q { $_[0] > 0 ? true : false }
 
@@ -306,7 +306,7 @@ sub refer {
     my (@specs) = @_;
     for my $spec (@specs) {
         err "'refer' only works with symbols"
-            unless ref($spec) eq 'Lingy::Lang::Symbol';
+            unless ref($spec) eq SYMBOL;
         my $refer_ns_name = $$spec;
         my $current_ns_name = $Lingy::RT::ns;
         my $refer_ns = $Lingy::RT::ns{$refer_ns_name}
@@ -322,7 +322,7 @@ sub require {
     outer:
     for my $spec (@_) {
         err "'require' only works with symbols"
-            unless ref($spec) eq 'Lingy::Lang::Symbol';
+            unless ref($spec) eq SYMBOL;
 
         return nil if $Lingy::RT::ns{$$spec};
 
@@ -385,7 +385,7 @@ sub resolve {
 
 sub rest {
     my ($list) = @_;
-    return list([]) if $list->isa('Lingy::Lang::Nil') or not @$list;
+    return list([]) if $list->isa(NIL) or not @$list;
     list([@{$list}[1..(@$list-1)]]);
 }
 
@@ -396,10 +396,10 @@ sub seq {
     $o->_to_seq;
 }
 
-sub seq_Q {$_[0]->isa('Lingy::Lang::ListClass')}
+sub seq_Q {$_[0]->isa(LISTTYPE)}
 
 sub sequential_Q {
-    boolean(ref($_[0]) =~ /^(Lingy::Lang::List|Lingy::Lang::Vector)/);
+    boolean(ref($_[0]) eq LIST or ref($_[0]) eq VECTOR);
 }
 
 sub slurp { string(Lingy::RT->slurp($_[0])) }
@@ -414,12 +414,12 @@ sub str {
     string(
         join '',
             map Lingy::Printer::pr_str($_, 1),
-            grep {ref($_) ne 'Lingy::Lang::Nil'}
+            grep {ref($_) ne NIL}
             @_
     );
 }
 
-sub string_Q { boolean(ref($_[0]) eq "Lingy::Lang::String") }
+sub string_Q { boolean(ref($_[0]) eq STRING) }
 
 sub swap_BANG {
     my ($atom, $fn, $args) = @_;
@@ -428,11 +428,11 @@ sub swap_BANG {
 
 sub symbol_ { symbol("$_[0]") }
 
-sub symbol_Q { boolean(ref($_[0]) eq 'Lingy::Lang::Symbol') }
+sub symbol_Q { boolean(ref($_[0]) eq SYMBOL) }
 
 sub the_ns {
     $_[0]->isa('Lingy::Namespace') ? $_[0] :
-    $_[0]->isa('Lingy::Lang::Symbol') ? do {
+    $_[0]->isa(SYMBOL) ? do {
         $Lingy::RT::ns{$_[0]} //
         err "No namespace: '$_[0]' found";
     } : err "Invalid argument for the-ns: '$_[0]'";
@@ -451,7 +451,7 @@ sub time_ms {
 
 sub true_Q {
     boolean(
-        ref($_[0]) eq 'Lingy::Lang::Boolean' and "$_[0]"
+        ref($_[0]) eq BOOLEAN and "$_[0]"
     );
 }
 
@@ -478,6 +478,6 @@ sub vec { vector([@{$_[0]}]) }
 
 sub vector_ { vector([@_]) }
 
-sub vector_Q { boolean(ref($_[0]) eq "Lingy::Lang::Vector") }
+sub vector_Q { boolean(ref($_[0]) eq VECTOR) }
 
 1;

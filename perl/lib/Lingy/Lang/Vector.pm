@@ -1,8 +1,8 @@
 use strict; use warnings;
 package Lingy::Lang::Vector;
 
-use base 'Lingy::Lang::ListClass';
 use Lingy::Common;
+use base LISTTYPE;
 
 use overload cmp => \&comp_pair;
 

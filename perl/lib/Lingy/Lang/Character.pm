@@ -1,7 +1,8 @@
 use strict; use warnings;
 package Lingy::Lang::Character;
 
-use base 'Lingy::Lang::ScalarClass';
+use Lingy::Common;
+use base SCALARTYPE;
 
 use overload cmp => \&comp_pair;
 
@@ -23,7 +24,7 @@ sub read {
     my $type = ref($char);
 
     if ($type eq '' or
-        $type eq 'Lingy::Lang::Symbol'
+        $type eq SYMBOL
     ) {
         $char =~ s/^\\// or die;
         if (length($char) > 1) {
@@ -32,7 +33,7 @@ sub read {
         }
         return $class->new($char);
     }
-    if ($type eq 'Lingy::Lang::Number') {
+    if ($type eq NUMBER) {
         return $class->new(chr(0 + $char));
     }
 }

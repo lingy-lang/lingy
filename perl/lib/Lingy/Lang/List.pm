@@ -1,8 +1,8 @@
 use strict; use warnings;
 package Lingy::Lang::List;
 
-use base 'Lingy::Lang::ListClass';
 use Lingy::Common;
+use base LISTTYPE;
 
 sub _to_seq {
     my ($list) = @_;

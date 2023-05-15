@@ -31,7 +31,7 @@ sub eval {
     while (1) {
         $ast = macroexpand($ast, $env);
 
-        return eval_ast($ast, $env) unless ref($ast) eq 'Lingy::Lang::List';
+        return eval_ast($ast, $env) unless ref($ast) eq LIST;
 
         return $ast unless @$ast;   # Empty list
 
@@ -43,14 +43,14 @@ sub eval {
             my ($fn, @args) = @{eval_ast($ast, $env)};
             return $fn->(@args) if ref($fn) eq 'CODE';
 
-            while ((my $ref = ref($fn)) ne 'Lingy::Lang::Function') {
-                if ($ref eq 'Lingy::Lang::Var') {
+            while ((my $ref = ref($fn)) ne FUNCTION) {
+                if ($ref eq VAR) {
                     $fn = $env->get($$fn);
 
-                } elsif ($ref eq 'Lingy::Lang::Keyword') {
+                } elsif ($ref eq KEYWORD) {
                     return special_keyword($env, $fn, @args);
 
-                } elsif ($ref eq 'Lingy::Lang::Vector') {
+                } elsif ($ref eq VECTOR) {
                     return special_vector($env, $fn, @args);
 
                 } else {
@@ -64,11 +64,11 @@ sub eval {
 
 sub eval_ast {
     my ($ast, $env) = @_;
-    $ast->isa('Lingy::Lang::ListClass')
+    $ast->isa(LISTTYPE)
         ? ref($ast)->new([ map Lingy::Eval::eval($_, $env), @$ast ]) :
-    $ast->isa('Lingy::Lang::HashMap')
+    $ast->isa(HASHMAP)
         ? ref($ast)->new([map Lingy::Eval::eval($_, $env), %$ast]) :
-    $ast->isa('Lingy::Lang::Symbol')
+    $ast->isa(SYMBOL)
         ? $env->get($$ast) :
     $ast;
 }
@@ -101,12 +101,12 @@ sub special_dot {
     my ($ast, $env) = @_;
 
     my (undef, $target, @args) = @$ast;
-    if (@args == 1 and ref($args[0]) eq 'Lingy::Lang::List') {
+    if (@args == 1 and ref($args[0]) eq LIST) {
         @args = @{$args[0]};
     }
 
     ($target, @args) = map {
-        $_->isa('Lingy::Lang::List')
+        $_->isa(LIST)
             ? Lingy::Eval::eval($_, $env) : $_;
     } ($target, @args);
 
@@ -114,21 +114,21 @@ sub special_dot {
 
     if (my $class = is_class_symbol($target)) {
         $target = "${class}::${shift @args}";
-        @args = map { $_->isa('Lingy::Lang::Symbol')
+        @args = map { $_->isa(SYMBOL)
             ? $env->get($_) : $_; } @args;
         no strict 'refs';
         return &{$target}(@args);
     }
 
     $target = $env->get($target)
-        if $target->isa('Lingy::Lang::Symbol');
+        if $target->isa(SYMBOL);
 
-    if ($target->isa('Lingy::Lang::Class') or
+    if ($target->isa(CLASS) or
         $target->isa('Lingy::Namespace')
     ) {
         my $member = shift(@args);
 
-        @args = map { $_->isa('Lingy::Lang::Symbol')
+        @args = map { $_->isa(SYMBOL)
             ? $env->get($_) : $_; } @args;
 
         if (not $target->can($member)) {
@@ -177,7 +177,7 @@ sub special_let {
     my ($ast, $env) = @_;
     my (undef, $a1, $a2) = @$ast;
     err "First argument to 'let' must be a vector"
-        unless ref($a1) eq 'Lingy::Lang::Vector';
+        unless ref($a1) eq VECTOR;
     $env = Lingy::Env->new(outer => $env);
     for (my $i = 0; $i < @$a1; $i += 2) {
         $env->set(
@@ -195,7 +195,7 @@ sub special_loop {
     my (undef, $a1, $a2) = @$ast;
     if (not $env->{RECUR}) {
         err "First argument to 'loop' must be a vector"
-            unless ref($a1) eq 'Lingy::Lang::Vector';
+            unless ref($a1) eq VECTOR;
         $env = Lingy::Env->new(outer => $env);
         my $binds = [];
         for (my $i = 0; $i < @$a1; $i += 2) {
@@ -264,8 +264,8 @@ sub special_try {
     die ref($err) ? Lingy::Printer::pr_str($err) : $err
         unless defined $a2;
     err "Invalid 'catch' clause" unless
-        $a2 and $a2->isa('Lingy::Lang::ListClass') and
-        @$a2 and $a2->[0]->isa('Lingy::Lang::Symbol') and
+        $a2 and $a2->isa(LISTTYPE) and
+        @$a2 and $a2->[0]->isa(SYMBOL) and
         ${$a2->[0]} =~ /^catch\*?$/;
     my $e;
     (undef, $e, $ast) = @$a2;
@@ -310,7 +310,7 @@ sub special_vector {
 # Helper functions:
 sub is_class_symbol {
     my ($symbol) = @_;
-    return unless ref($_[0]) eq 'Lingy::Lang::Symbol';
+    return unless ref($_[0]) eq SYMBOL;
     my $class = $$symbol;
     return unless $class =~ /\./;
     $class =~ s/^lingy\.lang\./Lingy.Lang./;
@@ -325,9 +325,9 @@ sub macroexpand {
     my ($sym, $call);
     # while ast is a macro call form
     while (
-        ref($ast) eq 'Lingy::Lang::List' and
+        ref($ast) eq LIST and
         $sym = $ast->[0] and
-        ref($sym) eq "Lingy::Lang::Symbol"
+        ref($sym) eq SYMBOL
     ) {
         $sym = $$sym;
         if ($sym =~ /^\.(\S+)$/) {
@@ -339,7 +339,7 @@ sub macroexpand {
 #             XXX my $class = $Lingy::RT::class->{String};
 #         }
         if (($call = $env->get($sym, 1)) and
-            ref($call) eq 'Lingy::Lang::Macro'
+            ref($call) eq MACRO
         ) {
             # expand macro call form
             $ast = Lingy::Eval::eval($call->(@{$ast}[1..(@$ast-1)]));
@@ -353,15 +353,15 @@ sub macroexpand {
 sub quasiquote {
     my ($ast) = @_;
     return list([symbol('vec'), quasiquote_loop($ast)])
-        if $ast->isa('Lingy::Lang::Vector');
+        if $ast->isa(VECTOR);
     return list([symbol('quote'), $ast])
-        if $ast->isa('Lingy::Lang::HashMap') or
-            $ast->isa('Lingy::Lang::Symbol');
-    return $ast unless $ast->isa('Lingy::Lang::List');
+        if $ast->isa(HASHMAP) or
+            $ast->isa(SYMBOL);
+    return $ast unless $ast->isa(LIST);
     my ($a0, $a1) = @$ast;
     return $a1
         if $a0 and
-            $a0->isa('Lingy::Lang::Symbol') and
+            $a0->isa(SYMBOL) and
             "$a0" eq 'unquote';
     return quasiquote_loop($ast);
 }
@@ -370,9 +370,9 @@ sub quasiquote_loop {
     my ($ast) = @_;
     my $list = list([]);
     for my $elt (reverse @$ast) {
-        if ($elt->isa('Lingy::Lang::ListClass') and
+        if ($elt->isa(LISTTYPE) and
             $elt->[0] and
-            $elt->[0]->isa('Lingy::Lang::Symbol') and
+            $elt->[0]->isa(SYMBOL) and
             "$elt->[0]" eq 'splice-unquote'
         ) {
             $list = list([symbol('concat'), $elt->[1], $list]);

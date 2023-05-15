@@ -1,7 +1,8 @@
 use strict; use warnings;
 package Lingy::Lang::ScalarClass;
 
-use base 'Lingy::Lang::Class';
+use Lingy::Common;
+use base CLASS;
 
 use overload '""' => sub { ${$_[0]} };
 use overload cmp => sub { "$_[0]" cmp "$_[1]" };

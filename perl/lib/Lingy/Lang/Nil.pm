@@ -1,14 +1,14 @@
 use strict; use warnings;
 package Lingy::Lang::Nil;
 
-use base 'Lingy::Lang::ScalarClass';
 use Lingy::Common;
+use base SCALARTYPE;
 
 {
     package Lingy::Common;
     my ($n);
     ($n) = (1);
-    my $nil = bless \$n, 'Lingy::Lang::Nil';
+    my $nil = bless \$n, NIL;
     sub nil { $nil }
 }
 

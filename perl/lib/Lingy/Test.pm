@@ -22,7 +22,7 @@ $ENV{LINGY_TEST} = 1;
 our $lingy =
     -f './blib/script/lingy' ? './blib/script/lingy' :
     -f './bin/lingy' ? './bin/lingy' :
-    die "Can't find 'lingy' bin script to test";
+    undef;
 
 our $eg =
     -d 'eg' ? 'eg' :
