@@ -1,14 +1,19 @@
-(defn main [n]
+(defn main [number]
   (let [
-    paragraphs (map paragraph (range n 0 -1)) ]
-    (println
-      (String/join "\n" paragraphs))))
+    paragraphs (map paragraph (range number 0 -1)) ]
+    (map println paragraphs)))
 
 (defn paragraph [num]
   (str
-    num " bottles of beer on the wall\n"
-    num " bottles of beer\n"
-    "Take one down, pass it around\n"
-    (dec num) " bottles of beer on the wall.\n"))
+    (bottles num) " of beer on the wall,\n"
+    (bottles num) " of beer.\n"
+    "Take one down, pass it around.\n"
+    (bottles (dec num)) " of beer on the wall.\n"))
+
+(defn bottles [n]
+  (cond
+    (= n 0) "No more bottles"
+    (= n 1) "1 bottle"
+    :else (str n " bottles")))
 
 (main (nth *ARGV* 0 99))
