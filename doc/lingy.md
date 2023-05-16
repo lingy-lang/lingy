@@ -38,21 +38,48 @@ Hello, world!
 or run an example Lingy program:
 
 ```
-$ curl -sL https://raw.githubusercontent.com/ingydotnet/lingy/main/eg/99-bottles.ly | lingy - 3
-3 bottles of beer on the wall
-3 bottles of beer
-Take one down, pass it around
+$ wget -q https://raw.githubusercontent.com/ingydotnet/lingy/main/eg/99-bottles.ly
+```
+
+```
+$ cat 99-bottles.ly
+(defn main [number]
+  (let [
+    paragraphs (map paragraph (range number 0 -1)) ]
+    (map println paragraphs)))
+
+(defn paragraph [num]
+  (str
+    (bottles num) " of beer on the wall,\n"
+    (bottles num) " of beer.\n"
+    "Take one down, pass it around.\n"
+    (bottles (dec num)) " of beer on the wall.\n"))
+
+(defn bottles [n]
+  (cond
+    (= n 0) "No more bottles"
+    (= n 1) "1 bottle"
+    :else (str n " bottles")))
+
+(main (nth *ARGV* 0 99))
+```
+
+```
+$ lingy 99-bottles.ly 3
+3 bottles of beer on the wall,
+3 bottles of beer.
+Take one down, pass it around.
 2 bottles of beer on the wall.
 
-2 bottles of beer on the wall
-2 bottles of beer
-Take one down, pass it around
-1 bottles of beer on the wall.
+2 bottles of beer on the wall,
+2 bottles of beer.
+Take one down, pass it around.
+1 bottle of beer on the wall.
 
-1 bottles of beer on the wall
-1 bottles of beer
-Take one down, pass it around
-0 bottles of beer on the wall.
+1 bottle of beer on the wall,
+1 bottle of beer.
+Take one down, pass it around.
+No more bottles of beer on the wall.
 ```
 
 
@@ -72,7 +99,7 @@ It has:
 
 To Do:
 
-* AOT and JIT compile to LLVM bytecode
+* AOT and JIT compile to native Perl, LuaJIT or LLVM
 * Compile to native Perl code
 
 
@@ -109,11 +136,13 @@ https://github.com/ingydotnet/mal/tree/perl.2/impls/perl.2) of the
 This provided a bare-bones Clojure-inspired Lisp interpreter from which Lingy
 has grown upon.
 
+
 # Installation
 
 ```
 cpanm Lingy
 ```
+
 
 # `lingy` CLI Usage
 
@@ -182,9 +211,9 @@ The next major things to add are:
 
 # See Also
 
+* [Clojure](https://clojure.org/)
 * [YAMLScript](https://metacpan.org/pod/YAMLScript)
-* [YAMLTest](https://metacpan.org/pod/YAMLTest)
-
+* [Test::More::YAMLScript](https://metacpan.org/pod/Test::More::YAMLScript)
 
 
 # Authors
