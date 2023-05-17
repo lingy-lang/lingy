@@ -8,14 +8,14 @@ use Lingy::Common;
 use constant NAME => 'lingy.util';
 
 our %ns = (
+    fn('x-carp-off'  => 0 => sub { eval "no Carp::Always"; nil }),
+    fn('x-carp-on'   => 0 => sub { eval "use Carp::Always"; nil }),
+    fn('x-core'      => 0 => sub { Lingy::RT->rt->core }),
+    fn('x-env'       => 0 => sub { Lingy::RT->rt->env }),
+    fn('x-eval'      => 1 => sub { eval("$_[0]") }),
     fn('x-ns'        => 0 => sub { Lingy::RT->rt->ns }),
     fn('x-refer'     => 0 => sub { Lingy::RT->rt->refer }),
-    fn('x-env'       => 0 => sub { Lingy::RT->rt->env }),
-    fn('x-core'      => 0 => sub { Lingy::RT->rt->core }),
     fn('x-user'      => 0 => sub { Lingy::RT->rt->user }),
-    fn('x-eval'      => 1 => sub { eval("$_[0]") }),
-    fn('x-carp-on'   => 0 => sub { eval "use Carp::Always"; nil }),
-    fn('x-carp-off'  => 0 => sub { eval "no Carp::Always"; nil }),
 
     fn('x-pp-env' => '*' => sub {
         my $env = $Lingy::Eval::ENV;

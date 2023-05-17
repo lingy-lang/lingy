@@ -336,16 +336,18 @@ sub require {
 
         for my $inc (@INC) {
             $inc =~ s{^([^/.])}{./$1};
-            if (-f "$inc/$path.pm") {
-                CORE::require("$inc/$path.pm");
-                $module =~ s/\./::/g;
-                no strict 'refs';
-                $module->new(name => $name);
-                next outer;
-            } elsif (-f "$inc/$path.ly") {
-                my $ns = $Lingy::RT::ns{$Lingy::RT::ns};
-                Lingy::RT->rep(qq< (load-file "$inc/$path.ly") >);
-                $ns->current;
+            if (-f "$inc/$path.pm" or -f "$inc/$path.ly") {
+                if (-f "$inc/$path.pm") {
+                    CORE::require("$inc/$path.pm");
+                    $module =~ s/\./::/g;
+                    no strict 'refs';
+                    $module->new(name => $name);
+                }
+                if (-f "$inc/$path.ly") {
+                    my $ns = $Lingy::RT::ns{$Lingy::RT::ns};
+                    Lingy::RT->rep(qq< (load-file "$inc/$path.ly") >);
+                    $ns->current;
+                }
                 next outer;
             }
         }
