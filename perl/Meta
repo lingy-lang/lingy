@@ -1,7 +1,7 @@
 =meta: 0.0.2
 
 name: Lingy
-version: 0.1.3
+version: 0.1.4
 abstract: An Acmeist Lisp for Perl
 homepage:
 - http://lingy.org
