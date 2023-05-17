@@ -59,9 +59,10 @@ BEGIN {
         vector      VECTOR
 
         err
+        assert_args
+        comp_pair
         false
         true
-        comp_pair
 
         PPP
         WWW
@@ -108,6 +109,17 @@ sub err {
         ($msg =~ /\n./ ? "\n" : ' ') .
         $msg .
         "\n";
+}
+
+sub assert_args {
+    my $args = shift;
+    for (my $i = 0; $i < @_; $i++) {
+        if (ref($args->[$i]) ne $_[$i]) {
+            my (undef, undef, undef, $fn) = caller(1);
+            err "Arg %d for '%s' must be '%s', not '%s'",
+                $i, $fn, $_[$i], ref($args->[$i]);
+        }
+    }
 }
 
 sub comp_pair {

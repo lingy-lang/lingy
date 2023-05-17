@@ -31,7 +31,6 @@ requires:
   Term::ReadLine::Gnu: 0
   Tie::IxHash: 0
   YAML::PP: 0
-  YAMLTest: 0
   XXX: 0
 
 =zild:

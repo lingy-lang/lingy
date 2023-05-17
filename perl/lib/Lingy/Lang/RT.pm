@@ -49,6 +49,8 @@ sub charCast {
     return CHARACTER->read($char);
 }
 
+sub class_Q { boolean($_[0]->isa(CLASS)) }
+
 sub concat { list([map @$_, @_]) }
 
 sub conj {
@@ -106,6 +108,7 @@ sub false_Q {
 }
 
 sub find_ns {
+    assert_args(\@_, SYMBOL);
     $Lingy::RT::ns{$_[0]} // nil;
 }
 
@@ -151,6 +154,8 @@ sub import_ {
         my $name = $$module_name;
         (my $module = $name) =~ s/\./::/g;
         eval "require $module; 1" or die $@;
+        err "Class not found: '$name'"
+            if $module->isa('Lingy::Namespace');
         my $class = $Lingy::RT::class{$name} =
             CLASS->_new($name);
         if ($module->can('new')) {
@@ -234,10 +239,13 @@ sub ns {
     err "Invalid ns name '$name'"
         unless $name =~ /^\w+(\.\w+)*$/;
 
+    my $ns;
+    $ns = $Lingy::RT::ns{$name} //
     Lingy::Namespace->new(
         name => $name,
         refer => Lingy::RT->core,
-    )->current;
+    );
+    $ns->current;
 
     for my $arg (@$args) {
         err "Invalid ns arg" unless
@@ -340,8 +348,13 @@ sub require {
                 if (-f "$inc/$path.pm") {
                     CORE::require("$inc/$path.pm");
                     $module =~ s/\./::/g;
-                    no strict 'refs';
-                    $module->new(name => $name);
+                    err "Can't require $name. " .
+                        "$module is not a Lingy::Namespace."
+                        unless $module->isa('Lingy::Namespace');
+                    $module->new(
+                        name => symbol($name),
+                        refer => Lingy::RT->core,
+                    );
                 }
                 if (-f "$inc/$path.ly") {
                     my $ns = $Lingy::RT::ns{$Lingy::RT::ns};
@@ -458,11 +471,7 @@ sub true_Q {
 }
 
 sub type_ {
-    class(
-        $_[0]->can('NAME')
-            ? $_[0]->NAME
-            : ref($_[0])
-    );
+    class(ref($_[0]));
 }
 
 sub with_meta {

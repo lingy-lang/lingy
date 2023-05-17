@@ -16,16 +16,12 @@ sub NAME {
     $self->{' NAME'} // '';
 }
 
-sub getName {
-    symbol($_[0]->NAME);
-}
-
 sub new {
     my ($class, %args) = @_;
 
-    my $self = bless {}, $class;
+    my $self = bless {}, __PACKAGE__;
 
-    my $name = $self->{' NAME'} = $args{name} // $self->NAME;
+    my $name = $self->{' NAME'} = $args{name} // $class->NAME;
 
     if (my $refer_list = $args{refer}) {
         $refer_list = [$refer_list]
@@ -46,8 +42,6 @@ sub new {
             %{"${class}::ns"},
         );
     }
-
-    $self->_load_ly_file;
 
     $Lingy::RT::ns{$name} = $self;
 
@@ -90,12 +84,12 @@ sub fn {
     );
 }
 
-sub _load_ly_file {
-    my ($self) = @_;
-    (my $key = ref($self) . '.pm') =~ s{::}{/}g;
-    (my $file = $INC{$key} // '') =~ s/\.pm$/.ly/;
-    Lingy::RT->rep(Lingy::RT->slurp($file)) if -f $file;
-    return $self;
+sub getName {
+    symbol($_[0]->NAME);
+}
+
+sub getImports {
+    XXX @_, 'TODO - getImports';
 }
 
 sub getInterns {

@@ -53,25 +53,17 @@ sub get {
 
     while ($self) {
         my $ns = $self->space;
-        if (defined(my $value = $ns->{$symbol})) {
+        if (defined(my $value = _referred($ns, $symbol))) {
             return $value;
-        }
-        if (ref($ns) ne 'HASH') {
-            if (my $refer_ns_map = $Lingy::RT::refer{$ns->NAME}) {
-                if (my $refer_ns_name = $refer_ns_map->{$symbol}) {
-                    if (my $refer_ns = $Lingy::RT::ns{$refer_ns_name}) {
-                        if (defined(my $value = $refer_ns->{$symbol})) {
-                            return $value;
-                        }
-                    }
-                }
-            }
         }
         $self = $self->{outer};
     }
 
     if (my $class = $Lingy::RT::class{"$symbol"}) {
         return $class;
+    }
+    if ($symbol =~ /\w\.\w/) {
+        err "Class not found: '$symbol'";
     }
 
     return if $optional;
@@ -93,24 +85,32 @@ sub get_qualified {
     my $ns = $Lingy::RT::ns{$space_name}
         or err "No such namespace: '$space_name'";
 
-    if (defined(my $value = $ns->{$symbol_name})) {
+    if (defined(my $value = _referred($ns, $symbol_name))) {
+        return $value;
+    }
+
+    return if $optional;
+
+    err "Unable to resolve symbol: '$symbol' in this context";
+}
+
+sub _referred {
+    my ($ns, $symbol) = @_;
+    if (defined(my $value = $ns->{$symbol})) {
         return $value;
     }
     if (ref($ns) ne 'HASH') {
         if (my $refer_ns_map = $Lingy::RT::refer{$ns->NAME}) {
-            if (my $refer_ns_name = $refer_ns_map->{$symbol_name}) {
+            if (my $refer_ns_name = $refer_ns_map->{$symbol}) {
                 if (my $refer_ns = $Lingy::RT::ns{$refer_ns_name}) {
-                    if (defined(my $value = $refer_ns->{$symbol_name})) {
+                    if (defined(my $value = $refer_ns->{$symbol})) {
                         return $value;
                     }
                 }
             }
         }
     }
-
-    return if $optional;
-
-    err "Unable to resolve symbol: '$symbol' in this context";
+    return;
 }
 
 1;

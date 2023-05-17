@@ -2,5 +2,7 @@ use Lingy::Test;
 
 use lib './test/lib';
 
-pass;
-# test "(class? lingy.lang.Long)", 'tru';
+test "(class? lingy.lang.Number)", 'true';
+
+test "(class? lingy.core)",
+     "Class not found: 'lingy.core'";

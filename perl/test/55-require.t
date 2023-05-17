@@ -20,5 +20,8 @@ test "(foo)", '"called test.lingy/foo"';
 test "(require 'x.y.z)", "Can't find library for (require 'x.y.z)";
 test "(refer 'x.y.z)", "No namespace: 'x.y.z'";
 
+test "(require 'Foo.Class)", "Can't require Foo.Class. Foo::Class is not a Lingy::Namespace.";
+
 test "(require 'Foo.Bar)", 'nil';
-# test "(Foo.Bar/foo)", '42';
+test "(Foo.Bar/bar)", '43';
+test "(Foo.Bar/foo)", '123';

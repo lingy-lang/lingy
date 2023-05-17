@@ -174,6 +174,8 @@
 
 (defn char [x] (. lingy.lang.RT (charCast x)))
 
+(defn class? [value] (lingy.lang.RT/class_Q value))
+
 (defn clojure-version []
   (str
     (:major *clojure-version*)
@@ -311,6 +313,9 @@
 (defn not [a] (if a false true))
 
 (defmacro ns [name & xs] `(lingy.lang.RT/ns '~name '~xs))
+
+(defn ns-imports [ns]
+  (.getImports (the-ns ns)))
 
 (defn ns-interns [ns]
   (.getInterns (the-ns ns)))

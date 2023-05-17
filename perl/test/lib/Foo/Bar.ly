@@ -1,3 +1,4 @@
 (ns Foo.Bar)
+(import Foo.BarClass)
 
-(defn bar [] (apply Foo.Bar/foo []))
+(defn bar [] (. Foo.BarClass foo))

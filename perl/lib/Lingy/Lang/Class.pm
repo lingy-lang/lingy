@@ -55,6 +55,7 @@ sub _name {
             ref($_[0]);
     my $name = ${$_[0]};
     $name =~ s/^Lingy::Lang::/lingy.lang./;
+    $name =~ s/^Lingy::Namespace$/lingy.lang.Namespace/;
     return $name;
 }
 
