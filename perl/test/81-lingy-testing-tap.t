@@ -1,6 +1,9 @@
 #!/usr/bin/env lingy
 
-(ns testing (:use (lingy.testing.tap)))
+(ns testing
+  (:use
+    lingy.Util
+    lingy.testing.tap))
 
 (note "Testing with lingy.test")
 

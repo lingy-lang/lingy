@@ -66,4 +66,6 @@ sub clone {
     bless sub { goto &$fn }, ref($fn);
 }
 
+sub unbox { $_[0] }
+
 1;

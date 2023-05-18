@@ -250,17 +250,25 @@ sub ns {
     for my $arg (@$args) {
         err "Invalid ns arg" unless
             $arg->isa(LIST) and
-            @$arg == 2 and
-            ref($arg->[0]) eq KEYWORD and
-            $arg->[1]->isa(LISTTYPE);
+            @$arg >= 2 and
+            ref($arg->[0]) eq KEYWORD;
 
-        my ($keyword, $args) = @$arg;
+        my ($keyword, @args) = @$arg;
         if ($$keyword eq ':use') {
+            for my $spec (@args) {
+                Lingy::Eval::eval(
+                    list([
+                        symbol('use'),
+                        list([symbol('quote'), $spec]),
+                    ]),
+                    $Lingy::Eval::ENV,
+                );
+            }
+        }
+        elsif ($$keyword eq ':import') {
+            my (undef, @args) = @$arg;
             Lingy::Eval::eval(
-                list([
-                    symbol('use'),
-                    list([symbol('quote'), $args->[0]]),
-                ]),
+                list([ symbol('import'), @args ]),
                 $Lingy::Eval::ENV,
             );
         }

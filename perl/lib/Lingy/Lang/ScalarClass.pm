@@ -12,4 +12,8 @@ sub new {
     bless \$scalar, $class;
 }
 
+sub unbox {
+    ${$_[0]}
+}
+
 1;

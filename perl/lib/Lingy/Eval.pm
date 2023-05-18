@@ -123,22 +123,33 @@ sub special_dot {
     $target = $env->get($target)
         if $target->isa(SYMBOL);
 
-    if ($target->isa(CLASS) or
-        $target->isa('Lingy::Namespace')
-    ) {
+    if (@args) {
         my $member = shift(@args);
+        if ($target->isa(CLASS) or
+            $target->isa('Lingy::Namespace')
+        ) {
+            @args = map { $_->isa(SYMBOL)
+                ? $env->get($_) : $_; } @args;
 
-        @args = map { $_->isa(SYMBOL)
-            ? $env->get($_) : $_; } @args;
-
-        if (not $target->can($member)) {
-            my $class = $target->isa('Lingy::Namespace')
-                ? 'lingy.Namespace' : $target->NAME;
-            err "No matching field found: '$member' " .
-                "for class '$class'";
+            if (not $target->can($member)) {
+                my $class = $target->isa('Lingy::Namespace')
+                    ? 'lingy.Namespace' : $target->NAME;
+                err "No matching field found: '$member' " .
+                    "for class '$class'";
+            }
+            my $method = $$member;
+            return $target->$method(@args);
         }
-        my $method = $$member;
-        return $target->$method(@args);
+        # Test the unboxing of native call args:
+        if ($target->can($member)) {
+            my $method = $$member;
+            @args = map {
+                (
+                    $_->isa(SYMBOL) ? $env->get($_) : $_
+                )->unbox;
+            } @args;
+            return $target->$method(@args);
+        }
     }
 
     XXX $ast, "Don't know how to '.' this yet";
@@ -315,8 +326,11 @@ sub is_class_symbol {
     return unless $class =~ /\./;
     $class =~ s/^lingy\.lang\./Lingy.Lang./;
     $class =~ s/\./::/g;
-    eval "require $class; 1" or
-        err "Not a Lingy class: $class";
+    (my $path = "$class.pm") =~ s/::/\//g;
+    if (not exists $INC{$path}) {
+        eval "require $class; 1" or
+            err "Not a Lingy class: $class";
+    }
     return $class;
 }
 
