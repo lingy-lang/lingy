@@ -277,7 +277,9 @@
   ([a b c d & more]
     (cons a (cons b (cons c (cons d (-spread more)))))))
 
-(defn load-file [f]
+(defn load-file [f] (-load-file-ly f))
+
+(defn -load-file-ly [f]
   (eval
     (read-string
       (str

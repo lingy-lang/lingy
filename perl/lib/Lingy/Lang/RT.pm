@@ -352,9 +352,10 @@ sub require {
 
         for my $inc (@INC) {
             $inc =~ s{^([^/.])}{./$1};
-            if (-f "$inc/$path.pm" or -f "$inc/$path.ly") {
-                if (-f "$inc/$path.pm") {
-                    CORE::require("$inc/$path.pm");
+            my $inc_path = "$inc/$path";
+            if (-f "$inc_path.pm" or -f "$inc_path.ly") {
+                if (-f "$inc_path.pm") {
+                    CORE::require("$inc_path.pm");
                     $module =~ s/\./::/g;
                     err "Can't require $name. " .
                         "$module is not a Lingy::Namespace."
@@ -364,9 +365,9 @@ sub require {
                         refer => Lingy::RT->core,
                     );
                 }
-                if (-f "$inc/$path.ly") {
+                if (-f "$inc_path.ly") {
                     my $ns = $Lingy::RT::ns{$Lingy::RT::ns};
-                    Lingy::RT->rep(qq< (load-file "$inc/$path.ly") >);
+                    Lingy::RT->rep(qq< (load-file "$inc_path.ly") >);
                     $ns->current;
                 }
                 next outer;
