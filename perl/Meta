@@ -1,7 +1,7 @@
 =meta: 0.0.2
 
 name: Lingy
-version: 0.1.4
+version: 0.1.5
 abstract: An Acmeist Lisp for Perl
 homepage:
 - http://lingy.org
@@ -24,14 +24,14 @@ devel:
 
 requires:
   perl: 5.12
-  Capture::Tiny: 0
-  Sub::Name: 0
-  Sub::Identify: 0
-  Term::ReadLine: 0
-  Term::ReadLine::Gnu: 0
-  Tie::IxHash: 0
-  YAML::PP: 0
-  XXX: 0
+  Capture::Tiny: 0.48
+  Sub::Name: 0.27
+  Sub::Identify: 0.14
+  Term::ReadLine: 1.17
+  Term::ReadLine::Gnu: 1.45
+  Tie::IxHash: 1.23
+  YAML::PP: 0.036
+  XXX: 0.38
 
 =zild:
   no-about: true
