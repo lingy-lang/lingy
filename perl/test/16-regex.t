@@ -1,10 +1,10 @@
 use Lingy::Test;
 
 test '#"fo+o"',
-     '#"(?^:fo+o)"';
+     '#"fo+o"';
 
 test '(re-pattern "fo+o")',
-     '#"(?^:fo+o)"';
+     '#"fo+o"';
 
 test '(re-find #"foo" "foobar")',
      '"foo"';
