@@ -99,8 +99,6 @@ sub dissoc {
     hash_map([%$map]);
 }
 
-sub empty_Q { boolean(@{$_[0]} == 0) }
-
 sub false_Q {
     boolean(
         ref($_[0]) eq BOOLEAN and not "$_[0]"
