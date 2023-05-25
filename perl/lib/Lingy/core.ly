@@ -221,11 +221,15 @@
 
 (defn false? [value] (. lingy.lang.RT (false_Q value)))
 
+(defn ffirst [x] (first (first x)))
+
 (defn find-ns [name] (. lingy.lang.RT (find_ns name)))
 
 (defn first [list] (. lingy.lang.RT (first list)))
 
 (defn fn? [fn] (. lingy.lang.RT (fn_Q fn)))
+
+(defn fnext [x] (first (next x)))
 
 (defn get [map key & default] (apply lingy.lang.RT/get map key default))
 
@@ -312,6 +316,8 @@
 (defn namespace [symbol] (. lingy.lang.RT (namespace symbol)))
 
 (defn next [x] (seq (rest x)))
+
+(defn nfirst [x] (next (first x)))
 
 (defn nil? [x] (. lingy.lang.RT (nil_Q x)))
 
