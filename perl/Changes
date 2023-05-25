@@ -1,4 +1,10 @@
 ---
+version: 0.1.7
+date:    Thu May 25 04:15:22 PM PDT 2023
+changes:
+- Add an eval-perl function to lingy.Util
+- Add some more basic core functions
+---
 version: 0.1.6
 date:    Thu May 25 08:49:11 AM PDT 2023
 changes:
