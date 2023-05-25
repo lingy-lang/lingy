@@ -20,6 +20,23 @@ sub replaceAll {
     string($str);
 }
 
+sub substring {
+    my ($string, $offset1, $offset2) = @_;
+    my $length = length $string;
+    $offset2 //= number($length);
+    err "Begin index out of range '%d' for string length '%d'",
+        $offset1, $length
+        if $offset1 < 0 or $offset1 > $length;
+    err "End index out of range '%d' for string length '%d'",
+        $offset2, $length
+        if $offset2 < $offset1 or $offset2 > $length;
+    string(substr("$string", $offset1, $offset2 - $offset1))
+}
+
+sub toLowerCase {
+    string(lc $_[0]);
+}
+
 sub toUpperCase {
     string(uc $_[0]);
 }
