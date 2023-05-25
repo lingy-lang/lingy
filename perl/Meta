@@ -1,8 +1,8 @@
 =meta: 0.0.2
 
 name: Lingy
-version: 0.1.5
-abstract: An Acmeist Lisp for Perl
+version: 0.1.6
+abstract: A Perl implementation of Clojure
 homepage:
 - http://lingy.org
 language: perl

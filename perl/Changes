@@ -1,4 +1,12 @@
 ---
+version: 0.1.6
+date:    Thu May 25 08:49:11 AM PDT 2023
+changes:
+- Allow load-file to be overridden
+- Fix printer for regexes
+- Add substring and toLowerCase to Lingy.Lang.String
+- Refactor core functions
+---
 version: 0.1.5
 date:    Thu May 18 08:55:57 PM PDT 2023
 changes:

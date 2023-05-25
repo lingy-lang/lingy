@@ -1,7 +1,7 @@
 Lingy
 =====
 
-Do for Perl what Clojure did for Java
+A Perl implementation of Clojure
 
 
 # Synopsis
@@ -87,34 +87,19 @@ No more bottles of beer on the wall.
 
 Lingy is in ALPHA status.
 
-It has:
-
-* The `eg` directory of example programs that work
-* A pretty good REPL
-  * Tab completion
-  * Command history
-  * History search
-  * Parentheses visual matching
-  * Other nice readline features
-
-To Do:
-
-* AOT and JIT compile to native Perl, LuaJIT or LLVM
-* Compile to native Perl code
-
 
 # Description
 
 Lingy is an implementation of the Clojure language that is written in Perl and
-hosted by Perl and LLVM.
+hosted by Perl.
 Programs and modules written in Lingy have full access to Perl and its CPAN
 modules.
 
 Perl modules can be written in Lingy and distributed on CPAN.
-Since Lingy code is compiled to LLVM, it should perform on the same order of
-magnitude as XS modules.
+(In the future) Lingy code is compiled to a bytecode and should perform on the
+same order of magnitude as XS modules.
 
-Since Lingy is a complete Clojure implementation, it should be able to run
+Since Lingy will be a complete Clojure implementation, it should be able to run
 programs written in Clojure and make use of libraries written in Clojure.
 
 Clojure is a language that cleanly solves many of the problems of Java
@@ -198,15 +183,6 @@ Lingy one-liner expressions.
 * `--xxx`
 
   YAML dump the Lingy compiled AST for a `-e` expression.
-
-
-# Roadmap
-
-The next major things to add are:
-
-* Compilation to Perl code
-* Compilation to LLVM bytecode
-* Lambdas
 
 
 # See Also
