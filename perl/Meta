@@ -23,15 +23,15 @@ devel:
   irc: irc.freenode.net#yaml
 
 requires:
-  perl: 5.12
-  Capture::Tiny: 0.48
-  Sub::Name: 0.27
-  Sub::Identify: 0.14
-  Term::ReadLine: 1.17
-  Term::ReadLine::Gnu: 1.45
-  Tie::IxHash: 1.23
-  YAML::PP: 0.036
-  XXX: 0.38
+  perl: 5.16.0
+  Capture::Tiny: '0.48'
+  Sub::Name: '0.27'
+  Sub::Identify: '0.14'
+  Term::ReadLine: '1.17'
+  Term::ReadLine::Gnu: '1.45'
+  Tie::IxHash: '1.23'
+  YAML::PP: '0.036'
+  XXX: '0.38'
 
 =zild:
   no-about: true
