@@ -1,33 +1,34 @@
 use Lingy::Test;
 
-note "Testing (list* ...)";
-test q<(list* ())>,
-     q<nil>;
-test q<(list* 5 ())>,
-     q<(5)>;
-test q<(list* 5 6 ())>,
-     q<(5 6)>;
-test q<(list* 5 6 '(2 3))>,
-     q<(5 6 2 3)>;
+test_list <<'...'
 
-note "Testing classes";
-test q<lingy.lang.String>,
-     q<lingy.lang.String>;
-test q<String>,
-     q<lingy.lang.String>;
+- note: Testing (list* ...)
+- - (list* ())
+  - nil
+- - (list* 5 ())
+  - (5)
+- - (list* 5 6 ())
+  - (5 6)
+- - (list* 5 6 '(2 3))
+  - (5 6 2 3)
 
-test q<(type 42)>,
-     q<lingy.lang.Number>;
-test q<(type (type 42))>,
-     q<lingy.lang.Class>;
-test q<(type Number)>,
-     q<lingy.lang.Class>;
+- note: Testing classes
+- - lingy.lang.String
+  - lingy.lang.String
+- - String
+  - lingy.lang.String
 
-test q<(instance? String "")>,
-     'true';
-test q<(instance? String (str "x" "y"))>,
-     'true';
-test q<(instance? String 123)>,
-     'false';
-# test q<(instance? String (String.))>,
-#      'false';
+- - (type 42)
+  - lingy.lang.Number
+- - (type (type 42))
+  - lingy.lang.Class
+- - (type Number)
+  - lingy.lang.Class
+
+- - (instance? String "")
+  - 'true'
+- - (instance? String (str "x" "y"))
+  - 'true'
+- - (instance? String 123)
+  - 'false'
+...

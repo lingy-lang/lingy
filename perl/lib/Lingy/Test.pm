@@ -4,6 +4,7 @@ package Lingy::Test;
 use base 'Exporter';
 
 use Test::More;
+use YAML::PP;
 
 use Lingy::RT;
 use Lingy::Common;
@@ -14,6 +15,8 @@ use File::Temp 'tempfile';
 use lib 'lib', './test/lib', './t/lib';
 
 symlink 't', 'test' if -d 't' and not -e 'test';
+
+my $ypp = YAML::PP->new;
 
 our $rt = Lingy::RT->init;
 
@@ -51,6 +54,7 @@ our @EXPORT = qw<
     run_is
     test
     test_out
+    test_list
 
     PPP WWW XXX YYY ZZZ
 >;
@@ -68,8 +72,27 @@ sub rep {
     $rt->rep(@_);
 }
 
+sub test_list {
+    my ($spec) = @_;
+    my $list = $ypp->load_string($spec);
+    for my $elem (@$list) {
+        if (ref($elem) eq 'HASH'){
+            my ($key, $val) = %$elem;
+            no strict 'refs';
+            $key->($val);
+        } else {
+            test(@$elem);
+        }
+    }
+}
+
 # Test 'rep' for return value or error:
+my $test_i = 0;
 sub test {
+    $test_i++;
+    if ($ENV{ONLY} and $ENV{ONLY} != $test_i) {
+        return;
+    }
     my ($input, $want, $label) = @_;
     $label //= "'${\ collapse $input}' -> '${\line $want}'";
 
