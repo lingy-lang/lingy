@@ -54,7 +54,7 @@ our @EXPORT = qw<
     run_is
     test
     test_out
-    test_list
+    tests
 
     PPP WWW XXX YYY ZZZ
 >;
@@ -72,7 +72,7 @@ sub rep {
     $rt->rep(@_);
 }
 
-sub test_list {
+sub tests {
     my ($spec) = @_;
     my $list = $ypp->load_string($spec);
     for my $elem (@$list) {
@@ -104,6 +104,8 @@ sub test {
 
     if (ref($want) eq 'Regexp') {
         like $got, $want, $label;
+    } elsif ($want =~ s{^/(.*)/$}{$1}) {
+        like $got, qr/$want/, $label;
     } else {
         is $got, $want, $label;
     }

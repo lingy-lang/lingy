@@ -1,6 +1,6 @@
 use Lingy::Test;
 
-test_list <<'...'
+tests <<'...'
 
 - note: Testing (list* ...)
 - - (list* ())

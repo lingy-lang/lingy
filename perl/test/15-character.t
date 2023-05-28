@@ -1,13 +1,15 @@
 use Lingy::Test;
 
-test '\A',
-     '\A';
+tests <<'...';
+- - \A
+  - \A
 
-test '(char 65)',
-     '\A';
+- - (char 65)
+  - \A
 
-test '\space',
-     '\space';
+- - \space
+  - \space
 
-test '(char 32)',
-     '\space';
+- - (char 32)
+  - \space
+...

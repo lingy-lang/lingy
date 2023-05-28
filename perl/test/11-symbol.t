@@ -1,14 +1,23 @@
 use Lingy::Test;
 
-test "'foo.bar/baz", 'foo.bar/baz';
-
 rep '(def aaa 123)';
 
-test "aaa", 123;
-test "user/aaa", 123;
+tests <<'...';
+- - "'foo.bar/baz"
+  - foo.bar/baz
 
-test "not", "#<Function>";
+- - aaa
+  - 123
+- - user/aaa
+  - 123
 
-test "user/abc", "Unable to resolve symbol: 'user/abc' in this context";
+- - not
+  - '#<Function>'
 
-test "(def foo/bar 42)", "Can't def a qualified symbol: 'foo/bar'";
+- - user/abc
+  - "Unable to resolve symbol: 'user/abc' in this context"
+
+- - (def foo/bar 42)
+  - "Can't def a qualified symbol: 'foo/bar'"
+...
+

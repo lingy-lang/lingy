@@ -1,15 +1,15 @@
 use Lingy::Test;
 use Lingy;
 
-test_list <<"...";
+tests <<"...";
 - - '*lingy-version*'
   - '{:major 0, :minor 1, :incremental 8, :qualifier nil}'
 - - '*clojure-version*'
   - '{:major 1, :minor 11, :incremental 1, :qualifier nil}'
 
-- - '(lingy-version)'
+- - (lingy-version)
   - '"$Lingy::VERSION"'
-- - '(clojure-version)'
+- - (clojure-version)
   - '"1.11.1"'
 
 - - '*HOST*'
@@ -19,10 +19,10 @@ test_list <<"...";
   - '"NO_SOURCE_PATH"'
 
 - - '*ARGV*'
-  - 'nil'
+  - nil
 
 - - '*command-line-args*'
-  - 'nil'
+  - nil
 
 - - '*ns*'
   - '#<Namespace user>'
