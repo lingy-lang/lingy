@@ -114,17 +114,18 @@ sub rep {
         usleep 500_000;
     }
 
-    chomp $output;
+    $output =~ s/\n*\z//;
+    $output .= "\n" if length $output;
 
     print STDOUT "${Y}Clojure:$Z\n$output\n";
 }
 
 END {
     if (defined $pid) {
-        print "$Y*** Stopping Clojure REPL server ($pid)$Z\n";
         print $in '(java.lang.System/exit 0)', "\n";
         waitpid( $pid, 0 );
         my $rc = $? >> 8;
+        print "$Y*** Stopped Clojure REPL server ($pid)$Z\n";
         exit $rc unless $rc == 0;
     }
 }

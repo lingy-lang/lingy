@@ -173,7 +173,7 @@ sub repl {
 
     $self->rep(q< (println (str *LANG* " " (lingy-version) " [" *HOST* "]\n"))>)
         unless $ENV{LINGY_TEST};
-    my ($clojure_repl) = $self->rep("*clojure-repl*");
+    my ($clojure_repl) = $self->rep("(identity *clojure-repl*)");
     if ($clojure_repl eq 'true') {
         require Lingy::ClojureREPL;
         Lingy::ClojureREPL->start();
@@ -181,12 +181,14 @@ sub repl {
 
     while (defined (my $line = Lingy::ReadLine::readline)) {
         next unless length $line;
+
         my @forms = eval { $reader->read_str($line, 1) };
         if ($@) {
             print "$@\n";
             $Lingy::ReadLine::input = '';
             next;
         }
+
         for my $form (@forms) {
             my $ret = eval { $pr_str->(Lingy::Eval::eval($form, $env)) };
             my $err;
@@ -196,7 +198,7 @@ sub repl {
         }
 
         my $input = $Lingy::ReadLine::input // next;
-        ($clojure_repl) = $self->rep("*clojure-repl*");
+        ($clojure_repl) = $self->rep("(identity *clojure-repl*)");
 
         if ($input =~ s/^;;;// or $clojure_repl eq 'true') {
             require Lingy::ClojureREPL;
