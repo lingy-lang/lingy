@@ -1,7 +1,7 @@
 =meta: 0.0.2
 
 name: Lingy
-version: 0.1.7
+version: 0.1.8
 abstract: A Perl implementation of Clojure
 homepage:
 - http://lingy.org
@@ -25,13 +25,25 @@ devel:
 requires:
   perl: 5.16.0
   Capture::Tiny: '0.48'
-  Sub::Name: '0.27'
+  # File::Find: '0'
+  File::Path: '2.18'
+  File::Spec: '3.75'
+  File::Temp: '0.2311'
+  File::Which: '1.27'
+  Getopt::Long: '2.54'
+  IO::Select: '1.51'
+  # IPC::Open3: '0'
+  Scalar::Util: '1.63'
   Sub::Identify: '0.14'
+  Sub::Name: '0.27'
+  # Symbol: '0'
   Term::ReadLine: '1.17'
   Term::ReadLine::Gnu: '1.45'
+  Test::Simple: '1.302195'
   Tie::IxHash: '1.23'
-  YAML::PP: '0.036'
+  Time::HiRes: '1.9764'
   XXX: '0.38'
+  YAML::PP: '0.036'
 
 =zild:
   no-about: true

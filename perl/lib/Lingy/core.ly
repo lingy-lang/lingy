@@ -5,7 +5,7 @@
   {
     :major       0
     :minor       1
-    :incremental 7
+    :incremental 8
     :qualifier   nil
   })
 

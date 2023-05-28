@@ -1,4 +1,11 @@
 ---
+version: 0.1.8
+date:    Sat May 27 11:27:53 PM PDT 2023
+changes:
+- Update Meta yaml
+- Add test_list to Lingy::Test for YAML test specs
+- Add option for REPL to also call Clojure REPL
+---
 version: 0.1.7
 date:    Thu May 25 04:15:22 PM PDT 2023
 changes:
