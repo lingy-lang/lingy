@@ -3,6 +3,7 @@ package Lingy::RT;
 
 use Lingy::Common;
 
+use Lingy;
 use Lingy::Eval;
 use Lingy::Lang::Class;
 use Lingy::Namespace();
@@ -126,6 +127,25 @@ sub core_namespace {
     $env->set('*ARGV*', $argv);
     $env->set('*LANG*', STRING->new($self->LANG));
     $env->set('*HOST*', STRING->new($self->HOST));
+
+    $Lingy::VERSION =~ /^(\d+)\.(\d+)\.(\d+)$/;
+    $self->rep("
+      (def *lingy-version*
+        {
+          :major       $1
+          :minor       $2
+          :incremental $3
+          :qualifier   nil
+        })
+
+      (def *clojure-version*
+        {
+          :major       1
+          :minor       11
+          :incremental 1
+          :qualifier   nil
+        })
+    ");
 
     my $core_ly = $INC{'Lingy/RT.pm'};
     $core_ly =~ s/RT\.pm$/core.ly/;

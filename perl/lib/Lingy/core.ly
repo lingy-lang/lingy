@@ -1,22 +1,6 @@
 ;------------------------------------------------------------------------------
 ; Define dynamic variables:
 ;------------------------------------------------------------------------------
-(def *lingy-version*
-  {
-    :major       0
-    :minor       1
-    :incremental 8
-    :qualifier   nil
-  })
-
-(def *clojure-version*
-  {
-    :major       1
-    :minor       11
-    :incremental 1
-    :qualifier   nil
-  })
-
 (def *clojure-repl* false)
 
 ;------------------------------------------------------------------------------
