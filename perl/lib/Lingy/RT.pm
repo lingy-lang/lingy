@@ -111,7 +111,7 @@ sub core_namespace {
             map STRING->new($_), @ARGV[1..$#ARGV]]
         ) : NIL->new;
 
-    # Define these fns first for bootstrapping:
+    # Define these functions first for bootstrapping:
     $env->set(cons => \&Lingy::Lang::RT::cons);
     $env->set(concat => \&Lingy::Lang::RT::concat);
     $env->set(eval => sub { Lingy::Eval::eval($_[0], $env) });
@@ -163,29 +163,45 @@ sub slurp {
 }
 
 sub rep {
-    my ($self, $str, $repl) = @_;
-    my @ret;
-    for ($reader->read_str($str, $repl)) {
-        if ($repl) {
-            my $ret = eval { $pr_str->(Lingy::Eval::eval($_, $env)) };
-            $ret = $@ if $@;
-            chomp $ret;
-            print "$ret\n";
-        } else {
-            push @ret, $pr_str->(Lingy::Eval::eval($_, $env));
-        }
-    }
-    return @ret;
+    my ($self, $str) = @_;
+    map $pr_str->(Lingy::Eval::eval($_, $env)),
+        $reader->read_str($str);
 }
 
 sub repl {
     my ($self) = @_;
-    $self->rep(q< (println (str "Welcome to " *LANG* " [" *HOST* "]\n"))>)
+
+    $self->rep(q< (println (str *LANG* " " (lingy-version) " [" *HOST* "]\n"))>)
         unless $ENV{LINGY_TEST};
+    my ($clojure_repl) = $self->rep("*clojure-repl*");
+    if ($clojure_repl eq 'true') {
+        require Lingy::ClojureREPL;
+        Lingy::ClojureREPL->start();
+    }
+
     while (defined (my $line = Lingy::ReadLine::readline)) {
         next unless length $line;
-        eval { $self->rep("$line", 'repl') };
-        print $@ if $@;
+        my @forms = eval { $reader->read_str($line, 1) };
+        if ($@) {
+            print "$@\n";
+            $Lingy::ReadLine::input = '';
+            next;
+        }
+        for my $form (@forms) {
+            my $ret = eval { $pr_str->(Lingy::Eval::eval($form, $env)) };
+            my $err;
+            $err = $ret = $@ if $@;
+            chomp $ret;
+            print "$ret\n";
+        }
+
+        my $input = $Lingy::ReadLine::input // next;
+        ($clojure_repl) = $self->rep("*clojure-repl*");
+
+        if ($input =~ s/^;;;// or $clojure_repl eq 'true') {
+            require Lingy::ClojureREPL;
+            Lingy::ClojureREPL->rep($input);
+        }
     }
     print "\n";
 }

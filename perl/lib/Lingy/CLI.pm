@@ -9,6 +9,7 @@ use Lingy::Common;
 use constant default => '--repl';
 use constant options => +{
     repl => 'bool',
+    clj  => 'bool',
     eval => 'str',
     run  => 'arg',
     ppp  => 'bool',
@@ -40,11 +41,15 @@ sub run {
 
     $self->getopt(@args);
 
-    my ($repl, $run, $eval, $ppp, $xxx, $args) =
-        @{$self}{qw<repl run eval ppp xxx args>};
+    my ($repl, $clj, $run, $eval, $ppp, $xxx, $args) =
+        @{$self}{qw<repl clj run eval ppp xxx args>};
     local @ARGV = @$args;
 
     $rt->init;
+
+    if ($clj) {
+        $rt->rep(qq<(clojure-repl-on)>);
+    }
 
     if ($eval) {
         if ($repl) {

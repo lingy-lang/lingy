@@ -17,6 +17,7 @@ die "Please install Term::ReadLine::Gnu from CPAN\n"
     if $tty->ReadLine ne 'Term::ReadLine::Gnu';
 
 my $tested = 0;
+our $input;
 sub readline {
     if (my $input = $ENV{LINGY_TEST_INPUT}) {
         return if $tested++;
@@ -29,6 +30,9 @@ sub readline {
     if ($continue) {
         no warnings 'numeric';
         $prompt = (' ' x (length($prompt) - 2)) . '#_';
+    }
+    else {
+        $input = '';
     }
     $prompt .= '=> ';
 
@@ -48,7 +52,11 @@ sub readline {
 
     $tty->Attribs->{completion_query_items} = 1000;
     $tty->Attribs->{completion_function} = \&complete;
-    $tty->readline($prompt);
+
+    my $line = $tty->readline($prompt);
+    return unless defined $line;
+    $input .= $line;
+    return $line;
 }
 
 sub complete {

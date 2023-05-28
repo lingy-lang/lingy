@@ -10,7 +10,7 @@ Run the Lingy REPL:
 
 ```
 $ lingy
-Welcome to Lingy [perl]
+Lingy 0.1.7 [perl]
 
 user=> (p<TAB>
 pos?     println  prn      pr-str
@@ -183,6 +183,32 @@ Lingy one-liner expressions.
 * `--xxx`
 
   YAML dump the Lingy compiled AST for a `-e` expression.
+
+
+# Lingy REPL Usage
+
+If you run `lingy --repl` (or just `lingy`) you will start a Lingy interactive
+REPL.
+You can run Lingy commands and see the output.
+
+The REPL has command line history to save all your commands.
+It also has readline history search (ctl-r) and tab completion.
+
+## Using the Clojure REPL in the Lingy REPL
+
+If you have Clojure installed on your system and you run this command in the
+Lingy REPL: `(clojure-repl-on)`, then every command you enter will be evaluated
+both by Lingy and Clojure.
+Run `(clojure-repl-off)` to turn it off.
+Start the Lingy REPL with `lingy --clj` to turn it on from the start.
+
+Also if you run a command like `;;;(source first)` it will only run on Clojure.
+The command is a comment to Lingy but the REPL will remove the `;;;` and pass
+it to Clojure.
+
+Using this feature is a great way to compare how Lingy and Clojure work.
+Eventually they should be very close to identical but currently Lingy is still
+a baby.
 
 
 # See Also

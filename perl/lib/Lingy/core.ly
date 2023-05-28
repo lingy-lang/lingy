@@ -1,9 +1,11 @@
+;------------------------------------------------------------------------------
 ; Define dynamic variables:
+;------------------------------------------------------------------------------
 (def! *lingy-version*
   {
     :major       0
     :minor       1
-    :incremental 0
+    :incremental 7
     :qualifier   nil
   })
 
@@ -15,8 +17,11 @@
     :qualifier   nil
   })
 
+(def! *clojure-repl* false)
 
+;------------------------------------------------------------------------------
 ; Create standard calls from special forms:
+;------------------------------------------------------------------------------
 (defmacro! defmacro
   (fn* [name & body]
     `(defmacro! ~name (fn* ~@body))))
@@ -38,7 +43,7 @@
 ;      ~(let [more (nnext pairs)]
 ;         (when more
 ;           (list* `assert-args more)))))
-; 
+;
 ; (defmacro let
 ;   [bindings & body]
 ;   (assert-args
@@ -52,7 +57,15 @@
 ;   ([x form] `(. ~x ~form))
 ;   ([x form & more] `(.. (. ~x ~form) ~@more)))
 
+;------------------------------------------------------------------------------
+; Lingy specific functions:
+;------------------------------------------------------------------------------
+(defn clojure-repl-on [] (def *clojure-repl* true) nil)
+(defn clojure-repl-off [] (def *clojure-repl* false) nil)
+
+;------------------------------------------------------------------------------
 ; Basic math ops:
+;------------------------------------------------------------------------------
 (defn +
   ([] 0)
   ([x] x)
@@ -131,7 +144,9 @@
         (>= y (first more)))
       false)))
 
+;------------------------------------------------------------------------------
 ; Other macros and functions:
+;------------------------------------------------------------------------------
 (defmacro ->
   [x & forms]
   (loop [x x, forms forms]
