@@ -3,14 +3,14 @@
 ;; Unfortunately not yet available in tests of steps 4 and 5.
 
 ;; Compute n(n+1)/2 with a non tail-recursive call.
-(def! sumdown
+(def sumdown
   (fn* [n]                              ; non-negative number
     (if (= n 0)
       0
       (+ n (sumdown  (- n 1))))))
 
 ;; Compute a Fibonacci number with two recursions.
-(def! fib
+(def fib
   (fn* [n]                              ; non-negative number
     (if (<= n 1)
       n

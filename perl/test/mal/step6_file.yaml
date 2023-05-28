@@ -51,9 +51,9 @@
 
 
 - say: Testing atoms
-  mal: (def! inc3 (fn* [a] (+ 3 a)))
+  mal: (def inc3 (fn* [a] (+ 3 a)))
 
-- mal: (def! a (atom 2))
+- mal: (def a (atom 2))
   out: user/a
 
 - mal: (atom? a)
@@ -92,9 +92,9 @@
 
 - say: Testing swap!/closure interaction
   mal:
-  - (def! inc-it (fn* [a] (+ 1 a)))
-  - (def! atm (atom 7))
-  - (def! f (fn* [] (swap! atm inc-it)))
+  - (def inc-it (fn* [a] (+ 1 a)))
+  - (def atm (atom 7))
+  - (def f (fn* [] (swap! atm inc-it)))
   - (f)
   out: 8
 
@@ -104,8 +104,8 @@
 
 - say: Testing whether closures can retain atoms
   mal:
-  - (def! g (let* [atm (atom 0)] (fn* [] (deref atm))))
-  - (def! atm (atom 1))
+  - (def g (let* [atm (atom 0)] (fn* [] (deref atm))))
+  - (def atm (atom 1))
   - (g)
   out: 0
 
@@ -125,7 +125,7 @@
 
 - say: Testing `@` reader macro (short for `deref`)
   mal:
-  - (def! atm (atom 9))
+  - (def atm (atom 9))
   - '@atm'
   out: 9
 
@@ -133,11 +133,11 @@
 # TODO: really a step5 test
 - say: Testing that vector params not broken by TCO
   mal:
-  - (def! g (fn* [] 78))
+  - (def g (fn* [] 78))
   - (g)
   out: 78
 
-- mal: (def! g (fn* [a] (+ a 78)))
+- mal: (def g (fn* [a] (+ a 78)))
 - mal: (g 3)
   out: 81
 
@@ -153,7 +153,7 @@
 
 
 - say: Testing that eval sets aa in root scope, and that it is found in nested scope
-  mal: (let* [b 12] (do (eval (read-string "(def! aa 7)")) aa ))
+  mal: (let* [b 12] (do (eval (read-string "(def aa 7)")) aa ))
   out: 7
 
 
@@ -179,7 +179,7 @@
 
 
 - say: Checking that eval does not use local environments.
-  mal: (def! a 1)
+  mal: (def a 1)
   out: user/a
 
 - mal: (let* [a 2] (eval (read-string "a")))

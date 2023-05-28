@@ -6,30 +6,30 @@
   out: 2
 
 
-- say: Testing def!
-  mal: (def! x 3)
+- say: Testing def
+  mal: (def x 3)
   out: user/x
 
 - mal: x
   out: 3
 
-- mal: (def! x 4)
+- mal: (def x 4)
   out: user/x
 
 - mal: x
   out: 4
 
-- mal: (def! y (+ 1 7))
+- mal: (def y (+ 1 7))
   out: user/y
 
 - mal: y
   out: 8
 
 - say: Verifying symbols are case-sensitive
-  mal: (def! mynum 111)
+  mal: (def mynum 111)
   out: user/mynum
 
-- mal: (def! MYNUM 222)
+- mal: (def MYNUM 222)
   out: user/MYNUM
 
 - mal: mynum
@@ -42,10 +42,10 @@
   mal: (abc 1 2 3)
   err: "Error: Unable to resolve symbol: 'abc' in this context"
 
-- say: Check that error aborts def!
+- say: Check that error aborts def
   mal:
-  - (def! w 123)
-  - (def! w (abc))
+  - (def w 123)
+  - (def w (abc))
   - w
   out: 123
   eok: true
@@ -67,12 +67,12 @@
   out: 12
 
 - mal:
-  - (def! y (let* [z 7] z))
+  - (def y (let* [z 7] z))
   - y
   out: 7
 
 - say: Testing outer environment
-  mal: (def! a 4)
+  mal: (def a 4)
   out: user/a
 
 - mal: (let* [q 9] q)

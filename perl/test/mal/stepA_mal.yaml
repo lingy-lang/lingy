@@ -22,7 +22,7 @@
 
 - say: Testing hash-map evaluation and atoms (i.e. an env)
   mal:
-  - (def! e (atom {"+" +}))
+  - (def e (atom {"+" +}))
   - (swap! e assoc "-" -)
   - ( (get @e "+") 7 8)
   out: 15
@@ -63,7 +63,7 @@
   out: '"abc"'
 
 - mal:
-  - (def! l-wm (with-meta (fn* [a] a) {"b" 2}))
+  - (def l-wm (with-meta (fn* [a] a) {"b" 2}))
   - (meta l-wm)
   out: '{"b" 2}'
 
@@ -74,7 +74,7 @@
   out: '{"b" 2}'
 
 - mal:
-  - (def! f-wm (with-meta (fn* [a] (+ 1 a)) {"abc" 1}))
+  - (def f-wm (with-meta (fn* [a] (+ 1 a)) {"abc" 1}))
   - (meta f-wm)
   out: '{"abc" 1}'
 
@@ -85,7 +85,7 @@
   out: '{"abc" 1}'
 
 - mal:
-  - (def! f-wm2 ^{"abc" 1} (fn* [a] (+ 1 a)))
+  - (def f-wm2 ^{"abc" 1} (fn* [a] (+ 1 a)))
   - (meta f-wm2)
   out: '{"abc" 1}'
 
@@ -95,9 +95,9 @@
 
 - say: Make sure closures and metadata co-exist
   mal:
-  - (def! gen-plusX (fn* [x] (with-meta (fn* [b] (+ x b)) {"meta" 1})))
-  - (def! plus7 (gen-plusX 7))
-  - (def! plus8 (gen-plusX 8))
+  - (def gen-plusX (fn* [x] (with-meta (fn* [b] (+ x b)) {"meta" 1})))
+  - (def plus7 (gen-plusX 7))
+  - (def plus8 (gen-plusX 8))
   - (plus7 8)
   out: 15
 
@@ -151,7 +151,7 @@
 - mal: (number? "123")
   out: 'false'
 
-- mal: (def! add1 (fn* [x] (+ x 1)))
+- mal: (def add1 (fn* [x] (+ x 1)))
 
 - say: Testing fn? function
   mal: (fn? +)
@@ -289,7 +289,7 @@
 - mal: (with-meta {} {"a" 1})
   out: '{}'
 
-- mal: (def! l-wm (with-meta [4 5 6] {"b" 2}))
+- mal: (def l-wm (with-meta [4 5 6] {"b" 2}))
   out: user/l-wm
 
 - mal: (meta l-wm)
@@ -306,7 +306,7 @@
   out: nil
 
 - mal:
-  - (def! f-wm3 ^{"def" 2} +)
+  - (def f-wm3 ^{"def" 2} +)
   - (meta f-wm3)
   out: '{"def" 2}'
 
@@ -319,7 +319,7 @@
 
 - say: Testing time-ms function
   mal:
-  - (def! start-time (time-ms))
+  - (def start-time (time-ms))
   - (= start-time 0)
   out: 'false'
 
@@ -331,7 +331,7 @@
 
 - say: Test that defining a macro does not mutate an existing function.
   mal:
-  - (def! f (fn* [x] (number? x)))
+  - (def f (fn* [x] (number? x)))
   - (defmacro! m f)
   - (f (+ 1 1))
   out: 'true'

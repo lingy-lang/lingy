@@ -84,8 +84,8 @@
   out: nil
 
 - mal:
-  - (def! x "x")
-  - (def! x (nth (list 1 2) 2))
+  - (def x "x")
+  - (def x (nth (list 1 2) 2))
   - x
   out: '"x"'
   eok: true
@@ -160,8 +160,8 @@
   out: nil
 
 - mal:
-  - (def! x "x")
-  - (def! x (nth [1 2] 2))
+  - (def x "x")
+  - (def x (nth [1 2] 2))
   - x
   out: '"x"'
   eok: true
@@ -203,7 +203,7 @@
 
 - say: Test that macros use closures
 - mal:
-  - (def! x 2)
+  - (def x 2)
   - (defmacro! a (fn* [] x))
   - (a)
   out: 2

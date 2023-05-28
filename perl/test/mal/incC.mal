@@ -1,2 +1,2 @@
-(def! mymap {"a"
+(def mymap {"a"
              1})

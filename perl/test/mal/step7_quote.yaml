@@ -12,7 +12,7 @@
   out: ((1) 2 3)
 
 - mal:
-  - (def! a (list 2 3))
+  - (def a (list 2 3))
   - (cons 1 a)
   out: (1 2 3)
 
@@ -43,8 +43,8 @@
   out: 'true'
 
 - mal:
-  - (def! a (list 1 2))
-  - (def! b (list 3 4))
+  - (def a (list 1 2))
+  - (def b (list 3 4))
   - (concat a b (list 5 6))
   out: (1 2 3 4 5 6)
 
@@ -116,7 +116,7 @@
 - mal: (quasiquote (unquote 7))
   out: 7
 
-- mal: (def! a 8)
+- mal: (def a 8)
   out: user/a
 
 - mal: (quasiquote a)
@@ -131,7 +131,7 @@
 - mal: (quasiquote (1 (unquote a) 3))
   out: (1 8 3)
 
-- mal: (def! b (quote (1 "b" "d")))
+- mal: (def b (quote (1 "b" "d")))
   out: user/b
 
 - mal: (quasiquote (1 b 3))
@@ -150,7 +150,7 @@
 
 
 - say: Testing splice-unquote
-- mal: (def! c (quote (1 "b" "d")))
+- mal: (def c (quote (1 "b" "d")))
   out: user/c
 
 - mal: (quasiquote (1 c 3))
@@ -243,13 +243,13 @@
   mal: '`~7'
   out: 7
 
-- mal: (def! a 8)
+- mal: (def a 8)
   out: user/a
 
 - mal: '`(1 ~a 3)'
   out: (1 8 3)
 
-- mal: (def! b '(1 "b" "d"))
+- mal: (def b '(1 "b" "d"))
   out: user/b
 
 - mal: '`(1 b 3)'
@@ -260,7 +260,7 @@
 
 
 - say: Testing ~@ (splice-unquote) reader macro
-- mal: (def! c '(1 "b" "d"))
+- mal: (def c '(1 "b" "d"))
   out: user/c
 
 - mal: '`(1 c 3)'
@@ -290,7 +290,7 @@
 
 - say: Testing that vec does not mutate the original list
   mal:
-  - (def! a (list 1 2))
+  - (def a (list 1 2))
   - (vec a)
   out: '[1 2]'
 
@@ -316,7 +316,7 @@
 - mal: (quasiquote ([]))
   out: ([])
 
-- mal: (def! a 8)
+- mal: (def a 8)
   out: user/a
 
 - mal: '`[1 a 3]'
@@ -347,7 +347,7 @@
 
 
 - say: Testing splice-unquote with vectors
-  mal: (def! c '(1 "b" "d"))
+  mal: (def c '(1 "b" "d"))
   out: user/c
 
 - mal: '`[~@c]'

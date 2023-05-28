@@ -197,13 +197,13 @@
   mal: ( ( (fn* [a] (fn* [b] (+ a b))) 5) 7)
   out: 12
 
-- mal: (def! gen-plus5 (fn* [] (fn* [b] (+ 5 b))))
-- mal: (def! plus5 (gen-plus5))
+- mal: (def gen-plus5 (fn* [] (fn* [b] (+ 5 b))))
+- mal: (def plus5 (gen-plus5))
 - mal: (plus5 7)
   out: 12
 
-- mal: (def! gen-plusX (fn* [x] (fn* [b] (+ x b))))
-- mal: (def! plus7 (gen-plusX 7))
+- mal: (def gen-plusX (fn* [x] (fn* [b] (+ x b))))
+- mal: (def plus7 (gen-plusX 7))
 - mal: (plus7 8)
   out: 15
 
@@ -223,7 +223,7 @@
   - 102
   out: 3
 
-- mal: (do (def! a 6) 7 (+ a 8))
+- mal: (do (def a 6) 7 (+ a 8))
   out: 14
 
 - mal: a
@@ -231,13 +231,13 @@
 
 
 - say: Testing special form case-sensitivity
-  mal: (def! DO (fn* [a] 7))
+  mal: (def DO (fn* [a] 7))
 - mal: (DO 3)
   out: 7
 
 
 - say: Testing recursive sumdown function
-  mal: (def! sumdown (fn* [N] (if (> N 0) (+ N (sumdown  (- N 1))) 0)))
+  mal: (def sumdown (fn* [N] (if (> N 0) (+ N (sumdown  (- N 1))) 0)))
 - mal: (sumdown 1)
   out: 1
 
@@ -249,7 +249,7 @@
 
 
 - say: Testing recursive fibonacci function
-  mal: (def! fib (fn* [N] (if (= N 0) 1 (if (= N 1) 1 (+ (fib (- N 1)) (fib (- N 2)))))))
+  mal: (def fib (fn* [N] (if (= N 0) 1 (if (= N 1) 1 (+ (fib (- N 1)) (fib (- N 2)))))))
 - mal: (fib 1)
   out: 1
 

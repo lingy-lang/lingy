@@ -5,7 +5,7 @@ use Lingy::Common;
 
 # Lingy Special Forms:
 our %special_dispatch = (
-    'def!'              => \&special_def,
+    'def'               => \&special_def,
     'defmacro!'         => \&special_defmacro,
     'do'                => \&special_do,
     '.'                 => \&special_dot,

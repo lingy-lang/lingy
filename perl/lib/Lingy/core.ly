@@ -1,7 +1,7 @@
 ;------------------------------------------------------------------------------
 ; Define dynamic variables:
 ;------------------------------------------------------------------------------
-(def! *lingy-version*
+(def *lingy-version*
   {
     :major       0
     :minor       1
@@ -9,7 +9,7 @@
     :qualifier   nil
   })
 
-(def! *clojure-version*
+(def *clojure-version*
   {
     :major       1
     :minor       11
@@ -17,7 +17,7 @@
     :qualifier   nil
   })
 
-(def! *clojure-repl* false)
+(def *clojure-repl* false)
 
 ;------------------------------------------------------------------------------
 ; Create standard calls from special forms:
@@ -25,8 +25,6 @@
 (defmacro! defmacro
   (fn* [name & body]
     `(defmacro! ~name (fn* ~@body))))
-
-(defmacro def [& xs] (cons 'def! xs))
 
 (defmacro fn [& xs] (cons 'fn* xs))
 

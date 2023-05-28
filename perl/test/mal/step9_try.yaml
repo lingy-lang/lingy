@@ -101,8 +101,8 @@
 
 - say: Testing map function
   mal:
-  - (def! nums (list 1 2 3))
-  - (def! double (fn* [a] (* 2 a)))
+  - (def nums (list 1 2 3))
+  - (def double (fn* [a] (* 2 a)))
   - (double 3)
   out: 6
 
@@ -241,7 +241,7 @@
 - mal: (get (assoc (assoc {"a" 1 } "b" 2) "c" 3) "a")
   out: 1
 
-- mal: (def! hm1 (hash-map))
+- mal: (def hm1 (hash-map))
   out: user/hm1
 
 - mal: (map? hm1)
@@ -262,7 +262,7 @@
 - mal: (contains? hm1 "a")
   out: 'false'
 
-- mal: (def! hm2 (assoc hm1 "a" 1))
+- mal: (def hm2 (assoc hm1 "a" 1))
   out: user/hm2
 
 - mal: (get hm1 "a")
@@ -327,7 +327,7 @@
 
 - say: Testing whether assoc updates properly
   mal:
-  - (def! hm4 (assoc {:a 1 :b 2} :a 3 :c 1))
+  - (def hm4 (assoc {:a 1 :b 2} :a 3 :c 1))
   - (get hm4 :a)
   out: 3
 
@@ -360,12 +360,12 @@
   out: '"true \".\" false \".\" nil \".\" :keyw \".\" symb"'
 
 - mal:
-  - (def! s (str {:abc "val1" :def "val2"}))
+  - (def s (str {:abc "val1" :def "val2"}))
   - (cond (= s "{:abc val1, :def val2}") true (= s "{:def val2, :abc val1}") true)
   out: 'true'
 
 - mal:
-  - (def! p (pr-str {:abc "val1" :def "val2"}))
+  - (def p (pr-str {:abc "val1" :def "val2"}))
   - (cond (= p "{:abc \"val1\", :def \"val2\"}") true (= p "{:def \"val2\", :abc \"val1\"}") true)
   out: 'true'
 
@@ -409,7 +409,7 @@
 
 - say: Testing dissoc
   mal:
-  - (def! hm3 (assoc hm2 "b" 2))
+  - (def hm3 (assoc hm2 "b" 2))
   - (count (keys hm3))
   out: 2
 
@@ -478,7 +478,7 @@
 
 - say: Testing that hashmaps don't alter function ast
   mal:
-  - (def! bar (fn* [a] {:foo (get a :foo)}))
+  - (def bar (fn* [a] {:foo (get a :foo)}))
   - (bar {:foo (fn* [x] x)})
   - (bar {:foo 3})
 # shouldn't give an error
