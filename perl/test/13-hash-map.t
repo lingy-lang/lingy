@@ -25,6 +25,12 @@ tests <<'...';
 - - (:foo {} 111 222)
   - "Wrong number of args (3) passed to: ':foo'"
 
+- - '{:foo 1 :bar 2 :foo 3}'
+  - "Duplicate key: ':foo'"
+
+- - '(assoc {:foo 1 :bar 2} :foo 3)'
+  - '{:foo 3, :bar 2}'
+
 - - ((keyword "foo") (assoc {} :foo 123) (number 42))
   - 123
 

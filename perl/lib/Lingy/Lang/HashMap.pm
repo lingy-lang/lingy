@@ -10,21 +10,12 @@ use Tie::IxHash;
 
 sub new {
     my ($class, $list) = @_;
+    my %seen;
     for (my $i = 0; $i < @$list; $i += 2) {
         my $key = $list->[$i];
-        my $type = ref($key);
-        $list->[$i] =
-            $type eq '' ? qq<$key> :
-            $type eq STRING ? qq<"$key> :
-            $type eq SYMBOL ? qq<$key > :
-            $type->isa(SCALARTYPE) ? qq<$key> :
-            (   # Quoted symbol:
-                $type eq LIST and
-                ref($key->[0]) eq SYMBOL and
-                ${$key->[0]} eq 'quote' and
-                ref($key->[1]) eq SYMBOL
-            ) ? ${$key->[1]} . ' ' :
-            err "Type '$type' not supported as a hash-map key";
+        $list->[$i] = $class->_get_key($key);
+        err "Duplicate key: '$list->[$i]'"
+            if $seen{$list->[$i]}++;
     }
     my %hash;
     my $tie = tie(%hash, 'Tie::IxHash', @$list);
@@ -34,6 +25,32 @@ sub new {
 
 sub clone {
     hash_map([ %{$_[0]} ]);
+}
+
+sub assoc {
+    my ($self, $pairs) = @_;
+    my $new = $self->clone;
+    for (my $i = 0; $i < @$pairs; $i += 2) {
+        my $key = $self->_get_key($pairs->[$i]);
+        $new->{$key} = $pairs->[$i + 1];
+    }
+    $new;
+}
+
+sub _get_key {
+    my ($self, $key) = @_;
+    my $type = ref($key);
+    $type eq '' ? qq<$key> :
+    $type eq STRING ? qq<"$key> :
+    $type eq SYMBOL ? qq<$key > :
+    $type->isa(SCALARTYPE) ? qq<$key> :
+    (   # Quoted symbol:
+        $type eq LIST and
+        ref($key->[0]) eq SYMBOL and
+        ${$key->[0]} eq 'quote' and
+        ref($key->[1]) eq SYMBOL
+    ) ? ${$key->[1]} . ' ' :
+    err "Type '$type' not supported as a hash-map key";
 }
 
 sub _to_seq {

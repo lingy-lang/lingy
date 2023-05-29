@@ -26,15 +26,6 @@ sub apply {
         : Lingy::Eval::eval($fn->(@$args));
 }
 
-sub assoc {
-    my ($map, @pairs) = @_;
-    for (my $i = 0; $i < @pairs; $i += 2) {
-        $pairs[$i] = qq<"$pairs[$i]>
-            if $pairs[$i]->isa(STRING);
-    }
-    hash_map([%$map, @pairs]);
-}
-
 sub atom_ { atom($_[0]) }
 
 sub atom_Q { boolean(ref($_[0]) eq ATOM) }

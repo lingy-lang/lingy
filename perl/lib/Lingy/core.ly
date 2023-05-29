@@ -164,7 +164,7 @@
 
 (defn apply [fn & args] (. lingy.lang.RT (apply fn args)))
 
-(defn assoc [& args] (apply lingy.lang.RT/assoc args))
+(defn assoc [hash & pairs] (. hash assoc pairs))
 
 (defn atom [value] (. lingy.lang.RT (atom_ value)))
 
