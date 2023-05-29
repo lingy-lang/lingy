@@ -2,6 +2,15 @@ use Lingy::Test;
 
 note "Testing 'lingy' CLI usages:";
 
+run_is qq<$lingy --help>,
+    qr/\QUsage: lingy [<opts>] [<lingy-file-name>]\E/;
+
+run_is qq<$lingy --foo>,
+    qr/\QError: Error in command line arguments\E/;
+
+run_is qq<$lingy --version>,
+    "Lingy [perl] version $Lingy::VERSION";
+
 run_is qq<$lingy -e '(prn (+ 2 3))'>, 5;
 
 run_is qq<echo '(prn (+ 9 9))' | $lingy ->, 18;

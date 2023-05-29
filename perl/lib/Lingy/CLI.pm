@@ -14,6 +14,7 @@ use constant options => +{
     run         => 'arg',
     ppp         => 'bool',
     xxx         => 'bool',
+    version     => 'bool',
 };
 
 sub new {
@@ -46,6 +47,13 @@ sub run {
     local @ARGV = @$args;
 
     $main->init;
+
+    if ($self->{version}) {
+        $main->rep(
+            '(println (str "Lingy [" *HOST* "] version " (lingy-version)))',
+        );
+        exit 0;
+    }
 
     if ($clj) {
         $main->rep(qq<(clojure-repl-on)>);
@@ -111,13 +119,21 @@ sub getopt {
         }
     }
 
+    $spec->{help} = sub {
+        print $ENV{LINGY_USAGE};
+        exit 0;
+    };
+
     Getopt::Long::Configure(qw(
         gnu_getopt
         no_auto_abbrev
         no_ignore_case
     ));
-    GetOptions (%$spec) or
-        err "Error in command line arguments";
+    eval {
+      GetOptions (%$spec) or
+          err "Error in command line arguments";
+    };
+    die "$@$ENV{LINGY_USAGE}" if $@;
 
     if (@ARGV) {
         if ($self->{repl}) {

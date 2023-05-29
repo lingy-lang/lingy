@@ -6,6 +6,7 @@ use base 'Exporter';
 use Test::More;
 use YAML::PP;
 
+use Lingy;
 use Lingy::Main;
 use Lingy::Common;
 

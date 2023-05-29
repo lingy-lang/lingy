@@ -15,8 +15,7 @@
 # Bash strict:
 set -e -u -o pipefail
 
-usage() {
-  cat <<...
+LINGY_USAGE="
 Usage: lingy [<opts>] [<lingy-file-name>]
 
 Options:
@@ -29,12 +28,12 @@ Options:
   --execs         List executables for setting LINGY_EXEC
   --version       Print version
   -h, --help      Print help and exit
-...
-  exit 0
-}
+"
 
 main() {
   setup "$@"
+
+  export LINGY_USAGE
 
   exec "$executable" "$@"
 }
@@ -49,9 +48,6 @@ setup() {
   fi
 
   for arg; do
-    if [[ $arg == -h || $arg == --help ]]; then
-      usage
-    fi
     if [[ $arg == --execs ]]; then
       get-executables
       print-executables
