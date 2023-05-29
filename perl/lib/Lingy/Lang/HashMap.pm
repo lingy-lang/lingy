@@ -10,16 +10,14 @@ use Tie::IxHash;
 
 sub new {
     my ($class, $list) = @_;
-    my %seen;
-    for (my $i = 0; $i < @$list; $i += 2) {
-        my $key = $list->[$i];
-        $list->[$i] = $class->_get_key($key);
-        err "Duplicate key: '$list->[$i]'"
-            if $seen{$list->[$i]}++;
-    }
     my %hash;
-    my $tie = tie(%hash, 'Tie::IxHash', @$list);
+    my $tie = tie(%hash, 'Tie::IxHash');
     my $hash = \%hash;
+    for (my $i = 0; $i < @$list; $i += 2) {
+        my $key = $class->_get_key($list->[$i]);
+        delete $hash->{$key} if exists $hash->{$key};
+        $hash->{$key} = $list->[$i + 1];
+    }
     bless $hash, $class;
 }
 

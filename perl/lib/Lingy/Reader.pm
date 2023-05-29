@@ -100,16 +100,28 @@ sub read_hash_map {
     my ($self, $type, $end) = @_;
     my $tokens = $self->{tokens};
     shift @$tokens;
-    my $pairs = [];
+    my $hash = $type->new([]);
+    my $i = 0;
+    my $key;
     while (1) {
         while (@$tokens > 0) {
             if ($tokens->[0] eq $end) {
                 shift @$tokens;
                 err "Map literal must contain an even number of forms"
-                    if @$pairs % 2;
-                return $type->new($pairs);
+                    if defined $key;
+                return $hash;
             }
-            push @$pairs, $self->read_form;
+            $i++;
+            if ($i % 2) {
+                $key = $self->read_form;
+            } else {
+                my $key_str = $type->_get_key($key);
+                err "Duplicate key: '$key'"
+                    if exists $hash->{$key_str};
+                my $val= $self->read_form;
+                $hash->{$key_str} = $val;
+                undef $key;
+            }
         }
         $self->read_more and next;
         err "Reached end of input in 'read_hash_map'";

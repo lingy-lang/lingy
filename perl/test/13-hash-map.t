@@ -31,6 +31,9 @@ tests <<'...';
 - - '(assoc {:foo 1 :bar 2} :foo 3)'
   - '{:foo 3, :bar 2}'
 
+- - '(hash-map :foo 1 :bar 2 :foo 3)'
+  - '{:bar 2, :foo 3}'
+
 - - ((keyword "foo") (assoc {} :foo 123) (number 42))
   - 123
 
