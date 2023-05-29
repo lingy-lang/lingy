@@ -25,9 +25,9 @@ sub new {
     }, $class;
 }
 
-sub rt {
-    require Lingy::RT;
-    return Lingy::RT->new;
+sub main {
+    require Lingy::Main;
+    return Lingy::Main->new;
 }
 
 sub from_stdin {
@@ -37,7 +37,7 @@ sub from_stdin {
 sub run {
     my ($self, @args) = @_;
 
-    my $rt = $self->rt;
+    my $main = $self->main;
 
     $self->getopt(@args);
 
@@ -45,40 +45,40 @@ sub run {
         @{$self}{qw<repl clj run eval ppp xxx args>};
     local @ARGV = @$args;
 
-    $rt->init;
+    $main->init;
 
     if ($clj) {
-        $rt->rep(qq<(clojure-repl-on)>);
+        $main->rep(qq<(clojure-repl-on)>);
     }
 
     if ($eval) {
         if ($repl) {
-            $rt->rep(qq<(do $eval\n)>);
-            $rt->repl;
+            $main->rep(qq<(do $eval\n)>);
+            $main->repl;
         } else {
             if ($ppp) {
-                $rt->rep(qq<(PPP (quote $eval\n))>);
+                $main->rep(qq<(PPP (quote $eval\n))>);
             } elsif ($xxx) {
-                $rt->rep(qq<(XXX (quote $eval\n))>);
+                $main->rep(qq<(XXX (quote $eval\n))>);
             } else {
                 unshift @ARGV, '-';
                 map print("$_\n"),
                     grep $_ ne 'nil',
-                    $rt->rep($eval);
+                    $main->rep($eval);
             }
         }
 
     } elsif ($repl) {
-        $rt->repl;
+        $main->repl;
 
     } elsif ($run) {
         if ($run ne '/dev/stdin') {
             -f $run or err "No such file '$run'";
         }
-        $rt->rep(qq<(load-file "$run")>);
+        $main->rep(qq<(load-file "$run")>);
 
     } else {
-        $rt->repl;
+        $main->repl;
     }
 }
 

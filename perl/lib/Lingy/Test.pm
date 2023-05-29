@@ -6,7 +6,7 @@ use base 'Exporter';
 use Test::More;
 use YAML::PP;
 
-use Lingy::RT;
+use Lingy::Main;
 use Lingy::Common;
 
 use Capture::Tiny qw'capture capture_merged';
@@ -18,7 +18,7 @@ symlink 't', 'test' if -d 't' and not -e 'test';
 
 my $ypp = YAML::PP->new;
 
-our $rt = Lingy::RT->init;
+our $rt = Lingy::Main->init;
 
 $ENV{LINGY_TEST} = 1;
 

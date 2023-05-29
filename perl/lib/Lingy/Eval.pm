@@ -350,7 +350,7 @@ sub macroexpand {
             return list([symbol('.'), $instance, $member, @rest]);
         }
 #         if ($sym =~ /^(.*)\.$/) {
-#             XXX my $class = $Lingy::RT::class->{String};
+#             XXX my $class = $Lingy::Main::class->{String};
 #         }
         if (($call = $env->get($sym, 1)) and
             ref($call) eq MACRO

@@ -13,8 +13,8 @@ our %meta;
 
 sub all_ns {
     list([
-        map { $Lingy::RT::ns{$_} }
-        sort keys %Lingy::RT::ns
+        map { $Lingy::Main::ns{$_} }
+        sort keys %Lingy::Main::ns
     ]);
 }
 
@@ -81,7 +81,7 @@ sub create_ns {
         unless $name =~ /^\w+(\.\w+)*$/;
     Lingy::Namespace->new(
         name => $name,
-        refer => Lingy::RT->core,
+        refer => Lingy::Main->core,
     );
 }
 
@@ -107,7 +107,7 @@ sub false_Q {
 
 sub find_ns {
     assert_args(\@_, SYMBOL);
-    $Lingy::RT::ns{$_[0]} // nil;
+    $Lingy::Main::ns{$_[0]} // nil;
 }
 
 sub first {
@@ -154,7 +154,7 @@ sub import_ {
         eval "require $module; 1" or die $@;
         err "Class not found: '$name'"
             if $module->isa('Lingy::Namespace');
-        my $class = $Lingy::RT::class{$name} =
+        my $class = $Lingy::Main::class{$name} =
             CLASS->_new($name);
         if ($module->can('new')) {
             $return = $class;
@@ -169,7 +169,7 @@ sub in_ns {
     my ($name) = @_;
     err "Invalid ns name '$name'"
         unless $name =~ /^\w+(\.\w+)*$/;
-    my $ns = $Lingy::RT::ns{$name} //
+    my $ns = $Lingy::Main::ns{$name} //
     Lingy::Namespace->new(
         name => $name,
     );
@@ -238,10 +238,10 @@ sub ns {
         unless $name =~ /^\w+(\.\w+)*$/;
 
     my $ns;
-    $ns = $Lingy::RT::ns{$name} //
+    $ns = $Lingy::Main::ns{$name} //
     Lingy::Namespace->new(
         name => $name,
-        refer => Lingy::RT->core,
+        refer => Lingy::Main->core,
     );
     $ns->current;
 
@@ -305,7 +305,7 @@ sub prn {
 sub quot { number(int($_[0] / $_[1])) }
 
 sub read_string {
-    my @forms = $Lingy::RT::reader->read_str($_[0]);
+    my @forms = $Lingy::Main::reader->read_str($_[0]);
     return @forms ? $forms[0] : nil;
 }
 
@@ -322,10 +322,10 @@ sub refer {
         err "'refer' only works with symbols"
             unless ref($spec) eq SYMBOL;
         my $refer_ns_name = $$spec;
-        my $current_ns_name = $Lingy::RT::ns;
-        my $refer_ns = $Lingy::RT::ns{$refer_ns_name}
+        my $current_ns_name = $Lingy::Main::ns;
+        my $refer_ns = $Lingy::Main::ns{$refer_ns_name}
             or err "No namespace: '$refer_ns_name'";
-        my $refer_map = $Lingy::RT::refer{$current_ns_name} //= {};
+        my $refer_map = $Lingy::Main::refer{$current_ns_name} //= {};
         map $refer_map->{$_} = $refer_ns_name,
             grep /^\S/, keys %$refer_ns;
     }
@@ -338,7 +338,7 @@ sub require {
         err "'require' only works with symbols"
             unless ref($spec) eq SYMBOL;
 
-        return nil if $Lingy::RT::ns{$$spec};
+        return nil if $Lingy::Main::ns{$$spec};
 
         my $name = $$spec;
 
@@ -360,12 +360,12 @@ sub require {
                         unless $module->isa('Lingy::Namespace');
                     $module->new(
                         name => symbol($name),
-                        refer => Lingy::RT->core,
+                        refer => Lingy::Main->core,
                     );
                 }
                 if (-f "$inc_path.ly") {
-                    my $ns = $Lingy::RT::ns{$Lingy::RT::ns};
-                    Lingy::RT->rep(qq< (load-file "$inc_path.ly") >);
+                    my $ns = $Lingy::Main::ns{$Lingy::Main::ns};
+                    Lingy::Main->rep(qq< (load-file "$inc_path.ly") >);
                     $ns->current;
                 }
                 next outer;
@@ -385,16 +385,16 @@ sub resolve {
         ($ns_name, $sym_name) = ($1, $2);
     }
     else {
-        $ns_name = $Lingy::RT::ns;
+        $ns_name = $Lingy::Main::ns;
         $sym_name = $symbol;
     }
 
-    my $ns = $Lingy::RT::ns{$ns_name} or return nil;
+    my $ns = $Lingy::Main::ns{$ns_name} or return nil;
     if (exists $ns->{$sym_name}) {
         $var = $ns_name . '/' . $sym_name;
     } else {
         my $ref;
-        if (($ref = $Lingy::RT::refer{$ns_name}) and
+        if (($ref = $Lingy::Main::refer{$ns_name}) and
             defined($ns_name = $ref->{$sym_name})
         ) {
             $var = $ns_name . '/' . $sym_name;
@@ -424,7 +424,7 @@ sub sequential_Q {
     boolean(ref($_[0]) eq LIST or ref($_[0]) eq VECTOR);
 }
 
-sub slurp { string(Lingy::RT->slurp($_[0])) }
+sub slurp { string(Lingy::Main->slurp($_[0])) }
 
 sub sort {
     list([
@@ -455,7 +455,7 @@ sub symbol_Q { boolean(ref($_[0]) eq SYMBOL) }
 sub the_ns {
     $_[0]->isa('Lingy::Namespace') ? $_[0] :
     $_[0]->isa(SYMBOL) ? do {
-        $Lingy::RT::ns{$_[0]} //
+        $Lingy::Main::ns{$_[0]} //
         err "No namespace: '$_[0]' found";
     } : err "Invalid argument for the-ns: '$_[0]'";
 }

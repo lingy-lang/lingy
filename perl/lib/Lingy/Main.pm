@@ -1,5 +1,5 @@
 use strict; use warnings;
-package Lingy::RT;
+package Lingy::Main;
 
 use Lingy::Common;
 
@@ -95,7 +95,7 @@ sub init {
 
     $user->current;
 
-    $Lingy::RT::ready = 1;
+    $Lingy::Main::ready = 1;
 
     return $self;
 }
@@ -147,8 +147,8 @@ sub core_namespace {
         })
     ");
 
-    my $core_ly = $INC{'Lingy/RT.pm'};
-    $core_ly =~ s/RT\.pm$/core.ly/;
+    my $core_ly = $INC{'Lingy/Main.pm'};
+    $core_ly =~ s/Main\.pm$/core.ly/;
     $self->rep($self->slurp($core_ly));
 
     return $ns;

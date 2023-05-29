@@ -38,7 +38,7 @@ sub set {
 
 sub ns_set {
     my ($self, $symbol, $value) = @_;
-    my $space = Lingy::RT::NS();
+    my $space = Lingy::Main::NS();
     $space->{$symbol} = $value;
     return ref($space) eq 'HASH'
         ? $symbol
@@ -59,7 +59,7 @@ sub get {
         $self = $self->{outer};
     }
 
-    if (my $class = $Lingy::RT::class{"$symbol"}) {
+    if (my $class = $Lingy::Main::class{"$symbol"}) {
         return $class;
     }
     if ($symbol =~ /\w\.\w/) {
@@ -78,11 +78,11 @@ sub get_qualified {
     my $space_name = $1;
     my $symbol_name = $2;
 
-    if (my $class = $Lingy::RT::class{$space_name}) {
+    if (my $class = $Lingy::Main::class{$space_name}) {
         return \&{"${class}::$symbol_name"};
     }
 
-    my $ns = $Lingy::RT::ns{$space_name}
+    my $ns = $Lingy::Main::ns{$space_name}
         or err "No such namespace: '$space_name'";
 
     if (defined(my $value = _referred($ns, $symbol_name))) {
@@ -100,9 +100,9 @@ sub _referred {
         return $value;
     }
     if (ref($ns) ne 'HASH') {
-        if (my $refer_ns_map = $Lingy::RT::refer{$ns->NAME}) {
+        if (my $refer_ns_map = $Lingy::Main::refer{$ns->NAME}) {
             if (my $refer_ns_name = $refer_ns_map->{$symbol}) {
-                if (my $refer_ns = $Lingy::RT::ns{$refer_ns_name}) {
+                if (my $refer_ns = $Lingy::Main::ns{$refer_ns_name}) {
                     if (defined(my $value = $refer_ns->{$symbol})) {
                         return $value;
                     }
