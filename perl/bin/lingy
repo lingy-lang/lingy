@@ -8,69 +8,123 @@
 # The name should start with `_lingy`.
 #
 # If only one _lingy* executable is found in your PATH, exec that one.
-# Else if LINGY_RUNTIME is an absolute path to an executable, exec that one.
+# Else if LINGY_EXEC is an absolute path to an executable, exec that one.
 # Else error with helpful message.
 ###
 
 # Bash strict:
 set -e -u -o pipefail
 
+usage() {
+  cat <<...
+Usage: lingy [<opts>] [<lingy-file-name>]
+
+Options:
+  -e, --eval      Eval a Lingy source string
+  --repl          Start Lingy REPL (default w/ no args)
+  --run           Run a Lingy program (default w/ file name)
+  -C, --clojure   Enalble Clojure mode in REPL
+  --ppp           Compile file and print AST (Lingy)
+  --xxx           Compile file and dump internal AST (YAML)
+  --execs         List executables for setting LINGY_EXEC
+  --version       Print version
+  -h, --help      Print help and exit
+...
+  exit 0
+}
+
+main() {
+  setup "$@"
+
+  exec "$executable" "$@"
+}
+
+setup() {
+  # Get the right _lingy in development env:
+  local root
+  root=$(cd "$(dirname "$0")/.." && pwd -P)
+  if [[ -f $root/lib/Lingy.pm ]]; then
+    export PATH=$root/bin:$root/script:$PATH
+    export PERL5LIB=${PERL5LIB:+$PERL5LIB:}$root/lib
+  fi
+
+  for arg; do
+    if [[ $arg == -h || $arg == --help ]]; then
+      usage
+    fi
+    if [[ $arg == --execs ]]; then
+      get-executables
+      print-executables
+      exit 0
+    fi
+  done
+
+  get-executable
+}
+
+get-executable() {
+  if [[ ${LINGY_EXEC-} ]]; then
+    [[ $LINGY_EXEC == /* ]] ||
+      die "LINGY_EXEC set to '$LINGY_EXEC'." \
+          "Needs to be an absolute path."
+    [[ -f $LINGY_EXEC ]] ||
+      die "LINGY_EXEC set to '$LINGY_EXEC'." \
+          "File not found."
+    [[ -x $LINGY_EXEC ]] ||
+      die "LINGY_EXEC set to '$LINGY_EXEC'." \
+          "File is not executable."
+
+    executable=$LINGY_EXEC
+
+    return
+  fi
+
+  get-executables
+
+  [[ ${executables[*]:+"${executables[*]}"} ]] ||
+    die "Can't find any executables named '_lingy*' in your PATH." \
+        "You can specify one with 'export LINGY_EXEC=/path/to/_lingy.xxx'."
+
+  if [[ ${#executables[*]} -gt 1 && ! ${LINGY_TEST-} ]]; then
+    echo "Multiple _lingy* executables found."
+    echo
+    echo "Set 'export LINGY_EXEC=/path/to/_lingy.xxx' to one of:"
+    echo
+    print-executables
+    echo
+    echo "Using the first one..."
+    echo
+  fi
+
+  executable=${executables[0]}
+}
+
+get-executables() {
+  executables=(
+    $(
+      # shellcheck disable=2046,2086
+      find $(IFS=:; echo $PATH) \
+        -name '_lingy*' \
+        -type f \
+        2>/dev/null |
+        uniq |
+        grep -v '\.plenv/versions/' |
+        grep '^/' || true
+    )
+  )
+}
+
+print-executables() (
+  i=1
+  for executable in "${executables[@]}"; do
+    printf '  %d) %s\n' $((i++)) "$executable"
+  done
+)
+
+# To support CTL-C handling in the Perl Lingy Executable:
+export PERL_SIGNALS=unsafe
+
 # Define a 'die' function, used throughout:
 die() { printf '%s\n' "$*" >&2; exit 1; }
 
-# Get the right _lingy in development env:
-ROOT=$(cd "$(dirname "$0")/.." && pwd -P)
-if [[ -f $ROOT/lib/Lingy.pm ]]; then
-  export PATH=$ROOT/bin:$ROOT/script:$PATH
-  export PERL5LIB=${PERL5LIB:+$PERL5LIB:}$ROOT/lib
-fi
-
-# To support CTL-C handling in the Perl Lingy Runtime:
-export PERL_SIGNALS=unsafe
-
-if [[ ${LINGY_RUNTIME-} ]]; then
-  [[ $LINGY_RUNTIME == /* ]] ||
-    die "LINGY_RUNTIME set to '$LINGY_RUNTIME'." \
-        "Needs to be an absolute path."
-  [[ -f $LINGY_RUNTIME ]] ||
-    die "LINGY_RUNTIME set to '$LINGY_RUNTIME'." \
-        "File not found."
-  [[ -x $LINGY_RUNTIME ]] ||
-    die "LINGY_RUNTIME set to '$LINGY_RUNTIME'." \
-        "File is not executable."
-
-  exec "$LINGY_RUNTIME" "$@"
-fi
-
-runners=(
-  $(
-    # shellcheck disable=2046,2086
-    find $(IFS=:; echo $PATH) \
-      -name '_lingy*' \
-      -type f \
-      2>/dev/null |
-      uniq |
-      grep -v '\.plenv/versions/' |
-      grep '^/' || true
-  )
-)
-
-[[ ${runners[*]:+"${runners[*]}"} ]] ||
-  die "Can't find any executables named '_lingy*' in your PATH." \
-      "You can specify one with 'export LINGY_RUNTIME=/path/to/_lingy.xxx'."
-
-if [[ ${#runners[*]} -gt 1 && ! ${LINGY_TEST-} ]]; then
-    echo "Multiple _lingy* executables found."
-    echo
-    echo "Set 'export LINGY_RUNTIME=/path/to/_lingy.xxx' to one of:"
-    echo
-    i=1
-    for runner in "${runners[@]}"; do
-      printf '%d) %s\n' $((i++)) "$runner"
-    done
-    echo
-    echo "Using the first: '${runners[0]}'..."
-    echo
-fi
-
-exec "${runners[0]}" "$@"
+[[ ${BASH_SOURCE[0]} != "$0" ]] || main "$@"

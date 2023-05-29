@@ -8,12 +8,12 @@ use Lingy::Common;
 
 use constant default => '--repl';
 use constant options => +{
-    repl => 'bool',
-    clj  => 'bool',
-    eval => 'str',
-    run  => 'arg',
-    ppp  => 'bool',
-    xxx  => 'bool',
+    repl        => 'bool',
+    'clojure|C' => 'bool',
+    'eval|e'    => 'str',
+    run         => 'arg',
+    ppp         => 'bool',
+    xxx         => 'bool',
 };
 
 sub new {
@@ -96,17 +96,26 @@ sub getopt {
     my $spec = {};
     my $opts = $self->options;
     for my $key (keys %$opts) {
+        (my $name = $key) =~ s/\|.*//;
         my $type = $opts->{$key};
         if ($type eq 'bool') {
-            $spec->{$key} = \$self->{$key};
-        } elsif ($type eq 'str') {
-            $spec->{"$key=s"} = \$self->{$key};
-        } elsif ($type eq 'arg') {
-        } else {
+            $spec->{$key} = \$self->{$name};
+        }
+        elsif ($type eq 'str') {
+            $spec->{"$key=s"} = \$self->{$name};
+        }
+        elsif ($type eq 'arg') {
+        }
+        else {
             err "Option type '$type' not supported";
         }
     }
 
+    Getopt::Long::Configure(qw(
+        gnu_getopt
+        no_auto_abbrev
+        no_ignore_case
+    ));
     GetOptions (%$spec) or
         err "Error in command line arguments";
 
