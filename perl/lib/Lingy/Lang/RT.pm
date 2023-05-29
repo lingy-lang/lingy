@@ -7,7 +7,7 @@ use Lingy::Namespace();
 use Lingy::Printer;
 use Lingy::Lang::Class;
 
-my $nextID = int(rand 5000) + 1000;
+our $nextID = 1000;
 
 our %meta;
 
@@ -220,7 +220,7 @@ sub nil_Q {
 }
 
 sub nextID {
-    string($nextID += 3);
+    string(++$nextID);
 }
 
 sub ns {

@@ -10,6 +10,7 @@ my $tokenize_re = qr/
         ;.*                     # comments
     )*
     (                       # Capture all these tokens:
+        \#\( |                  # Lambda
         ~@ |                    # Unquote-splice token
         [\[\]{}()'`~^@] |       # Single character tokens
         \#?                     # Possibly a regex
@@ -26,6 +27,7 @@ sub new {
     my $class = shift;
     bless {
         tokens => [],
+        lambda => [],
         @_,
     }, $class;
 }
@@ -63,6 +65,8 @@ sub read_form {
     /^~\@$/ ? $self->read_quote('splice-unquote') :
     /^\@$/ ? $self->read_quote('deref') :
     /^\^$/ ? $self->with_meta :
+    /^#\(/ ? $self->read_lambda :
+    /^%\d*$/ ? $self->read_lambda_symbol :
     $self->read_scalar;
 }
 
@@ -94,6 +98,51 @@ sub read_list {
         $self->read_more and next;
         err "Reached end of input in 'read_list'";
     }
+}
+
+sub read_lambda {
+    my ($self) = @_;
+    my $tokens = $self->{tokens};
+    shift @$tokens;
+    push @{$self->{lambda}}, {
+        sym => {},
+        max => 0,
+    };
+    my $list = [];
+    outer: while (1) {
+        while (@$tokens) {
+            if ($tokens->[0] eq ')') {
+                shift @$tokens;
+                last outer;
+            }
+            push @$list, $self->read_form;
+        }
+        $self->read_more and next;
+        err "Reached end of input in 'read_list'";
+    }
+    my $lambda = pop @{$self->{lambda}};
+    my ($sym, $max) = @{$lambda}{'sym', 'max'};
+    my $syms = [];
+    for (my $i = 1; $i <= $lambda->{max}; $i++) {
+        push @$syms, $sym->{"%$i"} // symbol("p${i}_${\RT->nextID}");
+    }
+
+    list([
+        symbol('fn*'),
+        vector($syms),
+        list($list),
+    ]);
+}
+
+sub read_lambda_symbol {
+    my ($self) = @_;
+    my $token = shift @{$self->{tokens}};
+    return symbol($token) unless @{$self->{lambda}};
+    $token = '%1' if $token eq '%';
+    my $num = substr($token, 1);
+    my $lambda = $self->{lambda}->[-1];
+    $lambda->{max} = $num if $num > $lambda->{max};
+    $lambda->{sym}{$token} //= symbol("p${num}_${\RT->nextID}");
 }
 
 sub read_hash_map {

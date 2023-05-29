@@ -90,6 +90,7 @@ sub tests {
 # Test 'rep' for return value or error:
 my $test_i = 0;
 sub test {
+    $Lingy::Lang::RT::nextID = 10;
     $test_i++;
     if ($ENV{ONLY} and $ENV{ONLY} != $test_i) {
         return;
