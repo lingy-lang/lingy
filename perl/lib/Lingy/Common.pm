@@ -15,6 +15,7 @@ use constant ATOM       => 'Lingy::Lang::Atom';
 use constant BOOLEAN    => 'Lingy::Lang::Boolean';
 use constant CHARACTER  => 'Lingy::Lang::Character';
 use constant CLASS      => 'Lingy::Lang::Class';
+use constant COMPILER   => 'Lingy::Lang::Compiler';
 use constant FUNCTION   => 'Lingy::Lang::Function';
 use constant HASHMAP    => 'Lingy::Lang::HashMap';
 use constant KEYWORD    => 'Lingy::Lang::Keyword';
@@ -36,6 +37,7 @@ BEGIN {
         SCALARTYPE
         LISTTYPE
 
+        COMPILER
         NUMBERS
         RT
         TERM

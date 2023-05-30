@@ -9,6 +9,10 @@ use Lingy::Lang::Class;
 use Lingy::Namespace();
 use Lingy::ReadLine;
 
+use Lingy::Lang::HashMap;
+use Lingy::Lang::Nil;
+use Lingy::Lang::Symbol;
+
 use constant LANG => 'Lingy';
 use constant HOST => 'perl';
 
@@ -28,6 +32,7 @@ our @class = (
     BOOLEAN,
     CHARACTER,
     CLASS,
+    COMPILER,
     FUNCTION,
     HASHMAP,
     KEYWORD,

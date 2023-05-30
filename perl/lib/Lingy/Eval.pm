@@ -53,6 +53,9 @@ sub eval {
                 } elsif ($ref eq VECTOR) {
                     return special_vector($env, $fn, @args);
 
+                } elsif ($ref eq NIL) {
+                    return $args[0];
+
                 } else {
                     err "Can't use '$ref' object as function";
                 }

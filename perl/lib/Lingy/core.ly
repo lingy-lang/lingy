@@ -424,6 +424,9 @@
 
 (defn slurp [file] (. lingy.lang.RT (slurp file)))
 
+(defn special-symbol? [s]
+  (contains? (. lingy.lang.Compiler specials) s))
+
 (defn sort [coll] (. lingy.lang.RT (sort (seq coll))))
 
 (defn str [& args] (apply lingy.lang.RT/str args))

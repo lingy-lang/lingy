@@ -58,7 +58,10 @@ sub cons { list([$_[0], @{$_[1]}]) }
 sub contains_Q {
     my ($map, $key) = @_;
     return false unless ref($map) eq HASHMAP;
-    $key = qq<"$key> if $key->isa(STRING);
+    $key =
+        $key->isa(STRING) ? qq<"$key> :
+        $key->isa(SYMBOL) ? qq<$key > :
+        "$key";
     boolean(exists $map->{"$key"});
 }
 
@@ -174,6 +177,7 @@ sub keys_ {
         map {
             s/^"// ? string($_) :
             s/^:// ? keyword($_) :
+            s/ $// ? symbol($_) :
             symbol("$_");
         } keys %{$_[0]}
     ]);
