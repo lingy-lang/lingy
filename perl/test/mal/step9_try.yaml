@@ -35,9 +35,10 @@
 - mal: (try* (try* (throw "e1") (catch* e (throw "e2"))) (catch* e "c2"))
   out: '"c2"'
 
-- say: Test that throw is a function
-  mal: (try* (map throw (list "my err")) (catch* exc exc))
-  out: '"my err"'
+# Disable this test because 'throw' is a special form now:
+# - say: Test that throw is a function
+#   mal: (try* (map throw (list "my err")) (catch* exc exc))
+#   out: '"my err"'
 
 
 - say: Testing builtin functions

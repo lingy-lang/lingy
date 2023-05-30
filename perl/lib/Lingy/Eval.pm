@@ -18,6 +18,7 @@ our %special_dispatch = (
     'quasiquoteexpand'  => \&special_quasiquoteexpand,
     'quote'             => \&special_quote,
     'try*'              => \&special_try,
+    'throw'             => \&special_throw,
     'var'               => \&special_var,
 );
 
@@ -295,6 +296,12 @@ sub special_try {
             exprs => [$err],
         ),
     );
+}
+
+sub special_throw {
+    my ($ast, $env) = @_;
+    require Carp;
+    Carp::confess Lingy::Eval::eval($ast->[1], $env);
 }
 
 sub special_var {

@@ -54,7 +54,7 @@ use constant specials => hash_map([
 #         DEFTYPE,        nil,
 #         REIFY,          nil,
         TRY,            nil,
-#         THROW,          nil,      # TODO make special
+        THROW,          nil,
 #         MONITOR_ENTER,  nil,
 #         MONITOR_EXIT,   nil,
         CATCH,          nil,

@@ -441,8 +441,6 @@
 
 (defn the-ns [ns] (. lingy.lang.RT (the_ns ns)))
 
-(defn throw [string] (. lingy.lang.RT (throw string)))
-
 (defn time-ms [] (. lingy.lang.RT (time_ms)))
 
 (defn true? [value] (. lingy.lang.RT (true_Q value)))

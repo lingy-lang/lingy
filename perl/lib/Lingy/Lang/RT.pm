@@ -455,11 +455,6 @@ sub the_ns {
     } : err "Invalid argument for the-ns: '$_[0]'";
 }
 
-sub throw {
-    require Carp;
-    Carp::confess $_[0];
-}
-
 sub time_ms {
     require Time::HiRes;
     my ($s, $m) = Time::HiRes::gettimeofday();

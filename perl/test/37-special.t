@@ -29,8 +29,8 @@ tests <<"...";
   - 'true'
 - - (special-symbol? 'try)
   - 'true'
-- - (special-symbol? 'throw)    # XXX
-  - 'false'
+- - (special-symbol? 'throw)
+  - 'true'
 - - (special-symbol? 'catch)
   - 'true'
 - - (special-symbol? 'new)      # XXX
