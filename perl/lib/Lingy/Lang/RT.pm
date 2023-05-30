@@ -127,38 +127,6 @@ sub getenv {
 
 sub hash_map_ { hash_map([@_]) }
 
-sub import_ {
-    my ($specs) = @_;
-
-    my $return = nil;
-
-    for my $spec (@$specs) {
-        if (ref($spec) eq SYMBOL) {
-            $spec = list([$spec]);
-        }
-
-        err "Invalid import spec" unless
-            $spec->isa(LIST) and
-            @$spec > 0 and
-            not grep { ref($_) ne SYMBOL } @$spec;
-
-        my ($module_name, $imports) = @$spec;
-        my $name = $$module_name;
-        (my $module = $name) =~ s/\./::/g;
-        eval "require $module; 1" or die $@;
-        err "Class not found: '$name'"
-            if $module->isa('Lingy::Namespace');
-        my $class = $Lingy::Main::class{$name} =
-            CLASS->_new($name);
-        if ($module->can('new')) {
-            $return = $class;
-        }
-        # TODO - imports
-    }
-
-    return $return;
-}
-
 sub in_ns {
     my ($name) = @_;
     err "Invalid ns name '$name'"

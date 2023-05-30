@@ -23,8 +23,8 @@ tests <<"...";
   - 'true'
 - - (special-symbol? 'var)
   - 'true'
-- - (special-symbol? 'import)   # XXX
-  - 'false'
+- - (special-symbol? 'import*)
+  - 'true'
 - - (special-symbol? '.)
   - 'true'
 - - (special-symbol? 'try)

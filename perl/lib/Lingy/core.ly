@@ -17,6 +17,8 @@
 
 (defmacro let [& xs] (cons 'let* xs))
 
+(defmacro import [& xs] (cons 'import* xs))
+
 ; (defmacro assert-args
 ;   [& pairs]
 ;   `(do (when-not ~(first pairs)
@@ -244,8 +246,6 @@
 (defn hash-map [& args] (apply lingy.lang.RT/hash_map_ args))
 
 (defn identity [x] x)
-
-(defmacro import [& mods] `(. lingy.lang.RT (import_ '~mods)))
 
 (defn in-ns [name] (. lingy.lang.RT (in_ns name)))
 

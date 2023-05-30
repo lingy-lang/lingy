@@ -48,7 +48,7 @@ use constant specials => hash_map([
         FN,             nil,
         QUOTE,          nil,
         THE_VAR,        nil,
-#         IMPORT,         nil,      # TODO make special
+        IMPORT,         nil,
         DOT,            nil,
 #         ASSIGN,         nil,
 #         DEFTYPE,        nil,
