@@ -35,9 +35,13 @@ sub assoc {
 
 sub atom_ { atom($_[0]) }
 
-sub atom_Q { boolean(ref($_[0]) eq ATOM) }
-
-sub boolean_Q { boolean($_[0]->isa(BOOLEAN)) }
+sub booleanCast {
+    my ($val) = @_;
+    my $type = ref($val);
+    $type eq NIL ? false :
+    ($type eq BOOLEAN and $$val == 0) ? false :
+    true;
+}
 
 sub charCast {
     my ($char) = @_;

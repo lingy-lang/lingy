@@ -174,15 +174,17 @@
     (let [ret (assoc map key val)]
       (apply assoc ret (first kvs) (second kvs) (nnext kvs)))))
 
-(defn atom [value] (. lingy.lang.RT (atom_ value)))
+(defn atom [x] (. lingy.lang.RT (atom_ x)))
+; XXX Should be:
+; (defn atom [x] (new lingy.lang.Atom x))
 
-(defn atom? [value] (. lingy.lang.RT (atom_Q value)))
+(defn boolean [x] (. lingy.lang.RT (booleanCast x)))
 
-(defn boolean? [value] (apply lingy.lang.RT/boolean_Q value))
+(defn boolean? [x] (instance? Boolean x))
 
 (defn char [x] (. lingy.lang.RT (charCast x)))
 
-(defn class? [value] (. lingy.lang.RT (class_Q value)))
+(defn class? [x] (instance? Class x))
 
 (defn clojure-version []
   (str
@@ -216,9 +218,9 @@
 
 (defn create-ns [symbol] (. lingy.lang.RT (create_ns symbol)))
 
-(defn dec [value] (. lingy.lang.RT (dec value)))
+(defn dec [x] (. lingy.lang.RT (dec x)))
 
-(defn deref [value] (. lingy.lang.RT (deref value)))
+(defn deref [x] (. lingy.lang.RT (deref x)))
 
 (defn dissoc [& args] (apply lingy.lang.RT/dissoc args))
 
@@ -235,7 +237,7 @@
 
 (defn empty? [coll] (not (seq coll)))
 
-(defn false? [value] (. lingy.lang.RT (false_Q value)))
+(defn false? [x] (. lingy.lang.RT (false_Q x)))
 
 (defn ffirst [x] (first (first x)))
 

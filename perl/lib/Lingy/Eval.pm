@@ -280,6 +280,7 @@ sub special_loop {
 
 sub special_new {
     my ($ast, $env) = @_;
+    XXX @_, 'special_new not yet implemented';
 }
 
 sub special_quasiquote {

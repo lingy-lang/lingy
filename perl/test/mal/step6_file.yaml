@@ -56,11 +56,12 @@
 - mal: (def a (atom 2))
   out: user/a
 
-- mal: (atom? a)
-  out: 'true'
+# DISABLED (atom? is not Clojure core function)
+# - mal: (atom? a)
+#   out: 'true'
 
-- mal: (atom? 1)
-  out: 'false'
+# - mal: (atom? 1)
+#   out: 'false'
 
 - mal: (deref a)
   out: 2
