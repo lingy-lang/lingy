@@ -394,9 +394,16 @@ sub macroexpand {
             $member = symbol(substr($$member, 1));
             return list([symbol('.'), $instance, $member, @rest]);
         }
-#         if ($sym =~ /^(.*)\.$/) {
-#             XXX my $class = $Lingy::Main::class->{String};
-#         }
+        if ($sym =~ /^($namespace_re)\.$/) {
+            my (undef, @args) = @$ast;
+            # XXX Should expand to (new Foo.Bar 1 2 3)
+            return list([
+                symbol('.'),
+                symbol($1),
+                symbol('new'),
+                @args,
+            ]);
+        }
         if (($call = $env->get($sym, 1)) and
             ref($call) eq MACRO
         ) {

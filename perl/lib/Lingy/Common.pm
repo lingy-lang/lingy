@@ -33,6 +33,7 @@ BEGIN {
     our @EXPORT = qw<
         READY
         $symbol_re
+        $namespace_re
 
         SCALARTYPE
         LISTTYPE
@@ -75,6 +76,11 @@ BEGIN {
 }
 
 use Lingy::Printer;
+
+our $namespace_re = qr{^(?:
+    \w+
+    (?:\.\w+)*
+)}x;
 
 our $symbol_re = qr{^(
     \*?[-\w]+[\?\!\*\#]? |
