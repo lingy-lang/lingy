@@ -4,6 +4,7 @@ use lib './test/lib';
 
 tests <<'...';
 - [ (require 'test.lang), nil ]
+- [ (find-ns 'test.lang), '#<Namespace test.lang>' ]
 - [ (test.lang/foo), '"called test.lang/foo"' ]
 - [ (ns-name 'test.lang), test.lang ]
 
@@ -26,6 +27,7 @@ tests <<'...';
   - "Can't require Foo.Class. Foo::Class is not a Lingy::Namespace."
 
 - [ (require 'Foo.Bar), nil ]
+- [ (find-ns 'Foo.Bar), '#<Namespace Foo.Bar>' ]
 - [ (Foo.Bar/bar), 43 ]
 - [ (Foo.Bar/foo), 123 ]
 ...
