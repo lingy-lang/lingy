@@ -9,7 +9,7 @@ use Lingy::Common;
 use constant default => '--repl';
 use constant options => +{
     repl        => 'bool',
-    'clojure|C' => 'bool',
+    'clj|C'     => 'bool',
     'eval|e'    => 'str',
     run         => 'arg',
     ppp         => 'bool',
