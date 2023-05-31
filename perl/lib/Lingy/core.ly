@@ -53,26 +53,26 @@
 (defn +
   ([] 0)
   ([x] x)
-  ([x y] (lingy.lang.Numbers/add x y))
+  ([x y] (. lingy.lang.Numbers (add x y)))
   ([x y & more]
     (reduce + (+ x y) more)))
 
 (defn -
   ([] 0)
   ([x] (lingy.lang.Numbers/minus 0 x))
-  ([x y] (lingy.lang.Numbers/minus x y))
+  ([x y] (. lingy.lang.Numbers (minus x y)))
   ([x y & more]
     (reduce - (- x y) more)))
 
 (defn *
   ([x] x)
-  ([x y] (lingy.lang.Numbers/multiply x y))
+  ([x y] (. lingy.lang.Numbers (multiply x y)))
   ([x y & more]
     (reduce * (* x y) more)))
 
 (defn /
-  ([x] (lingy.lang.Numbers/divide 1 x))
-  ([x y] (lingy.lang.Numbers/divide x y))
+  ([x] (/ 1 x))
+  ([x y] (. lingy.lang.Numbers (divide x y)))
   ([x y & more]
     (reduce / (/ x y) more)))
 
@@ -155,7 +155,8 @@
         (recur threaded (next forms)))
       x)))
 
-(defn all-ns [] (. lingy.lang.RT (all_ns)))
+; (defn all-ns [] (lingy.lang.Namespace/all))
+(defn all-ns [] (lingy.lang.RT/all_ns))
 
 (defmacro and
   ([] true)
@@ -164,7 +165,7 @@
    `(let [and# ~x]
       (if and# (and ~@next) and#))))
 
-(defn apply [fn & args] (. lingy.lang.RT (apply fn args)))
+(defn apply [f & args] (. lingy.lang.RT (apply f args)))
 
 (defn assoc
   ([map key val] (lingy.lang.RT/assoc map key val))
@@ -220,6 +221,17 @@
 (defn deref [value] (. lingy.lang.RT (deref value)))
 
 (defn dissoc [& args] (apply lingy.lang.RT/dissoc args))
+
+(defmacro doto
+  [x & forms]
+    (let [gx (gensym)]
+      `(let [~gx ~x]
+        ~@(map (fn [f]
+          (if (seq? f)
+            `(~(first f) ~gx ~@(next f))
+            `(~f ~gx)))
+          forms)
+        ~gx)))
 
 (defn empty? [coll] (not (seq coll)))
 
