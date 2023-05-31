@@ -59,7 +59,7 @@ use constant specials => hash_map([
 #         MONITOR_EXIT,   nil,
         CATCH,          nil,
 #         FINALLY,        nil,
-#         NEW,            nil,      # TODO make special
+        NEW,            nil,
 #         _AMP_,          nil,
 
 # TODO Maybe add these:

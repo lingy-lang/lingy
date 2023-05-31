@@ -33,6 +33,6 @@ tests <<"...";
   - 'true'
 - - (special-symbol? 'catch)
   - 'true'
-- - (special-symbol? 'new)      # XXX
-  - 'false'
+- - (special-symbol? 'new)
+  - 'true'
 ...

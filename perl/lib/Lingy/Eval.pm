@@ -14,6 +14,7 @@ our %special_dispatch = (
     'import*'           => \&special_import,
     'let*'              => \&special_let,
     'loop'              => \&special_loop,
+    'new'               => \&special_new,
     'recur'             => \&special_recur,
     'quasiquote'        => \&special_quasiquote,
     'quasiquoteexpand'  => \&special_quasiquoteexpand,
@@ -275,6 +276,10 @@ sub special_loop {
         }
     }
     return ($a2, $env);
+}
+
+sub special_new {
+    my ($ast, $env) = @_;
 }
 
 sub special_quasiquote {
