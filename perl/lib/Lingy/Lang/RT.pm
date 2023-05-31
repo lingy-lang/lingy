@@ -20,10 +20,17 @@ sub all_ns {
 
 sub apply {
     my ($fn, $args) = @_;
-    push @$args, @{pop(@$args)};
+    my $seq = pop(@$args);
+    $seq = list([]) if ref($seq) eq NIL;
+    push @$args, @$seq;
     ref($fn) eq 'CODE'
         ? $fn->(@$args)
         : Lingy::Eval::eval($fn->(@$args));
+}
+
+sub assoc {
+    my ($map, $key, $val) = @_;
+    $map->assoc($key, $val);
 }
 
 sub atom_ { atom($_[0]) }

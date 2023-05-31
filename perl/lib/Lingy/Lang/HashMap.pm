@@ -26,12 +26,10 @@ sub clone {
 }
 
 sub assoc {
-    my ($self, $pairs) = @_;
+    my ($self, $key, $val) = @_;
     my $new = $self->clone;
-    for (my $i = 0; $i < @$pairs; $i += 2) {
-        my $key = $self->_get_key($pairs->[$i]);
-        $new->{$key} = $pairs->[$i + 1];
-    }
+    $key = $self->_get_key($key);
+    $new->{$key} = $val;
     $new;
 }
 
