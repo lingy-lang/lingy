@@ -1,20 +1,251 @@
 use strict; use warnings;
 package Lingy::Lang::RT;
 
+use Lingy;
 use Lingy::Common;
 use Lingy::Eval;
+use Lingy::Lang::Class;
+use Lingy::Lang::HashMap;
+use Lingy::Lang::Nil;
+use Lingy::Lang::Sequential;
+use Lingy::Lang::Symbol;
 use Lingy::Namespace();
 use Lingy::Printer;
-use Lingy::Lang::Class;
+use Lingy::ReadLine;
 
-our $nextID = 1000;
+use constant LANG => 'Lingy';
+use constant HOST => 'perl';
+
+use constant env_class => 'Lingy::Env';
+use constant printer_class => 'Lingy::Printer';
+use constant reader_class => 'Lingy::Reader';
+use constant util_class => 'Lingy::Util';
+
+our @class = (
+    ATOM,
+    BOOLEAN,
+    CHARACTER,
+    CLASS,
+    COMPILER,
+    FUNCTION,
+    HASHMAP,
+    KEYWORD,
+    LIST,
+    LISTTYPE,
+    MACRO,
+    NIL,
+    NUMBER,
+    REGEX,
+    SEQUENTIAL,
+    STRING,
+    SYMBOL,
+    VAR,
+    VECTOR,
+    NUMBERS,
+    RT,
+    TERM,
+    THREAD,
+    UTIL,
+);
 
 our %meta;
 
+our $ns = '';               # Current namespace name
+our %ns = ();               # Map of all namespaces
+our %refer = ();            # Map of all namespace refers
+bless \%ns, 'lingy-internal';
+bless \%refer, 'lingy-internal';
+
+# Preload classes:
+our %class = map {
+    my $class = CLASS->_new($_);
+    ($class->_name, $class);
+} @class;
+
+our ($env, $reader, $printer);
+our ($rt, $core, $util, $user);
+
+my $pr_str;
+
+sub rt { $rt }
+sub ns { \%ns }
+sub NS { $ns{$ns} }
+sub refer { \%refer }
+sub env { $env }
+sub core { $core }
+sub util { $util }
+sub user { $user }
+
+sub new {
+    my ($class) = @_;
+    $rt = bless {}, $class;
+}
+
+sub init {
+    my ($self) = @_;
+
+    for my $class (keys %class) {
+        my $package = $class{$class};
+        eval "require $package";
+        die $@ if $@;
+        if ($class =~ /\.(\w+)$/) {
+            $class{$1} = $package;
+        }
+    }
+
+    $env     = $self->require_new($self->env_class);
+    $reader  = $self->require_new($self->reader_class);
+    $printer = $self->require_new($self->printer_class);
+    $util    = $self->require_new($self->util_class);
+
+    $pr_str = $printer->can('pr_str') or die;
+
+    $core = $self->core_namespace();
+    $user = $self->user_namespace();
+
+    $user->current;
+
+    $Lingy::Lang::RT::ready = 1;
+
+    return $self;
+}
+
+sub core_namespace {
+    my ($self) = @_;
+
+    my $ns = Lingy::Namespace->new(
+        name => 'lingy.core',
+    )->current;
+
+    my $argv = @ARGV
+        ? LIST->new([
+            map STRING->new($_), @ARGV[1..$#ARGV]]
+        ) : NIL->new;
+
+    # Define these functions first for bootstrapping:
+    $env->set(cons => \&Lingy::Lang::RT::cons);
+    $env->set(concat => \&Lingy::Lang::RT::concat);
+    $env->set(eval => sub { Lingy::Eval::eval($_[0], $env) });
+
+    # Clojure dynamic vars:
+    $env->set('*file*', STRING->new(
+        $ARGV[0] || "NO_SOURCE_PATH"
+    ));
+    $env->set('*command-line-args*', $argv);
+
+    # Lingy dynamic vars:
+    $env->set('*ARGV*', $argv);
+    $env->set('*LANG*', STRING->new($self->LANG));
+    $env->set('*HOST*', STRING->new($self->HOST));
+
+    $Lingy::VERSION =~ /^(\d+)\.(\d+)\.(\d+)$/;
+    $self->rep("
+      (def *lingy-version*
+        {
+          :major       $1
+          :minor       $2
+          :incremental $3
+          :qualifier   nil
+        })
+
+      (def *clojure-version*
+        {
+          :major       1
+          :minor       11
+          :incremental 1
+          :qualifier   nil
+        })
+    ");
+
+    my $core_ly = $INC{'Lingy/Lang/RT.pm'};
+    $core_ly =~ s/Lang\/RT\.pm$/core.ly/;
+    $self->rep($self->slurp_file($core_ly));
+
+    return $ns;
+}
+
+sub user_namespace {
+    my ($self) = @_;
+
+    Lingy::Namespace->new(
+        name => 'user',
+        refer => [
+            $self->core,
+            $self->util,
+        ],
+    );
+}
+
+sub require_new {
+    my $self = shift;
+    my $class = shift;
+    eval "require $class; 1" or
+        die "Can't require '$class':\n$@";
+    $class->new(@_);
+}
+
+sub slurp_file {
+    my ($self, $file) = @_;
+    open my $slurp, '<', "$file" or
+        die "Couldn't read file '$file'";
+    local $/;
+    <$slurp>;
+}
+
+sub rep {
+    my ($self, $str) = @_;
+    map $pr_str->(Lingy::Eval::eval($_, $env)),
+        $reader->read_str($str);
+}
+
+sub repl {
+    my ($self) = @_;
+
+    $self->rep(q< (println (str *LANG* " " (lingy-version) " [" *HOST* "]\n"))>)
+        unless $ENV{LINGY_TEST};
+    my ($clojure_repl) = $self->rep("(identity *clojure-repl*)");
+    if ($clojure_repl eq 'true') {
+        require Lingy::ClojureREPL;
+        Lingy::ClojureREPL->start();
+    }
+
+    while (defined (my $line = Lingy::ReadLine::readline)) {
+        next unless length $line;
+
+        my @forms = eval { $reader->read_str($line, 1) };
+        if ($@) {
+            print "$@\n";
+            $Lingy::ReadLine::input = '';
+            next;
+        }
+
+        for my $form (@forms) {
+            my $ret = eval { $pr_str->(Lingy::Eval::eval($form, $env)) };
+            my $err;
+            $err = $ret = $@ if $@;
+            chomp $ret;
+            print "$ret\n";
+        }
+
+        my $input = $Lingy::ReadLine::input // next;
+        ($clojure_repl) = $self->rep("(identity *clojure-repl*)");
+
+        if ($input =~ s/^;;;// or $clojure_repl eq 'true') {
+            require Lingy::ClojureREPL;
+            Lingy::ClojureREPL->rep($input);
+        }
+    }
+    print "\n";
+}
+
+
+#------------------------------------------------------------------------------
+our $nextID = 1000;
+
 sub all_ns {
     list([
-        map { $Lingy::Main::ns{$_} }
-        sort keys %Lingy::Main::ns
+        map { $Lingy::Lang::RT::ns{$_} }
+        sort keys %Lingy::Lang::RT::ns
     ]);
 }
 
@@ -84,7 +315,7 @@ sub create_ns {
         unless $name =~ /^\w+(\.\w+)*$/;
     Lingy::Namespace->new(
         name => $name,
-        refer => Lingy::Main->core,
+        refer => Lingy::Lang::RT->core,
     );
 }
 
@@ -104,7 +335,7 @@ sub dissoc {
 
 sub find_ns {
     assert_args(\@_, SYMBOL);
-    $Lingy::Main::ns{$_[0]} // nil;
+    $Lingy::Lang::RT::ns{$_[0]} // nil;
 }
 
 sub first {
@@ -130,7 +361,7 @@ sub in_ns {
     my ($name) = @_;
     err "Invalid ns name '$name'"
         unless $name =~ /^\w+(\.\w+)*$/;
-    my $ns = $Lingy::Main::ns{$name} //
+    my $ns = $Lingy::Lang::RT::ns{$name} //
     Lingy::Namespace->new(
         name => $name,
     );
@@ -180,16 +411,16 @@ sub nextID {
     string(++$nextID);
 }
 
-sub ns {
+sub ns_ {
     my ($name, $args) = @_;
     err "Invalid ns name '$name'"
         unless $name =~ /^\w+(\.\w+)*$/;
 
     my $ns;
-    $ns = $Lingy::Main::ns{$name} //
+    $ns = $Lingy::Lang::RT::ns{$name} //
     Lingy::Namespace->new(
         name => $name,
-        refer => Lingy::Main->core,
+        refer => Lingy::Lang::RT->core,
     );
     $ns->current;
 
@@ -251,7 +482,7 @@ sub prn {
 sub quot { number(int($_[0] / $_[1])) }
 
 sub read_string {
-    my @forms = $Lingy::Main::reader->read_str($_[0]);
+    my @forms = $Lingy::Lang::RT::reader->read_str($_[0]);
     return @forms ? $forms[0] : nil;
 }
 
@@ -262,16 +493,16 @@ sub readline {
     string($l);
 }
 
-sub refer {
+sub refer_ {
     my (@specs) = @_;
     for my $spec (@specs) {
         err "'refer' only works with symbols"
             unless ref($spec) eq SYMBOL;
         my $refer_ns_name = $$spec;
-        my $current_ns_name = $Lingy::Main::ns;
-        my $refer_ns = $Lingy::Main::ns{$refer_ns_name}
+        my $current_ns_name = $Lingy::Lang::RT::ns;
+        my $refer_ns = $Lingy::Lang::RT::ns{$refer_ns_name}
             or err "No namespace: '$refer_ns_name'";
-        my $refer_map = $Lingy::Main::refer{$current_ns_name} //= {};
+        my $refer_map = $Lingy::Lang::RT::refer{$current_ns_name} //= {};
         map $refer_map->{$_} = $refer_ns_name,
             grep /^\S/, keys %$refer_ns;
     }
@@ -284,7 +515,7 @@ sub require {
         err "'require' only works with symbols"
             unless ref($spec) eq SYMBOL;
 
-        return nil if $Lingy::Main::ns{$$spec};
+        return nil if $Lingy::Lang::RT::ns{$$spec};
 
         my $name = $$spec;
 
@@ -306,12 +537,12 @@ sub require {
                         unless $module->isa('Lingy::Namespace');
                     $module->new(
                         name => symbol($name),
-                        refer => Lingy::Main->core,
+                        refer => Lingy::Lang::RT->core,
                     );
                 }
                 if (-f "$inc_path.ly") {
-                    my $ns = $Lingy::Main::ns{$Lingy::Main::ns};
-                    Lingy::Main->rep(qq< (load-file "$inc_path.ly") >);
+                    my $ns = $Lingy::Lang::RT::ns{$Lingy::Lang::RT::ns};
+                    Lingy::Lang::RT->rep(qq< (load-file "$inc_path.ly") >);
                     $ns->current;
                 }
                 next outer;
@@ -331,16 +562,16 @@ sub resolve {
         ($ns_name, $sym_name) = ($1, $2);
     }
     else {
-        $ns_name = $Lingy::Main::ns;
+        $ns_name = $Lingy::Lang::RT::ns;
         $sym_name = $symbol;
     }
 
-    my $ns = $Lingy::Main::ns{$ns_name} or return nil;
+    my $ns = $Lingy::Lang::RT::ns{$ns_name} or return nil;
     if (exists $ns->{$sym_name}) {
         $var = $ns_name . '/' . $sym_name;
     } else {
         my $ref;
-        if (($ref = $Lingy::Main::refer{$ns_name}) and
+        if (($ref = $Lingy::Lang::RT::refer{$ns_name}) and
             defined($ns_name = $ref->{$sym_name})
         ) {
             $var = $ns_name . '/' . $sym_name;
@@ -364,7 +595,7 @@ sub seq {
     $o->_to_seq;
 }
 
-sub slurp { string(Lingy::Main->slurp($_[0])) }
+sub slurp { string(Lingy::Lang::RT->slurp_file($_[0])) }
 
 sub sort {
     list([
@@ -391,7 +622,7 @@ sub symbol_ { symbol("$_[0]") }
 sub the_ns {
     $_[0]->isa('Lingy::Namespace') ? $_[0] :
     $_[0]->isa(SYMBOL) ? do {
-        $Lingy::Main::ns{$_[0]} //
+        $Lingy::Lang::RT::ns{$_[0]} //
         err "No namespace: '$_[0]' found";
     } : err "Invalid argument for the-ns: '$_[0]'";
 }

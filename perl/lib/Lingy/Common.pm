@@ -99,7 +99,7 @@ our $symbol_re = qr{^(
     ->>?
 )}x;
 
-sub READY { $Lingy::Main::ready // 0 }
+sub READY { $Lingy::Lang::RT::ready // 0 }
 
 
 sub atom     { ATOM->new(@_) }

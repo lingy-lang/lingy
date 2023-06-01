@@ -21,7 +21,7 @@ if (my $step = $ENV{LINGY_TEST_MAL_STEP}) {
     @files = grep /$step/, @files;
 }
 
-my $runtime = Lingy::Main->init;
+my $runtime = Lingy::Lang::RT->init;
 
 for my $file (@files) {
     $file =~ /step(.)/ or die;

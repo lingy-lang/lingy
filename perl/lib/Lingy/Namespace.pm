@@ -26,7 +26,7 @@ sub new {
     if (my $refer_list = $args{refer}) {
         $refer_list = [$refer_list]
             unless ref($refer_list) eq 'ARRAY';
-        my $refer_map = $Lingy::Main::refer{$name} //= {};
+        my $refer_map = $Lingy::Lang::RT::refer{$name} //= {};
         for my $ns (@$refer_list) {
             my $ns_name = $ns->NAME;
             map $refer_map->{$_} = $ns_name,
@@ -43,7 +43,7 @@ sub new {
         );
     }
 
-    $Lingy::Main::ns{$name} = $self;
+    $Lingy::Lang::RT::ns{$name} = $self;
 
     return $self;
 }
@@ -51,10 +51,10 @@ sub new {
 sub current {
     my ($self) = @_;
     my $name = $self->NAME or die;
-    $Lingy::Main::ns = $name;
-    $Lingy::Main::ns{$name} = $self;
-    $Lingy::Main::env->{space} = $self;
-    $Lingy::Main::ns{'lingy.core'}{'*ns*'} = $self;
+    $Lingy::Lang::RT::ns = $name;
+    $Lingy::Lang::RT::ns{$name} = $self;
+    $Lingy::Lang::RT::env->{space} = $self;
+    $Lingy::Lang::RT::ns{'lingy.core'}{'*ns*'} = $self;
     return $self;
 }
 
@@ -64,8 +64,8 @@ sub names {
     map {$names{$_} = 1}
         grep {not /^ /}
         keys(%$self),
-        keys(%Lingy::Main::ns),
-        keys(%{$Lingy::Main::refer{$self->NAME}});
+        keys(%Lingy::Lang::RT::ns),
+        keys(%{$Lingy::Lang::RT::refer{$self->NAME}});
     return keys %names;
 }
 
@@ -105,12 +105,12 @@ sub getMappings {
         %{$_[0]},
     };
     my $name = delete $map->{' NAME'};
-    my $refer = Lingy::Main->refer->{$name} // {};
+    my $refer = Lingy::Lang::RT->refer->{$name} // {};
     for my $key (keys %$refer) {
         my $ns = $refer->{$key};
         $map->{$key} =
-            $Lingy::Main::ns{$ns}->{$key} //
-            $Lingy::Main::ns{$key};
+            $Lingy::Lang::RT::ns{$ns}->{$key} //
+            $Lingy::Lang::RT::ns{$key};
     }
     hash_map([ %$map ]);
 }

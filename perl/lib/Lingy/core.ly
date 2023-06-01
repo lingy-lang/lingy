@@ -350,7 +350,7 @@
 
 (defn not [a] (if a false true))
 
-(defmacro ns [name & xs] `(lingy.lang.RT/ns '~name '~xs))
+(defmacro ns [name & xs] `(lingy.lang.RT/ns_ '~name '~xs))
 
 (defn ns-imports [ns]
   (.getImports (the-ns ns)))
@@ -423,7 +423,7 @@
 (defn re-pattern [s] (lingy.lang.Regex/pattern s))
 
 (defn refer [& xs]
-  (apply lingy.lang.RT/refer xs)
+  (apply lingy.lang.RT/refer_ xs)
   nil)
 
 (defn rem

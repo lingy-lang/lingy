@@ -26,7 +26,7 @@ sub readline {
 
     my ($continue) = @_;
 
-    my $prompt = $Lingy::Main::ns or die;
+    my $prompt = $Lingy::Lang::RT::ns or die;
     if ($continue) {
         no warnings 'numeric';
         $prompt = (' ' x (length($prompt) - 2)) . '#_';
@@ -64,10 +64,10 @@ sub complete {
 
     if ($text =~ m{^(\w+(\.\w+)*)/}) {
         my $prefix = $1;
-        if (defined (my $class = $Lingy::Main::class{$prefix})) {
+        if (defined (my $class = $Lingy::Lang::RT::class{$prefix})) {
             return map "$prefix/$_", $class->_method_names;
         }
-        if (my $ns = $Lingy::Main::ns{$prefix}) {
+        if (my $ns = $Lingy::Lang::RT::ns{$prefix}) {
             return map "$prefix/$_", keys %$ns;
         }
         return;
@@ -79,8 +79,8 @@ sub complete {
         ($text eq '' and /^(\w+\.)/) ? $1 :
         $_
     }
-    $Lingy::Main::env->space->names,
-    (keys %Lingy::Main::class),
+    $Lingy::Lang::RT::env->space->names,
+    (keys %Lingy::Lang::RT::class),
     (keys %Lingy::Eval::special_dispatch),
     ();
 }

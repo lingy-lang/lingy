@@ -27,8 +27,8 @@ sub new {
 }
 
 sub main {
-    require Lingy::Main;
-    return Lingy::Main->new;
+    require Lingy::Lang::RT;
+    return Lingy::Lang::RT->new;
 }
 
 sub from_stdin {

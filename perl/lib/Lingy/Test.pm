@@ -7,7 +7,7 @@ use Test::More;
 use YAML::PP;
 
 use Lingy;
-use Lingy::Main;
+use Lingy::Lang::RT;
 use Lingy::Common;
 
 use Capture::Tiny qw'capture capture_merged';
@@ -19,7 +19,7 @@ symlink 't', 'test' if -d 't' and not -e 'test';
 
 my $ypp = YAML::PP->new;
 
-our $rt = Lingy::Main->init;
+our $rt = Lingy::Lang::RT->init;
 
 $ENV{LINGY_TEST} = 1;
 

@@ -199,7 +199,7 @@ sub special_import {
         eval "require $module; 1" or die $@;
         err "Class not found: '$name'"
             if $module->isa('Lingy::Namespace');
-        my $class = $Lingy::Main::class{$name} =
+        my $class = $Lingy::Lang::RT::class{$name} =
             CLASS->_new($name);
         if ($module->can('new')) {
             $return = $class;
@@ -344,7 +344,9 @@ sub special_try {
 sub special_throw {
     my ($ast, $env) = @_;
     require Carp;
-    Carp::confess Lingy::Eval::eval($ast->[1], $env);
+    Carp::confess(
+        Lingy::Eval::eval($ast->[1], $env),
+    );
 }
 
 sub special_var {

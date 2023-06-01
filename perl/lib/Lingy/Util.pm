@@ -13,11 +13,11 @@ our %ns = (
 
     fn('x-carp-off' => 0 => sub { eval "no Carp::Always"; nil }),
     fn('x-carp-on'  => 0 => sub { eval "use Carp::Always"; nil }),
-    fn('x-core'     => 0 => sub { Lingy::Main->rt->core }),
-    fn('x-env'      => 0 => sub { Lingy::Main->rt->env }),
-    fn('x-ns'       => 0 => sub { Lingy::Main->rt->ns }),
-    fn('x-refer'    => 0 => sub { Lingy::Main->rt->refer }),
-    fn('x-user'     => 0 => sub { Lingy::Main->rt->user }),
+    fn('x-core'     => 0 => sub { Lingy::Lang::RT->rt->core }),
+    fn('x-env'      => 0 => sub { Lingy::Lang::RT->rt->env }),
+    fn('x-ns'       => 0 => sub { Lingy::Lang::RT->rt->ns }),
+    fn('x-refer'    => 0 => sub { Lingy::Lang::RT->rt->refer }),
+    fn('x-user'     => 0 => sub { Lingy::Lang::RT->rt->user }),
 
     fn('x-pp-env' => '*' => sub {
         my $env = $Lingy::Eval::ENV;
