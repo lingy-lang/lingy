@@ -2,6 +2,6 @@
 
 use strict; use warnings;
 
-use Lingy::CLI;
+use Lingy::Main;
 
-Lingy::CLI->new->run(@ARGV);
+Lingy::Main->new->run(@ARGV);
