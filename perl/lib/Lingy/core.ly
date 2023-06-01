@@ -221,6 +221,12 @@
 
 (defn dec [x] (. lingy.lang.RT (dec x)))
 
+(defmacro declare [& names]
+  `(do
+    ~@(map
+      #(list 'def %)
+      names)))
+
 (defn deref [x] (. lingy.lang.RT (deref x)))
 
 (defn dissoc [& args] (apply lingy.lang.RT/dissoc args))
