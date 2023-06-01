@@ -3,8 +3,11 @@ package Lingy::Common;
 
 use Exporter 'import';
 
-use constant SCALARTYPE => 'Lingy::Lang::ScalarClass';
+use Scalar::Util 'refaddr';
+
 use constant LISTTYPE   => 'Lingy::Lang::ListClass';
+use constant SCALARTYPE => 'Lingy::Lang::ScalarClass';
+use constant SEQUENTIAL => 'Lingy::Lang::Sequential';
 
 use constant NUMBERS    => 'Lingy::Lang::Numbers';
 use constant RT         => 'Lingy::Lang::RT';
@@ -26,6 +29,7 @@ use constant NUMBER     => 'Lingy::Lang::Number';
 use constant REGEX      => 'Lingy::Lang::Regex';
 use constant STRING     => 'Lingy::Lang::String';
 use constant SYMBOL     => 'Lingy::Lang::Symbol';
+use constant UTIL       => 'Lingy::Lang::Util';
 use constant VECTOR     => 'Lingy::Lang::Vector';
 use constant VAR        => 'Lingy::Lang::Var';
 
@@ -35,14 +39,18 @@ BEGIN {
         $symbol_re
         $namespace_re
 
-        SCALARTYPE
+        refaddr
+
         LISTTYPE
+        SCALARTYPE
+        SEQUENTIAL
 
         COMPILER
         NUMBERS
         RT
         TERM
         THREAD
+        UTIL
 
         atom        ATOM
         boolean     BOOLEAN

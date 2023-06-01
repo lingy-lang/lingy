@@ -2,7 +2,7 @@ use strict; use warnings;
 package Lingy::Lang::Vector;
 
 use Lingy::Common;
-use base LISTTYPE;
+use base LISTTYPE, SEQUENTIAL;
 
 use overload cmp => \&comp_pair;
 

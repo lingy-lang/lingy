@@ -8,16 +8,16 @@ use Lingy::Common;
 use constant NAME => 'lingy.util';
 
 our %ns = (
-    fn('eval-perl'   => 1 => sub { eval("$_[0]") },
-                     => 2 => sub { eval("$_[0]"); $_[1] }),
+    fn('eval-perl'  => 1 => sub { eval("$_[0]") },
+                    => 2 => sub { eval("$_[0]"); $_[1] }),
 
-    fn('x-carp-off'  => 0 => sub { eval "no Carp::Always"; nil }),
-    fn('x-carp-on'   => 0 => sub { eval "use Carp::Always"; nil }),
-    fn('x-core'      => 0 => sub { Lingy::Main->rt->core }),
-    fn('x-env'       => 0 => sub { Lingy::Main->rt->env }),
-    fn('x-ns'        => 0 => sub { Lingy::Main->rt->ns }),
-    fn('x-refer'     => 0 => sub { Lingy::Main->rt->refer }),
-    fn('x-user'      => 0 => sub { Lingy::Main->rt->user }),
+    fn('x-carp-off' => 0 => sub { eval "no Carp::Always"; nil }),
+    fn('x-carp-on'  => 0 => sub { eval "use Carp::Always"; nil }),
+    fn('x-core'     => 0 => sub { Lingy::Main->rt->core }),
+    fn('x-env'      => 0 => sub { Lingy::Main->rt->env }),
+    fn('x-ns'       => 0 => sub { Lingy::Main->rt->ns }),
+    fn('x-refer'    => 0 => sub { Lingy::Main->rt->refer }),
+    fn('x-user'     => 0 => sub { Lingy::Main->rt->user }),
 
     fn('x-pp-env' => '*' => sub {
         my $env = $Lingy::Eval::ENV;

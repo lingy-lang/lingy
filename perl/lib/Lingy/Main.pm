@@ -11,6 +11,7 @@ use Lingy::ReadLine;
 
 use Lingy::Lang::HashMap;
 use Lingy::Lang::Nil;
+use Lingy::Lang::Sequential;
 use Lingy::Lang::Symbol;
 
 use constant LANG => 'Lingy';
@@ -37,10 +38,12 @@ our @class = (
     HASHMAP,
     KEYWORD,
     LIST,
+    LISTTYPE,
     MACRO,
     NIL,
     NUMBER,
     REGEX,
+    SEQUENTIAL,
     STRING,
     SYMBOL,
     VAR,
@@ -49,6 +52,7 @@ our @class = (
     RT,
     TERM,
     THREAD,
+    UTIL,
 );
 
 # Preload classes:

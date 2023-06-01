@@ -2,7 +2,7 @@ use strict; use warnings;
 package Lingy::Lang::List;
 
 use Lingy::Common;
-use base LISTTYPE;
+use base LISTTYPE, SEQUENTIAL;
 
 sub _to_seq {
     my ($list) = @_;

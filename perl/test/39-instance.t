@@ -42,4 +42,8 @@ tests <<"...";
 # - - (class? lingy.lang.Namespace)
 # - - (class? 'lingy.lang.Namespace)
 
+- - (false? nil)
+  - 'false'
+- - (false? false)
+  - 'true'
 ...

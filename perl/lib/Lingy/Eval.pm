@@ -84,6 +84,8 @@ sub eval_ast {
 sub special_def {
     my ($ast, $env) = @_;
     my (undef, $a1, $a2) = @$ast;
+    $a1 // err "Too few arguments to def";
+    $a2 //= nil;
     err "Can't def a qualified symbol: '$a1'"
         if $a1 =~ m{./.};
     return $env->ns_set($$a1, Lingy::Eval::eval($a2, $env));

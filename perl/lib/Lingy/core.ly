@@ -8,7 +8,8 @@
 ;------------------------------------------------------------------------------
 (defmacro! defmacro
   (fn* [name & body]
-    `(defmacro! ~name (fn* ~@body))))
+    `(defmacro! ~name
+       (fn* ~@body))))
 
 (defmacro fn [& xs] (cons 'fn* xs))
 
@@ -212,7 +213,7 @@
 
 (defn conj [& args] (apply lingy.lang.RT/conj args))
 
-(defn contains? [map key] (. lingy.lang.RT (contains_Q map key)))
+(defn contains? [coll key] (. lingy.lang.RT (contains coll key)))
 
 (defn count [list] (. lingy.lang.RT (count list)))
 
@@ -237,7 +238,7 @@
 
 (defn empty? [coll] (not (seq coll)))
 
-(defn false? [x] (. lingy.lang.RT (false_Q x)))
+(defn false? [x] (lingy.lang.Util/identical x false))
 
 (defn ffirst [x] (first (first x)))
 
@@ -245,7 +246,7 @@
 
 (defn first [list] (. lingy.lang.RT (first list)))
 
-(defn fn? [fn] (. lingy.lang.RT (fn_Q fn)))
+(defn fn? [x] (instance? Function x))
 
 (defn fnext [x] (first (next x)))
 
@@ -276,7 +277,7 @@
 
 (defn keyword [string] (. lingy.lang.RT (keyword_ string)))
 
-(defn keyword? [value] (. lingy.lang.RT (keyword_Q value)))
+(defn keyword? [x] (instance? Keyword x))
 
 (defn lingy-version []
   (str
@@ -292,7 +293,7 @@
 
 (defn list [& args] (apply lingy.lang.RT/list_ args))
 
-(defn list? [value] (. lingy.lang.RT (list_Q value)))
+(defn list? [x] (instance? List x))
 
 (defn list*
   ([args] (seq args))
@@ -312,13 +313,13 @@
         (slurp f)
         "\nnil)"))))
 
-(defn macro? [value] (. lingy.lang.RT (macro_Q value)))
+(defn macro? [x] (instance? Macro x))
 
 (defn macroexpand [macro] (. lingy.lang.RT (macroexpand macro)))
 
 (defn map [fn list] (. lingy.lang.RT (map fn list)))
 
-(defn map? [map] (. lingy.lang.RT (map_Q map)))
+(defn map? [x] (instance? HashMap x))
 
 (defn meta [object] (. lingy.lang.RT (meta object)))
 
@@ -337,7 +338,7 @@
 
 (defn nfirst [x] (next (first x)))
 
-(defn nil? [x] (. lingy.lang.RT (nil_Q x)))
+(defn nil? [x] (lingy.lang.Util/identical x nil))
 
 (defn nnext [x] (next (next x)))
 
@@ -376,7 +377,7 @@
 
 (defn number [string] (. lingy.lang.RT (number_ string)))
 
-(defn number? [value] (. lingy.lang.RT (number_Q value)))
+(defn number? [x] (instance? Number x))
 
 (defn pos? [num] (. lingy.lang.Numbers (isPos num)))
 
@@ -437,9 +438,9 @@
 
 (defn seq [list] (. lingy.lang.RT (seq list)))
 
-(defn seq? [value] (. lingy.lang.RT (seq_Q value)))
+(defn seq? [x] (instance? ListClass x))
 
-(defn sequential? [value] (. lingy.lang.RT (sequential_Q value)))
+(defn sequential? [x] (instance? Sequential x))
 
 (defn slurp [file] (. lingy.lang.RT (slurp file)))
 
@@ -450,19 +451,19 @@
 
 (defn str [& args] (apply lingy.lang.RT/str args))
 
-(defn string? [value] (. lingy.lang.RT (string_Q value)))
+(defn string? [x] (instance? String x))
 
 (defn swap! [atom fn & args] (. lingy.lang.RT (swap_BANG atom fn args)))
 
 (defn symbol [string] (. lingy.lang.RT (symbol_ string)))
 
-(defn symbol? [value] (. lingy.lang.RT (symbol_Q value)))
+(defn symbol? [x] (instance? Symbol x))
 
 (defn the-ns [ns] (. lingy.lang.RT (the_ns ns)))
 
 (defn time-ms [] (. lingy.lang.RT (time_ms)))
 
-(defn true? [value] (. lingy.lang.RT (true_Q value)))
+(defn true? [x] (lingy.lang.Util/identical x true))
 
 (defn type [object] (. lingy.lang.RT (type_ object)))
 
@@ -486,7 +487,7 @@
 
 (defn vector [& args] (apply lingy.lang.RT/vector_ args))
 
-(defn vector? [value] (. lingy.lang.RT (vector_Q value)))
+(defn vector? [x] (instance? Vector x))
 
 (defmacro when-let [bindings & body]
   (let [
