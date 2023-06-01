@@ -1,5 +1,5 @@
 use strict; use warnings;
-package Lingy::Lang::Function;
+package Lingy::Lang::Fn;
 
 use Lingy::Common;
 

@@ -24,7 +24,7 @@ tests <<'...';
 - - (type false)
   - lingy.lang.Boolean
 - - (type (fn []))
-  - lingy.lang.Function
+  - lingy.lang.Fn
 - - (do (defmacro x [] ()) (type x))
   - lingy.lang.Macro
 - - (type (atom 22))
