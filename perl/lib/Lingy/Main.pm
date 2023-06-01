@@ -65,9 +65,9 @@ sub run {
             $main->repl;
         } else {
             if ($ppp) {
-                $main->rep(qq<(PPP (quote $eval\n))>);
+                $main->rep(qq<(use 'lingy.devel) (PPP (quote $eval\n))>);
             } elsif ($xxx) {
-                $main->rep(qq<(XXX (quote $eval\n))>);
+                $main->rep(qq<(use 'lingy.devel) (XXX (quote $eval\n))>);
             } else {
                 unshift @ARGV, '-';
                 map print("$_\n"),

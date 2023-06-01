@@ -2,7 +2,7 @@
 
 (ns testing
   (:use
-    lingy.Util
+    lingy.devel
     lingy.testing.tap))
 
 (note "Testing with lingy.test")

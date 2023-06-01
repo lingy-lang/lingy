@@ -19,7 +19,6 @@ use constant HOST => 'perl';
 use constant env_class => 'Lingy::Env';
 use constant printer_class => 'Lingy::Printer';
 use constant reader_class => 'Lingy::Reader';
-use constant util_class => 'Lingy::Util';
 
 our @class = (
     ATOM,
@@ -63,7 +62,7 @@ our %class = map {
 } @class;
 
 our ($env, $reader, $printer);
-our ($rt, $core, $util, $user);
+our ($rt, $core, $user);
 
 my $pr_str;
 
@@ -73,8 +72,9 @@ sub NS { $ns{$ns} }
 sub refer { \%refer }
 sub env { $env }
 sub core { $core }
-sub util { $util }
 sub user { $user }
+sub classes { \@class }
+
 
 sub new {
     my ($class) = @_;
@@ -96,7 +96,6 @@ sub init {
     $env     = $self->require_new($self->env_class);
     $reader  = $self->require_new($self->reader_class);
     $printer = $self->require_new($self->printer_class);
-    $util    = $self->require_new($self->util_class);
 
     $pr_str = $printer->can('pr_str') or die;
 
@@ -171,7 +170,6 @@ sub user_namespace {
         name => 'user',
         refer => [
             $self->core,
-            $self->util,
         ],
     );
 }
