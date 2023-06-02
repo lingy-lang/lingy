@@ -26,11 +26,11 @@ sub find {
             $i++;
         }
     }
-    vector([@capture]);
+    VECTOR->new([@capture]);
 }
 
 sub matches {
-    find regex("\\A$_[0]\\z"), $_[1];
+    find REGEX->new("\\A$_[0]\\z"), $_[1];
 }
 
 sub pattern {

@@ -2,9 +2,10 @@ use strict; use warnings;
 
 package Lingy::Main;
 
-use Getopt::Long;
-
+use Lingy::Lang::RT;
 use Lingy::Common;
+
+use Getopt::Long;
 
 use constant default => '--repl';
 use constant options => +{
@@ -26,19 +27,8 @@ sub new {
     }, $class;
 }
 
-sub main {
-    require Lingy::Lang::RT;
-    return Lingy::Lang::RT->new;
-}
-
-sub from_stdin {
-    not -t STDIN or exists $ENV{LINGY_TEST_STDIN};
-}
-
 sub run {
     my ($self, @args) = @_;
-
-    my $main = $self->main;
 
     $self->getopt(@args);
 
@@ -46,48 +36,52 @@ sub run {
         @{$self}{qw<repl clj run eval ppp xxx args>};
     local @ARGV = @$args;
 
-    $main->init;
+    RT->init;
 
     if ($self->{version}) {
-        $main->rep(
+        RT->rep(
             '(println (str "Lingy [" *HOST* "] version " (lingy-version)))',
         );
         exit 0;
     }
 
     if ($clj) {
-        $main->rep(qq<(clojure-repl-on)>);
+        RT->rep(qq<(clojure-repl-on)>);
     }
 
     if ($eval) {
         if ($repl) {
-            $main->rep(qq<(do $eval\n)>);
-            $main->repl;
+            RT->rep(qq<(do $eval\n)>);
+            RT->repl;
         } else {
             if ($ppp) {
-                $main->rep(qq<(use 'lingy.devel) (PPP (quote $eval\n))>);
+                RT->rep(qq<(use 'lingy.devel) (PPP (quote $eval\n))>);
             } elsif ($xxx) {
-                $main->rep(qq<(use 'lingy.devel) (XXX (quote $eval\n))>);
+                RT->rep(qq<(use 'lingy.devel) (XXX (quote $eval\n))>);
             } else {
                 unshift @ARGV, '-';
                 map print("$_\n"),
                     grep $_ ne 'nil',
-                    $main->rep($eval);
+                    RT->rep($eval);
             }
         }
 
     } elsif ($repl) {
-        $main->repl;
+        RT->repl;
 
     } elsif ($run) {
         if ($run ne '/dev/stdin') {
             -f $run or err "No such file '$run'";
         }
-        $main->rep(qq<(load-file "$run")>);
+        RT->rep(qq<(load-file "$run")>);
 
     } else {
-        $main->repl;
+        RT->repl;
     }
+}
+
+sub from_stdin {
+    not -t STDIN or exists $ENV{LINGY_TEST_STDIN};
 }
 
 sub getopt {

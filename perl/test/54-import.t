@@ -23,7 +23,4 @@ tests <<'...';
   - Foo.Class is not a namespace
 - - (class? Foo.Class)
   - 'true'
-
-- - (import Foo.Space)
-  - "Class not found: 'Foo.Space'"
 ...

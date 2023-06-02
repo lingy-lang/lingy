@@ -1,4 +1,5 @@
 use Lingy::Test;
+use Lingy::Common;
 
 my %plan = (
     2 => 14,    # 14
@@ -45,7 +46,7 @@ for my $file (@files) {
                         if ($@) {
                             die $@ if $@ =~ /(^>>|^---\s| via package ")/;
                             $err .= ref($@)
-                            ? "Error: " . Lingy::Printer::pr_str($@)
+                            ? "Error: " . RT->printer->pr_str($@)
                             : $@;
                         }
                         $got = $got[0];

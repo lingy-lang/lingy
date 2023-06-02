@@ -37,7 +37,7 @@ use constant NEW            => symbol('new');
 use constant _AMP_          => symbol('&');
 
 
-use constant specials => hash_map([
+use constant specials => HASHMAP->new([
         DEF,            nil,
         LOOP,           nil,    # change to loop*
         RECUR,          nil,

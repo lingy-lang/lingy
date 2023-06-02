@@ -1,6 +1,8 @@
 use strict; use warnings;
 package Lingy::ReadLine;
 
+use Lingy::Common;
+
 BEGIN { $ENV{PERL_RL} = 'Gnu' }
 use Term::ReadLine;
 
@@ -26,7 +28,7 @@ sub readline {
 
     my ($continue) = @_;
 
-    my $prompt = $Lingy::Lang::RT::ns or die;
+    my $prompt = RT->current_ns_name or die;
     if ($continue) {
         no warnings 'numeric';
         $prompt = (' ' x (length($prompt) - 2)) . '#_';
@@ -64,25 +66,40 @@ sub complete {
 
     if ($text =~ m{^(\w+(\.\w+)*)/}) {
         my $prefix = $1;
-        if (defined (my $class = $Lingy::Lang::RT::class{$prefix})) {
-            return map "$prefix/$_", $class->_method_names;
-        }
-        if (my $ns = $Lingy::Lang::RT::ns{$prefix}) {
+        if (my $ns = RT->namespaces->{$prefix}) {
             return map "$prefix/$_", keys %$ns;
         }
+#         if (defined (my $class = RT->classes->{$prefix})) {
+#             return map "$prefix/$_", $class->_method_names;
+#         }
         return;
     }
+
+    my $space = RT->env->space;
+    my @names =
+        grep {not /^ /} (
+            keys(%$space),
+            keys(%{RT->namespaces}),
+            keys(%{RT->ns_refers->{$space->NAME}}),
+            map {
+                my $name = $_;
+                $name =~ s/::/./g;
+                $name =~ s/^Lingy\.Lang\./lingy.lang./;
+                my $long = $name;
+                $name =~ s/.*\.//;
+                ($long, $name);
+            } @{RT->class_names},
+        );
 
     grep /^\Q$text/,
     map {
         /^-\w/ ? () :
         ($text eq '' and /^(\w+\.)/) ? $1 :
         $_
-    }
-    $Lingy::Lang::RT::env->space->names,
-    (keys %Lingy::Lang::RT::class),
-    (keys %Lingy::Eval::special_dispatch),
-    ();
+    } (
+        @names,
+        Lingy::Eval->special_symbols,
+    );
 }
 
 $tty->ReadHistory($history_file);

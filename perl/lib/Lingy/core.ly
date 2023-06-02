@@ -9,7 +9,7 @@
 (defmacro! defmacro
   (fn* [name & body]
     `(defmacro! ~name
-       (fn* ~@body))))
+      (fn* ~@body))))
 
 (defmacro fn [& xs] (cons 'fn* xs))
 
@@ -327,7 +327,7 @@
 
 (defn map? [x] (instance? lingy.lang.HashMap x))
 
-(defn meta [object] (. lingy.lang.RT (meta object)))
+(defn meta [object] (. lingy.lang.RT (meta_get object)))
 
 (defn mod
   [num div]

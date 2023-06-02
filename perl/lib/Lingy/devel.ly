@@ -10,15 +10,15 @@
 (defn x-carp-on []
   (eval-perl "use Carp::Always" nil))
 
-(defn x-internal [m] (. lingy.lang.Util rt_internal m))
-(defn x-class    []  (. lingy.lang.Util rt_internal "classes"))
-(defn x-core     []  (. lingy.lang.Util rt_internal "core"))
-(defn x-env      []  (. lingy.lang.Util rt_internal "env"))
-(defn x-ns       []  (. lingy.lang.Util rt_internal "ns"))
-(defn x-refer    []  (. lingy.lang.Util rt_internal "refer"))
-(defn x-user     []  (. lingy.lang.Util rt_internal "core"))
+(defn x-internal    [m] (. lingy.lang.Util rt_internal m))
+(defn x-class-names []  (. lingy.lang.Util rt_internal "class_names"))
+(defn x-core-ns     []  (. lingy.lang.Util rt_internal "core_ns"))
+(defn x-env         []  (. lingy.lang.Util rt_internal "env"))
+(defn x-namespaces  []  (. lingy.lang.Util rt_internal "namespaces"))
+(defn x-ns-refers   []  (. lingy.lang.Util rt_internal "ns_refers"))
+(defn x-user-ns     []  (. lingy.lang.Util rt_internal "user_ns"))
 
-(defn x-pp-env   []  (. lingy.lang.Util env_data))
+(defn x-pp-env      []  (. lingy.lang.Util env_data))
 
 (defn PPP [& xs] (. lingy.lang.Util applyTo "PPP" xs))
 (defn WWW [& xs] (. lingy.lang.Util applyTo "XXX" xs))

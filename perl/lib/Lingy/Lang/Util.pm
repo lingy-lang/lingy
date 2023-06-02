@@ -4,7 +4,7 @@ package Lingy::Lang::Util;
 use Lingy::Common;
 
 sub identical {
-    boolean(refaddr($_[0]) == refaddr($_[1]));
+    BOOLEAN->new(refaddr($_[0]) == refaddr($_[1]));
 }
 
 #------------------------------------------------------------------------------
@@ -22,7 +22,7 @@ sub eval_perl {
     $_[1] // $ret;
 }
 
-sub rt_internal { my $m = "$_[0]"; Lingy::Lang::RT->rt->$m }
+sub rt_internal { my $m = "$_[0]"; RT->$m }
 
 sub env_data {
     my $env = $Lingy::Eval::ENV;

@@ -23,28 +23,28 @@ sub greater_than {
     my ($x, $y) = @_;
     $x = ref($x) ? $$x : $x;
     $y = ref($y) ? $$y : $y;
-    boolean($x > $y);
+    BOOLEAN->new($x > $y);
 }
 
 sub greater_equal {
     my ($x, $y) = @_;
     $x = ref($x) ? $$x : $x;
     $y = ref($y) ? $$y : $y;
-    boolean($x >= $y);
+    BOOLEAN->new($x >= $y);
 }
 
 sub less_than {
     my ($x, $y) = @_;
     $x = ref($x) ? $$x : $x;
     $y = ref($y) ? $$y : $y;
-    boolean($x < $y);
+    BOOLEAN->new($x < $y);
 }
 
 sub less_equal {
     my ($x, $y) = @_;
     $x = ref($x) ? $$x : $x;
     $y = ref($y) ? $$y : $y;
-    boolean($x <= $y);
+    BOOLEAN->new($x <= $y);
 }
 
 sub add {

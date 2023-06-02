@@ -23,7 +23,7 @@ sub replaceAll {
 sub substring {
     my ($string, $offset1, $offset2) = @_;
     my $length = length $string;
-    $offset2 //= number($length);
+    $offset2 //= NUMBER->new($length);
     err "Begin index out of range '%d' for string length '%d'",
         $offset1, $length
         if $offset1 < 0 or $offset1 > $length;
@@ -45,7 +45,7 @@ sub _to_seq {
     my ($str) = @_;
     return nil unless length $str;
     list([
-        map char("\\$_"), split //, $$str
+        map CHARACTER->read("\\$_"), split //, $$str
     ]);
 }
 

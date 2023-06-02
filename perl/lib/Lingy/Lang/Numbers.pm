@@ -38,7 +38,7 @@ sub equiv {
         }
         return true;
     }
-    boolean($$x eq $$y);
+    BOOLEAN->new($$x eq $$y);
 }
 
 sub gt { $_[0] >  $_[1] }
@@ -61,22 +61,22 @@ sub range {
     my ($start, $end, $step) = @_;
     if (not defined $end) {
         $end = $start;
-        $start = number(0);
+        $start = NUMBER->new(0);
     }
-    $step //= number(1);
+    $step //= NUMBER->new(1);
     ($start, $end, $step) = ($$start, $$end, $$step);
     return list([]) if $step == 0;
     my @range;
     if ($step > 0) {
         return list([]) if $start > $end;
         while ($start < $end) {
-            push @range, number($start);
+            push @range, NUMBER->new($start);
             $start += $step;
         }
     } else {
         return list([]) if $start < $end;
         while ($start > $end) {
-            push @range, number($start);
+            push @range, NUMBER->new($start);
             $start += $step;
         }
     }

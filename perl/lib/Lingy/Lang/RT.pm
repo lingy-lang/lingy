@@ -6,10 +6,10 @@ use Lingy::Common;
 use Lingy::Eval;
 use Lingy::Lang::Class;
 use Lingy::Lang::HashMap;
+use Lingy::Lang::Namespace;
 use Lingy::Lang::Nil;
 use Lingy::Lang::Sequential;
 use Lingy::Lang::Symbol;
-use Lingy::Namespace();
 use Lingy::Printer;
 use Lingy::ReadLine;
 
@@ -20,7 +20,7 @@ use constant env_class => 'Lingy::Env';
 use constant printer_class => 'Lingy::Printer';
 use constant reader_class => 'Lingy::Reader';
 
-our @class = (
+our @class_names = (
     ATOM,
     BOOLEAN,
     CHARACTER,
@@ -46,50 +46,53 @@ our @class = (
     THREAD,
     UTIL,
 );
+sub class_names { \@class_names }
 
-our %meta;
+my $current_ns_name;
+sub current_ns_name { $current_ns_name = $_[1] // $current_ns_name }
 
-our $ns = '';               # Current namespace name
-our %ns = ();               # Map of all namespaces
-our %refer = ();            # Map of all namespace refers
-bless \%ns, 'lingy-internal';
-bless \%refer, 'lingy-internal';
+my %namespaces;
+bless \%namespaces, 'lingy-internal';
+sub namespaces { \%namespaces }
+sub current_ns { $namespaces{$current_ns_name} }
 
-# Preload classes:
-our %class = map {
-    my $class = CLASS->_new($_);
-    ($class->_name, $class);
-} @class;
+my %ns_refers;
+bless \%ns_refers, 'lingy-internal';
+sub ns_refers { \%ns_refers }
 
-our ($env, $reader, $printer);
-our ($rt, $core, $user);
+my %classes;
 
-my $pr_str;
+my %meta;
+sub meta { \%meta }
 
-sub rt { $rt }
-sub ns { \%ns }
-sub NS { $ns{$ns} }
-sub refer { \%refer }
+my $env;
 sub env { $env }
-sub core { $core }
-sub user { $user }
-sub classes { \@class }
 
+my $reader;
+sub reader { $reader }
 
-sub new {
-    my ($class) = @_;
-    $rt = bless {}, $class;
-}
+my $printer;
+sub printer { $printer }
+
+my $core_ns;
+sub core_ns { $core_ns }
+
+my $user_ns;
+sub user_ns { $user_ns }
+
+my $ready = 0;
+sub ready { $ready }
 
 sub init {
     my ($self) = @_;
 
-    for my $class (keys %class) {
-        my $package = $class{$class};
-        eval "require $package";
-        die $@ if $@;
-        if ($class =~ /\.(\w+)$/) {
-            $class{$1} = $package;
+    for my $package_name (@class_names) {
+        eval "require $package_name; 1" or die $@;
+        my $class = CLASS->_new($package_name);
+        my $class_name = $class->_name;
+        $classes{$class_name} = $class;
+        if ($class_name =~ /\.(\w+)$/) {
+            $classes{$1} = $class;
         }
     }
 
@@ -97,14 +100,12 @@ sub init {
     $reader  = $self->require_new($self->reader_class);
     $printer = $self->require_new($self->printer_class);
 
-    $pr_str = $printer->can('pr_str') or die;
+    $core_ns = $self->core_namespace();
+    $user_ns = $self->user_namespace();
 
-    $core = $self->core_namespace();
-    $user = $self->user_namespace();
+    $user_ns->current;
 
-    $user->current;
-
-    $Lingy::Lang::RT::ready = 1;
+    $ready = 1;
 
     return $self;
 }
@@ -112,9 +113,12 @@ sub init {
 sub core_namespace {
     my ($self) = @_;
 
-    my $ns = Lingy::Namespace->new(
+    my $ns = NAMESPACE->new(
         name => 'lingy.core',
+        %classes,
     )->current;
+
+    $ns->{$_} = $classes{$_} for keys %classes;
 
     my $argv = @ARGV
         ? LIST->new([
@@ -122,9 +126,9 @@ sub core_namespace {
         ) : NIL->new;
 
     # Define these functions first for bootstrapping:
-    $env->set(cons => \&Lingy::Lang::RT::cons);
-    $env->set(concat => \&Lingy::Lang::RT::concat);
-    $env->set(eval => sub { Lingy::Eval::eval($_[0], $env) });
+    $env->set(cons => \&cons);
+    $env->set(concat => \&concat);
+    $env->set(eval => sub { evaluate($_[0], $env) });
 
     # Clojure dynamic vars:
     $env->set('*file*', STRING->new(
@@ -166,10 +170,10 @@ sub core_namespace {
 sub user_namespace {
     my ($self) = @_;
 
-    Lingy::Namespace->new(
+    NAMESPACE->new(
         name => 'user',
         refer => [
-            $self->core,
+            $self->core_ns,
         ],
     );
 }
@@ -192,7 +196,7 @@ sub slurp_file {
 
 sub rep {
     my ($self, $str) = @_;
-    map $pr_str->(Lingy::Eval::eval($_, $env)),
+    map $printer->pr_str(evaluate($_, $env)),
         $reader->read_str($str);
 }
 
@@ -218,7 +222,9 @@ sub repl {
         }
 
         for my $form (@forms) {
-            my $ret = eval { $pr_str->(Lingy::Eval::eval($form, $env)) };
+            my $ret = eval {
+                $printer->pr_str(evaluate($form, $env));
+            };
             my $err;
             $err = $ret = $@ if $@;
             chomp $ret;
@@ -238,12 +244,11 @@ sub repl {
 
 
 #------------------------------------------------------------------------------
-our $nextID = 1000;
 
 sub all_ns {
     list([
-        map { $Lingy::Lang::RT::ns{$_} }
-        sort keys %Lingy::Lang::RT::ns
+        map { $namespaces{$_} }
+        sort keys %namespaces
     ]);
 }
 
@@ -254,7 +259,7 @@ sub apply {
     push @$args, @$seq;
     ref($fn) eq 'CODE'
         ? $fn->(@$args)
-        : Lingy::Eval::eval($fn->(@$args));
+        : evaluate($fn->(@$args));
 }
 
 sub assoc {
@@ -262,7 +267,7 @@ sub assoc {
     $map->assoc($key, $val);
 }
 
-sub atom_ { atom($_[0]) }
+sub atom_ { ATOM->new($_[0]) }
 
 sub booleanCast {
     my ($val) = @_;
@@ -286,7 +291,7 @@ sub conj {
     my ($o, @args) = @_;
     my $type = ref($o);
     $type eq LIST ? list([reverse(@args), @$o]) :
-    $type eq VECTOR ? vector([@$o, @args]) :
+    $type eq VECTOR ? VECTOR->new([@$o, @args]) :
     $type eq NIL ? nil :
     throw("conj first arg type '$type' not allowed");
 }
@@ -300,20 +305,20 @@ sub contains {
         $key->isa(STRING) ? qq<"$key> :
         $key->isa(SYMBOL) ? qq<$key > :
         "$key";
-    boolean(exists $map->{"$key"});
+    BOOLEAN->new(exists $map->{"$key"});
 }
 
 sub count {
-    number(ref($_[0]) eq NIL ? 0 : scalar @{$_[0]});
+    NUMBER->new(ref($_[0]) eq NIL ? 0 : scalar @{$_[0]});
 }
 
 sub create_ns {
     my ($name) = @_;
     err "Invalid ns name '$name'"
         unless $name =~ /^\w+(\.\w+)*$/;
-    Lingy::Namespace->new(
+    NAMESPACE->new(
         name => $name,
-        refer => Lingy::Lang::RT->core,
+        refer => $core_ns,
     );
 }
 
@@ -328,12 +333,12 @@ sub dissoc {
     } @keys;
     $map = { %$map };
     delete $map->{$_} for @keys;
-    hash_map([%$map]);
+    HASHMAP->new([%$map]);
 }
 
 sub find_ns {
     assert_args(\@_, SYMBOL);
-    $Lingy::Lang::RT::ns{$_[0]} // nil;
+    $namespaces{$_[0]} // nil;
 }
 
 sub first {
@@ -353,14 +358,14 @@ sub getenv {
     defined($val) ? string($val) : nil;
 }
 
-sub hash_map_ { hash_map([@_]) }
+sub hash_map_ { HASHMAP->new([@_]) }
 
 sub in_ns {
     my ($name) = @_;
     err "Invalid ns name '$name'"
         unless $name =~ /^\w+(\.\w+)*$/;
-    my $ns = $Lingy::Lang::RT::ns{$name} //
-    Lingy::Namespace->new(
+    my $ns = $namespaces{$name} //
+    NAMESPACE->new(
         name => $name,
     );
     $ns->current;
@@ -372,14 +377,14 @@ sub keys_ {
     list([
         map {
             s/^"// ? string($_) :
-            s/^:// ? keyword($_) :
+            s/^:// ? KEYWORD->new($_) :
             s/ $// ? symbol($_) :
             symbol("$_");
         } keys %{$_[0]}
     ]);
 }
 
-sub keyword_ { keyword($_[0]) }
+sub keyword_ { KEYWORD->new($_[0]) }
 
 sub list_ { list([@_]) }
 
@@ -393,7 +398,7 @@ sub map {
     ]);
 }
 
-sub meta {
+sub meta_get {
     $meta{"$_[0]"} // nil;
 }
 
@@ -405,7 +410,9 @@ sub namespace {
     $_[0] =~ m{(.*?)/(.*)} ? string($1) : nil;
 }
 
+my $nextID = 1000;
 sub nextID {
+    return $nextID = $_[1] if @_ == 2;
     string(++$nextID);
 }
 
@@ -415,10 +422,10 @@ sub ns_ {
         unless $name =~ /^\w+(\.\w+)*$/;
 
     my $ns;
-    $ns = $Lingy::Lang::RT::ns{$name} //
-    Lingy::Namespace->new(
+    $ns = $namespaces{$name} //
+    NAMESPACE->new(
         name => $name,
-        refer => Lingy::Lang::RT->core,
+        refer => $core_ns,
     );
     $ns->current;
 
@@ -431,7 +438,7 @@ sub ns_ {
         my ($keyword, @args) = @$arg;
         if ($$keyword eq ':use') {
             for my $spec (@args) {
-                Lingy::Eval::eval(
+                evaluate(
                     list([
                         symbol('use'),
                         list([symbol('quote'), $spec]),
@@ -442,7 +449,7 @@ sub ns_ {
         }
         elsif ($$keyword eq ':import') {
             my (undef, @args) = @$arg;
-            Lingy::Eval::eval(
+            evaluate(
                 list([ symbol('import'), @args ]),
                 $Lingy::Eval::ENV,
             );
@@ -457,30 +464,30 @@ sub ns_ {
 
 sub nth { $_[0][$_[1]] }
 
-sub number_ { number("$_[0]" + 0) }
+sub number_ { NUMBER->new("$_[0]" + 0) }
 
 sub pos_Q { $_[0] > 0 ? true : false }
 
 sub pr_str {
-    string(join ' ', map Lingy::Printer::pr_str($_), @_);
+    string(join ' ', map $printer->pr_str($_), @_);
 }
 
 sub println {
     printf "%s\n", join ' ',
-        map Lingy::Printer::pr_str($_, 1), @_;
+        map $printer->pr_str($_, 1), @_;
     nil;
 }
 
 sub prn {
     printf "%s\n", join ' ',
-    map Lingy::Printer::pr_str($_), @_;
+    map $printer->pr_str($_), @_;
     nil;
 }
 
-sub quot { number(int($_[0] / $_[1])) }
+sub quot { NUMBER->new(int($_[0] / $_[1])) }
 
 sub read_string {
-    my @forms = $Lingy::Lang::RT::reader->read_str($_[0]);
+    my @forms = $reader->read_str($_[0]);
     return @forms ? $forms[0] : nil;
 }
 
@@ -497,10 +504,10 @@ sub refer_ {
         err "'refer' only works with symbols"
             unless ref($spec) eq SYMBOL;
         my $refer_ns_name = $$spec;
-        my $current_ns_name = $Lingy::Lang::RT::ns;
-        my $refer_ns = $Lingy::Lang::RT::ns{$refer_ns_name}
+        my $current_ns_name = $current_ns_name;
+        my $refer_ns = $namespaces{$refer_ns_name}
             or err "No namespace: '$refer_ns_name'";
-        my $refer_map = $Lingy::Lang::RT::refer{$current_ns_name} //= {};
+        my $refer_map = $ns_refers{$current_ns_name} //= {};
         map $refer_map->{$_} = $refer_ns_name,
             grep /^\S/, keys %$refer_ns;
     }
@@ -513,7 +520,7 @@ sub require {
         err "'require' only works with symbols"
             unless ref($spec) eq SYMBOL;
 
-        return nil if $Lingy::Lang::RT::ns{$$spec};
+        return nil if $namespaces{$$spec};
 
         my $name = $$spec;
 
@@ -526,26 +533,14 @@ sub require {
         for my $inc (@INC) {
             $inc =~ s{^([^/.])}{./$1};
             my $inc_path = "$inc/$path";
-            if (-f "$inc_path.pm" or -f "$inc_path.ly") {
-                if (-f "$inc_path.pm") {
-                    CORE::require("$inc_path.pm");
-                    $module =~ s/\./::/g;
-                    err "Can't require $name. " .
-                        "$module is not a Lingy::Namespace."
-                        unless $module->isa('Lingy::Namespace');
-                    $module->new(
-                        name => symbol($name),
-                        refer => Lingy::Lang::RT->core,
-                    );
-                }
-                if (-f "$inc_path.ly") {
-                    my $ns = $Lingy::Lang::RT::ns{$Lingy::Lang::RT::ns};
-                    Lingy::Lang::RT->rep(qq< (load-file "$inc_path.ly") >);
-                    $ns->current;
-                }
+            if (-f "$inc_path.ly") {
+                my $ns = $namespaces{$current_ns_name};
+                RT->rep(qq< (load-file "$inc_path.ly") >);
+                $ns->current;
                 next outer;
             }
         }
+
         err "Can't find library for (require '$name)";
     }
     return nil;
@@ -560,16 +555,16 @@ sub resolve {
         ($ns_name, $sym_name) = ($1, $2);
     }
     else {
-        $ns_name = $Lingy::Lang::RT::ns;
+        $ns_name = $current_ns_name;
         $sym_name = $symbol;
     }
 
-    my $ns = $Lingy::Lang::RT::ns{$ns_name} or return nil;
+    my $ns = $namespaces{$ns_name} or return nil;
     if (exists $ns->{$sym_name}) {
         $var = $ns_name . '/' . $sym_name;
     } else {
         my $ref;
-        if (($ref = $Lingy::Lang::RT::refer{$ns_name}) and
+        if (($ref = $ns_refers{$ns_name}) and
             defined($ns_name = $ref->{$sym_name})
         ) {
             $var = $ns_name . '/' . $sym_name;
@@ -577,7 +572,7 @@ sub resolve {
             return nil;
         }
     }
-    return var($var);
+    return VAR->new($var);
 }
 
 sub rest {
@@ -593,7 +588,7 @@ sub seq {
     $o->_to_seq;
 }
 
-sub slurp { string(Lingy::Lang::RT->slurp_file($_[0])) }
+sub slurp { string(RT->slurp_file($_[0])) }
 
 sub sort {
     list([
@@ -604,7 +599,7 @@ sub sort {
 sub str {
     string(
         join '',
-            map Lingy::Printer::pr_str($_, 1),
+            map $printer->pr_str($_, 1),
             grep {ref($_) ne NIL}
             @_
     );
@@ -618,9 +613,9 @@ sub swap_BANG {
 sub symbol_ { symbol("$_[0]") }
 
 sub the_ns {
-    $_[0]->isa('Lingy::Namespace') ? $_[0] :
+    $_[0]->isa(NAMESPACE) ? $_[0] :
     $_[0]->isa(SYMBOL) ? do {
-        $Lingy::Lang::RT::ns{$_[0]} //
+        $namespaces{$_[0]} //
         err "No namespace: '$_[0]' found";
     } : err "Invalid argument for the-ns: '$_[0]'";
 }
@@ -628,11 +623,11 @@ sub the_ns {
 sub time_ms {
     require Time::HiRes;
     my ($s, $m) = Time::HiRes::gettimeofday();
-    number($s * 1000 + $m / 1000);
+    NUMBER->new($s * 1000 + $m / 1000);
 }
 
 sub type_ {
-    class(ref($_[0]));
+    CLASS->_new(ref($_[0]));
 }
 
 sub with_meta {
@@ -644,10 +639,10 @@ sub with_meta {
 
 sub vals { list([ values %{$_[0]} ]) }
 
-sub var_ { var($_[0]) }
+sub var_ { VAR->new($_[0]) }
 
-sub vec { vector([@{$_[0]}]) }
+sub vec { VECTOR->new([@{$_[0]}]) }
 
-sub vector_ { vector([@_]) }
+sub vector_ { VECTOR->new([@_]) }
 
 1;

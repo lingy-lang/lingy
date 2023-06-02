@@ -3,8 +3,14 @@ package Lingy::Eval;
 
 use Lingy::Common;
 
+use Exporter 'import';
+
+our @EXPORT = qw(
+    evaluate
+);
+
 # Lingy Special Forms:
-our %special_dispatch = (
+my %special_dispatch = (
     'def'               => \&special_def,
     'defmacro!'         => \&special_defmacro,
     'do'                => \&special_do,
@@ -24,10 +30,14 @@ our %special_dispatch = (
     'var'               => \&special_var,
 );
 
+sub special_symbols {
+    keys %special_dispatch;
+}
+
 
 # Main eval functions:
 our $ENV;
-sub eval {
+sub evaluate {
     my ($ast, $env) = @_;
     $ENV = $env;
 
@@ -71,9 +81,9 @@ sub eval {
 sub eval_ast {
     my ($ast, $env) = @_;
     $ast->isa(LISTTYPE)
-        ? ref($ast)->new([ map Lingy::Eval::eval($_, $env), @$ast ]) :
+        ? ref($ast)->new([ map evaluate($_, $env), @$ast ]) :
     $ast->isa(HASHMAP)
-        ? ref($ast)->new([map Lingy::Eval::eval($_, $env), %$ast]) :
+        ? ref($ast)->new([map evaluate($_, $env), %$ast]) :
     $ast->isa(SYMBOL)
         ? $env->get($$ast) :
     $ast;
@@ -88,13 +98,13 @@ sub special_def {
     $a2 //= nil;
     err "Can't def a qualified symbol: '$a1'"
         if $a1 =~ m{./.};
-    return $env->ns_set($$a1, Lingy::Eval::eval($a2, $env));
+    return $env->ns_set($$a1, evaluate($a2, $env));
 }
 
 sub special_defmacro {
     my ($ast, $env) = @_;
     my (undef, $a1, $a2) = @$ast;
-    return $env->ns_set($$a1, macro(Lingy::Eval::eval($a2, $env)));
+    return $env->ns_set($$a1, MACRO->new(evaluate($a2, $env)));
 }
 
 sub special_do {
@@ -115,7 +125,7 @@ sub special_dot {
 
     ($target, @args) = map {
         $_->isa(LIST)
-            ? Lingy::Eval::eval($_, $env) : $_;
+            ? evaluate($_, $env) : $_;
     } ($target, @args);
 
     @args > 0 or err "Not enough args for . form";
@@ -165,13 +175,13 @@ sub special_dot {
 
 sub special_fn {
     my ($ast, $env) = @_;
-    return function($ast, $env);
+    return FUNCTION->new($ast, $env);
 }
 
 sub special_if {
     my ($ast, $env) = @_;
     my (undef, $a1, $a2, $a3) = @$ast;
-    $ast = ${boolean(Lingy::Eval::eval($a1, $env))} ? $a2 :
+    $ast = ${BOOLEAN->new(evaluate($a1, $env))} ? $a2 :
         defined $a3 ? $a3 : nil;
     return ($ast, $env);
 }
@@ -199,7 +209,7 @@ sub special_import {
         eval "require $module; 1" or die $@;
         err "Class not found: '$name'"
             if $module->isa('Lingy::Namespace');
-        my $class = $Lingy::Lang::RT::class{$name} =
+        my $class = RT->current_ns->{$name} =
             CLASS->_new($name);
         if ($module->can('new')) {
             $return = $class;
@@ -215,7 +225,7 @@ sub special_keyword {
     err "Wrong number of args (${\ scalar @args}) passed to: '$keyword'"
         unless @args == 1 or @args == 2;
     my $map = shift @args;
-    Lingy::Eval::eval(
+    evaluate(
         list([
             symbol('get'),
             $map,
@@ -235,7 +245,7 @@ sub special_let {
     for (my $i = 0; $i < @$a1; $i += 2) {
         $env->set(
             ${$a1->[$i]},
-            Lingy::Eval::eval($a1->[$i+1], $env),
+            evaluate($a1->[$i+1], $env),
         );
     }
     $a2 = list([symbol('do'), @{$ast}[2..(@$ast-1)] ])
@@ -255,7 +265,7 @@ sub special_loop {
             push @$binds, ${$a1->[$i]};
             $env->set(
                 ${$a1->[$i]},
-                Lingy::Eval::eval($a1->[$i+1], $env),
+                evaluate($a1->[$i+1], $env),
             );
         }
         $a2 //= nil;
@@ -304,8 +314,8 @@ sub special_recur {
     my ($ast, $env) = @_;
     $env->{RECUR} = 1;
     return (
-        list([symbol('loop'), vector([
-            map Lingy::Eval::eval($_, $env),
+        list([symbol('loop'), VECTOR->new([
+            map evaluate($_, $env),
                 @{$ast}[1..(@$ast-1)]])
         ]),
         $env,
@@ -316,10 +326,10 @@ sub special_try {
     my ($ast, $env) = @_;
     my (undef, $a1, $a2) = @$ast;
     local $@;
-    my $val = eval { Lingy::Eval::eval($a1, $env) };
+    my $val = eval { evaluate($a1, $env) };
     return $val unless $@;
     my $err = $@;
-    die ref($err) ? Lingy::Printer::pr_str($err) : $err
+    die ref($err) ? RT->printer->pr_str($err) : $err
         unless defined $a2;
     err "Invalid 'catch' clause" unless
         $a2 and $a2->isa(LISTTYPE) and
@@ -345,7 +355,7 @@ sub special_throw {
     my ($ast, $env) = @_;
     require Carp;
     Carp::confess(
-        Lingy::Eval::eval($ast->[1], $env),
+        evaluate($ast->[1], $env),
     );
 }
 
@@ -354,7 +364,7 @@ sub special_var {
     my (undef, $a1) = @$ast;
     $env->get($a1, 1)
         or err "Unable to resolve var: '$a1' in this context";
-    return var($a1);
+    return VAR->new($a1);
 }
 
 sub special_vector {
@@ -362,7 +372,7 @@ sub special_vector {
     err "Wrong number of args (${\ scalar @args}) passed to: " .
         "'lingy.lang.Vector'"
         unless @args == 1;
-    Lingy::Eval::eval(
+    evaluate(
         list([
             symbol('nth'),
             $vector,
@@ -414,11 +424,25 @@ sub macroexpand {
                 @args,
             ]);
         }
+        if ($sym =~ m{^($namespace_re)/($symbol_re)$}) {
+            my $namespace = $1;
+            my $sym_name = $2;
+            (my $class = $namespace) =~ s/\./::/g;
+            if ($class->can('new')) {
+                my (undef, @args) = @$ast;
+                return list([
+                    symbol('.'),
+                    symbol($namespace),
+                    symbol($sym_name),
+                    @args,
+                ]);
+            }
+        }
         if (($call = $env->get($sym, 1)) and
             ref($call) eq MACRO
         ) {
             # expand macro call form
-            $ast = Lingy::Eval::eval($call->(@{$ast}[1..(@$ast-1)]));
+            $ast = evaluate($call->(@{$ast}[1..(@$ast-1)]));
         } else {
             last;
         }

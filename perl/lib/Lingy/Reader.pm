@@ -127,10 +127,10 @@ sub read_lambda {
         push @$syms, $sym->{"%$i"} // symbol("p${i}_${\RT->nextID}");
     }
 
-    list([
-        symbol('fn*'),
-        vector($syms),
-        list($list),
+    LIST->new([
+        SYMBOL->new('fn*'),
+        VECTOR->new($syms),
+        LIST->new($list),
     ]);
 }
 
@@ -193,7 +193,7 @@ sub read_scalar {
             my $is_regex = /^#/;
             s/^$string_re$/$1/;
             s/\\([nt\"\\])/$unescape->{$1}/ge;
-            return $is_regex ? regex($_) : string($_);
+            return $is_regex ? REGEX->new($_) : string($_);
         }
         if ($self->{repl}) {
             my $line = Lingy::ReadLine::readline(1);
@@ -204,12 +204,12 @@ sub read_scalar {
         }
         err "Reached end of input looking for '\"'";
     }
+    return nil if $_ eq 'nil';
     return true if $_ eq 'true';
     return false if $_ eq 'false';
-    return keyword($_) if /^:/;
-    return nil if $_ eq 'nil';
-    return number($_) if /^-?\d+$/;
-    return char($_) if /^\\/;
+    return KEYWORD->new($_) if /^:/;
+    return NUMBER->new($_) if /^-?\d+$/;
+    return CHARACTER->read($_) if /^\\/;
     err "Unmatched delimiter: '$_'" if /^[\)\]\}]$/;
     return $self->read_symbol($_);
 }
@@ -219,7 +219,7 @@ sub read_symbol {
     my ($self, $symbol) = @_;
     if (my $ids = $self->{autogensym}) {
         if ($symbol =~ m{^([^/]+)#$}) {
-            my $id = $ids->{$1} //= Lingy::Lang::RT::nextID();
+            my $id = $ids->{$1} //= RT->nextID();
             $symbol =~ s/#$/__${id}__auto__/;
         }
     }

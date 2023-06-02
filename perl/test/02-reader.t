@@ -9,7 +9,7 @@ my $printer = Lingy::Printer->new;
 sub tst {
     my ($str, $want) = @_;
     $want //= $str;
-    my ($got) = Lingy::Printer::pr_str($reader->read_str($str));
+    my ($got) = $printer->pr_str($reader->read_str($str));
     if (ref($want) eq 'Regexp') {
         like $got, $want, "'$str' -> '$want'";
     } else {

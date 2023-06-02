@@ -13,13 +13,19 @@ use Lingy::Common;
 use Capture::Tiny qw'capture capture_merged';
 use File::Temp 'tempfile';
 
+BEGIN {
+    if (defined $INC{'Carp/Always.pm'}) {
+        eval "no Carp::Always";
+    }
+}
+
 use lib 'lib', './test/lib', './t/lib';
 
 symlink 't', 'test' if -d 't' and not -e 'test';
 
 my $ypp = YAML::PP->new;
 
-our $rt = Lingy::Lang::RT->init;
+RT->init;
 
 $ENV{LINGY_TEST} = 1;
 
@@ -48,7 +54,6 @@ our @EXPORT = qw<
     tempfile
 
     $lingy
-    $rt
     $eg
 
     rep
@@ -70,7 +75,7 @@ sub import {
 }
 
 sub rep {
-    $rt->rep(@_);
+    RT->rep(@_);
 }
 
 sub tests {
@@ -90,7 +95,7 @@ sub tests {
 # Test 'rep' for return value or error:
 my $test_i = 0;
 sub test {
-    $Lingy::Lang::RT::nextID = 10;
+    RT->nextID(10);
     $test_i++;
     if ($ENV{ONLY} and $ENV{ONLY} != $test_i) {
         return;
@@ -98,7 +103,7 @@ sub test {
     my ($input, $want, $label) = @_;
     $label //= "'${\ collapse $input}' -> '${\line $want}'";
 
-    my $got = eval { join("\n", $rt->rep($input)) };
+    my $got = eval { join("\n", RT->rep($input)) };
     $got = $@ if $@;
     chomp $got;
 
@@ -117,7 +122,7 @@ sub test_out {
     my ($input, $want, $label) = @_;
     $label //= "'${\ collapse $input}' -> '${\line $want}'";
     my ($got) = Capture::Tiny::capture_merged {
-        $rt->rep($input);
+        RT->rep($input);
     };
     chomp $got;
     chomp $want;

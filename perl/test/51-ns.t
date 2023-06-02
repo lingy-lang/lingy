@@ -41,7 +41,7 @@ tests <<'...';
 
 - [ (the-ns *ns*), '#<Namespace user>' ]
 - - (find-ns *ns*)
-  - Arg 0 for 'Lingy::Lang::RT::find_ns' must be 'Lingy::Lang::Symbol', not 'Lingy::Namespace'
+  - Arg 0 for 'Lingy::Lang::RT::find_ns' must be 'Lingy::Lang::Symbol', not 'Lingy::Lang::Namespace'
 - [ (ns-name *ns*), user ]
 
 - [ (the-ns 'lingy.core), '#<Namespace lingy.core>' ]

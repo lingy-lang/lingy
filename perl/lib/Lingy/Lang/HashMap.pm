@@ -22,7 +22,7 @@ sub new {
 }
 
 sub clone {
-    hash_map([ %{$_[0]} ]);
+    HASHMAP->new([ %{$_[0]} ]);
 }
 
 sub assoc {
@@ -52,16 +52,16 @@ sub _get_key {
 sub _to_seq {
     my ($map) = @_;
     return nil unless %$map;
-    list([
+    LIST->new([
         map {
             my $val = $map->{$_};
             my $key =
-                s/^"// ? string($_) :
-                s/^(\S+) $/$1/ ? symbol($_) :
-                s/^:// ? keyword($_) :
-                m/^\d+$/ ? number($_) :
+                s/^"// ? STRING->new($_) :
+                s/^(\S+) $/$1/ ? SYMBOL->new($_) :
+                s/^:// ? KEYWORD->new($_) :
+                m/^\d+$/ ? NUMBER->new($_) :
                 XXX $_;
-            vector([$key, $val]);
+            VECTOR->new([$key, $val]);
         } keys %{$_[0]}
     ]);
 }
