@@ -1,4 +1,40 @@
 ---
+version: 0.1.9
+date:    Sat Jun  3 03:23:11 PM PDT 2023
+changes:
+- Improve Perl interop
+- Update --help usage text
+- Refactor Lingy::Main to better be subclassed
+- Fix import of lingy.lang.Foo modules
+- Major refactoring of namespacing
+- Convert lib/Lingy/Util.pm to lib/Lingy/devel.ly
+- Move Lingy::CLI to Lingy::Main
+- Move code from Lingy::Main in Lingy::Lang::RT
+- Rename Lingy/Lang/Function.pm to Fn.pm
+- Add 'declare' to core
+- Refactor all core foo? functions to use instance?
+- wip Refactor and test instance creation and checking
+- wip - interop
+- wip - Add 'new' special form
+- Add tests to test/55-require.t
+- Macroexpand (Foo. 42) to (. Foo new 42)
+- Add 'doto' macro to core.ly
+- Change --clojure to --clj
+- Refactor assoc to use recursive Lingy function
+- Make 'import*' be a special form
+- Make 'throw' be a special form (to match Clojure)
+- Add support for 'special-symbol?' function
+- Add support for anonymous lambda function reader macro
+- Add `lingy --version` support
+- Fixes for hash-map creation and assoc
+- Error on duplicate hash keys
+- Rework bin/lingy script
+- Rename Lingy::RT to Lingy::Main
+- Refactor most tests to be written in YAML
+- Get *lingy-version* info from $Lingy::VERSION
+- Replace def! with def
+- Fixes to get clojure-repl-on to work in YAMLScript
+---
 version: 0.1.8
 date:    Sat May 27 11:27:53 PM PDT 2023
 changes:
