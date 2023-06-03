@@ -22,9 +22,12 @@ Options:
   -e, --eval      Eval a Lingy source string
   --repl          Start Lingy REPL (default w/ no args)
   --run           Run a Lingy program (default w/ file name)
-  -C, --clojure   Enalble Clojure mode in REPL
+
+  -D, --dev       Load the lingy.devel library
+  -C, --clj       Enalble Clojure mode in REPL
   --ppp           Compile file and print AST (Lingy)
   --xxx           Compile file and dump internal AST (YAML)
+
   --execs         List executables for setting LINGY_EXEC
   --version       Print version
   -h, --help      Print help and exit
