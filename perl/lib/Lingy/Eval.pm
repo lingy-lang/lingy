@@ -115,6 +115,7 @@ sub special_do {
     return ($ast, $env);
 }
 
+# TODO This function needs more attention and testing.
 sub special_dot {
     my ($ast, $env) = @_;
 
@@ -131,11 +132,24 @@ sub special_dot {
     @args > 0 or err "Not enough args for . form";
 
     if (my $class = is_class_symbol($target)) {
-        $target = "${class}::${shift @args}";
-        @args = map { $_->isa(SYMBOL)
-            ? $env->get($_) : $_; } @args;
-        no strict 'refs';
-        return &{$target}(@args);
+        if (RT->is_lingy_class($class)) {
+            $target = "${class}::${shift @args}";
+            @args = map {
+                $_->isa(SYMBOL) ? $env->get($_) : $_;
+            } @args;
+            no strict 'refs';
+            return &{$target}(@args);
+        }
+
+        else {
+            my $method = shift(@args) or die;
+            $method->isa(SYMBOL) or die;
+            $method = $$method;
+            @args = map {
+                unbox_val( $_->isa(SYMBOL) ? $env->get($_) : $_ );
+            } @args;
+            return box_val $class->$method(@args);
+        }
     }
 
     $target = $env->get($target)
@@ -155,15 +169,14 @@ sub special_dot {
             my $method = $$member;
             return $target->$method(@args);
         }
+
         # Test the unboxing of native call args:
         if ($target->can($member)) {
             my $method = $$member;
             @args = map {
-                (
-                    $_->isa(SYMBOL) ? $env->get($_) : $_
-                )->unbox;
+                unbox_val( $_->isa(SYMBOL) ? $env->get($_) : $_ );
             } @args;
-            return $target->$method(@args);
+            return box_val $target->$method(@args);
         }
     }
 

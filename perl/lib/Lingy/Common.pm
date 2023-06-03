@@ -80,6 +80,8 @@ BEGIN {
         symbol
 
         err
+        box_val
+        unbox_val
         assert_args
         comp_pair
         nil
@@ -124,6 +126,26 @@ sub err {
         ($msg =~ /\n./ ? "\n" : ' ') .
         $msg .
         "\n";
+}
+
+sub box_val {
+    map {
+        my $o = $_;
+        my $type = ref($o);
+        if (not($type)) {
+            /^\-?\d+$/ ? NUMBER->new($o) : STRING->new($o);
+        }
+        elsif ($type =~ /^(?:ARRAY|HASH|SCALAR|REF|Regexp)$/) {
+            XXX $o, "Lingy can't box this object yet";
+        } else {
+            $o;
+        }
+    } @_;
+}
+
+sub unbox_val {
+    my ($obj) = @_;
+    ref($obj) =~ /^Lingy::Lang::(String|Number|Fn)$/ ? $obj->unbox : $obj;
 }
 
 sub assert_args {

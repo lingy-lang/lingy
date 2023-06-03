@@ -26,6 +26,7 @@ symlink 't', 'test' if -d 't' and not -e 'test';
 my $ypp = YAML::PP->new;
 
 RT->init;
+$Lingy::Lang::RT::ready = 0;
 
 $ENV{LINGY_TEST} = 1;
 
@@ -103,6 +104,7 @@ sub test {
     my ($input, $want, $label) = @_;
     $label //= "'${\ collapse $input}' -> '${\line $want}'";
 
+    $Lingy::Lang::RT::ready = 1;
     my $got = eval { join("\n", RT->rep($input)) };
     $got = $@ if $@;
     chomp $got;

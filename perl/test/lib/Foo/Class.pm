@@ -10,14 +10,15 @@ sub new {
 }
 
 use constant foo => 42;
-# sub foo {
-#     $_[0]->{foo} = $_[1] if @_ > 1;
-#     return $_[0]->{foo};
-# }
 
 sub bar {
     $_[0]->{bar} = $_[1] if @_ > 1;
     return $_[0]->{bar};
+}
+
+sub add {
+    my ($self, $x, $y) = @_;
+    $x + $y;
 }
 
 1;

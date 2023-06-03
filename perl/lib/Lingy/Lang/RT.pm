@@ -78,7 +78,7 @@ sub core_ns { $core_ns }
 my $user_ns;
 sub user_ns { $user_ns }
 
-my $ready = 0;
+our $ready = 0;
 sub ready { $ready }
 
 sub init {
@@ -189,6 +189,11 @@ sub slurp_file {
         die "Couldn't read file '$file'";
     local $/;
     <$slurp>;
+}
+
+sub is_lingy_class {
+    my ($self, $class) = @_;
+    $class->isa(CLASS) or $class =~ /^Lingy::Lang::\w/;
 }
 
 sub rep {

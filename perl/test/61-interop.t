@@ -1,8 +1,35 @@
 use Lingy::Test;
 
 tests <<"...";
-- - 42
+- rep: |
+    (use 'lingy.devel)
+
+- - |
+    (import Foo.Class)
+  - Foo.Class
+
+- - |
+    (. Foo.Class foo)
   - 42
+
+- - |
+    (. Foo.Class new)
+  - /perl/hash:Foo::Class/
+
+- - |
+    (Foo.Class/new)
+  - /perl/hash:Foo::Class/
+
+- - |
+    (.add Foo.Class 3 4)
+  - 7
+
+- - |
+    (def f (Foo.Class. "bar" "haha"))
+  - user/f
+
+- - (.bar f)
+  - '"haha"'
 ...
 
 __DATA__
