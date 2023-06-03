@@ -84,7 +84,7 @@ sub ready { $ready }
 sub init {
     my ($self) = @_;
 
-    for my $package_name (@class_names) {
+    for my $package_name (@{RT->class_names}) {
         eval "require $package_name; 1" or die $@;
         my $class = CLASS->_new($package_name);
         my $class_name = $class->_name;
@@ -100,7 +100,6 @@ sub init {
 
     $core_ns = $self->core_namespace();
     $user_ns = $self->user_namespace();
-
     $user_ns->current;
 
     $ready = 1;
@@ -485,7 +484,7 @@ sub prn {
 sub quot { NUMBER->new(int($_[0] / $_[1])) }
 
 sub read_string {
-    my @forms = $reader->read_str($_[0]);
+    my @forms = Lingy::Reader->new->read_str($_[0]);
     return @forms ? $forms[0] : nil;
 }
 

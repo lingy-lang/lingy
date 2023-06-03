@@ -9,13 +9,14 @@ use Getopt::Long;
 
 use constant default => '--repl';
 use constant options => +{
-    repl        => 'bool',
     'clj|C'     => 'bool',
+    'dev|D'     => 'bool',
     'eval|e'    => 'str',
-    run         => 'arg',
     ppp         => 'bool',
-    xxx         => 'bool',
+    repl        => 'bool',
+    run         => 'arg',
     version     => 'bool',
+    xxx         => 'bool',
 };
 
 sub new {
@@ -32,52 +33,61 @@ sub run {
 
     $self->getopt(@args);
 
-    my ($repl, $clj, $run, $eval, $ppp, $xxx, $args) =
-        @{$self}{qw<repl clj run eval ppp xxx args>};
+    my ($repl, $run, $eval, $version, $clj, $dev, $args) =
+        @{$self}{qw<repl run eval version clj dev args>};
     local @ARGV = @$args;
 
     RT->init;
 
-    if ($self->{version}) {
-        RT->rep(
-            '(println (str "Lingy [" *HOST* "] version " (lingy-version)))',
-        );
-        exit 0;
-    }
+    RT->rep(qq<(clojure-repl-on)>) if $clj;
+    RT->rep(qq<(use 'lingy.devel)>) if $dev;
 
-    if ($clj) {
-        RT->rep(qq<(clojure-repl-on)>);
-    }
+    $version ? $self->do_version() :
+    $eval ? $self->do_eval() :
+    $repl ? $self->do_repl() :
+    $run ? $self->do_run() :
+    $self->do_repl();
+}
 
-    if ($eval) {
-        if ($repl) {
-            RT->rep(qq<(do $eval\n)>);
-            RT->repl;
-        } else {
-            if ($ppp) {
-                RT->rep(qq<(use 'lingy.devel) (PPP (quote $eval\n))>);
-            } elsif ($xxx) {
-                RT->rep(qq<(use 'lingy.devel) (XXX (quote $eval\n))>);
-            } else {
-                unshift @ARGV, '-';
-                map print("$_\n"),
-                    grep $_ ne 'nil',
-                    RT->rep($eval);
-            }
-        }
+sub do_version {
+    RT->rep(
+        '(println (str "Lingy [" *HOST* "] version " (lingy-version)))',
+    );
+}
 
-    } elsif ($repl) {
+sub do_eval {
+    my ($self) = @_;
+    my ($repl, $eval, $ppp, $xxx) =
+        @{$self}{qw<repl eval ppp xxx>};
+
+    if ($repl) {
+        RT->rep(qq<(do $eval\n)>);
         RT->repl;
-
-    } elsif ($run) {
-        if ($run ne '/dev/stdin') {
-            -f $run or err "No such file '$run'";
-        }
-        RT->rep(qq<(load-file "$run")>);
-
     } else {
-        RT->repl;
+        if ($ppp) {
+            RT->rep(qq<(use 'lingy.devel) (PPP (quote $eval\n))>);
+        } elsif ($xxx) {
+            RT->rep(qq<(use 'lingy.devel) (XXX (quote $eval\n))>);
+        } else {
+            unshift @ARGV, '-';
+            map print("$_\n"),
+                grep $_ ne 'nil',
+                RT->rep($eval);
+        }
     }
+}
+
+sub do_repl {
+    RT->repl;
+}
+
+sub do_run {
+    my ($self) = @_;
+    my $run = $self->{run};
+    if ($run ne '/dev/stdin') {
+        -f $run or err "No such file '$run'";
+    }
+    RT->rep(qq<(load-file "$run")>);
 }
 
 sub from_stdin {
