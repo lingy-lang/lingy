@@ -1,4 +1,5 @@
 (ns lingy.devel)
+(import lingy.lang.Util)
 
 (defn eval-perl
   ([perl] (. lingy.lang.Util eval_perl perl))

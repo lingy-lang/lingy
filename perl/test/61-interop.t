@@ -13,12 +13,9 @@ __DATA__
 Modules (files) used by Lingy can be:
 
 - A Lingy source file (.ly)
+  - (ns module.name)
   - (require 'Foo.Bar)
   - (refer 'Foo.Bar)
-
-- A Lingy Namespace Perl module
-  - Inherits from Lingy::Namespace
-  - Can currently also have a sibling .ly file
 
 - A Class Perl module
   - ->can('new') determines if module is a class

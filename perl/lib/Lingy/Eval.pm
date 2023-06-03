@@ -143,15 +143,12 @@ sub special_dot {
 
     if (@args) {
         my $member = shift(@args);
-        if ($target->isa(CLASS) or
-            $target->isa('Lingy::Namespace')
-        ) {
+        if ($target->isa(CLASS)) {
             @args = map { $_->isa(SYMBOL)
                 ? $env->get($_) : $_; } @args;
 
             if (not $target->can($member)) {
-                my $class = $target->isa('Lingy::Namespace')
-                    ? 'lingy.Namespace' : $target->NAME;
+                my $class = $target->NAME;
                 err "No matching field found: '$member' " .
                     "for class '$class'";
             }
@@ -206,9 +203,8 @@ sub special_import {
         my ($module_name, $imports) = @$spec;
         my $name = $$module_name;
         (my $module = $name) =~ s/\./::/g;
+        $module =~ s/lingy::lang::/Lingy::Lang::/;
         eval "require $module; 1" or die $@;
-        err "Class not found: '$name'"
-            if $module->isa('Lingy::Namespace');
         my $class = RT->current_ns->{$name} =
             CLASS->_new($name);
         if ($module->can('new')) {

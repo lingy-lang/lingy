@@ -18,4 +18,7 @@ tests <<'...';
 
 - - (resolve 'bar)
   - "#'test.lingy/bar"
+
+- - (use 'lingy.devel)
+  - nil
 ...

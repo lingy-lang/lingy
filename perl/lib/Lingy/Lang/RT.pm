@@ -4,13 +4,11 @@ package Lingy::Lang::RT;
 use Lingy;
 use Lingy::Common;
 use Lingy::Eval;
-use Lingy::Lang::Class;
 use Lingy::Lang::HashMap;
 use Lingy::Lang::Namespace;
 use Lingy::Lang::Nil;
 use Lingy::Lang::Sequential;
 use Lingy::Lang::Symbol;
-use Lingy::Printer;
 use Lingy::ReadLine;
 
 use constant LANG => 'Lingy';
@@ -20,7 +18,7 @@ use constant env_class => 'Lingy::Env';
 use constant printer_class => 'Lingy::Printer';
 use constant reader_class => 'Lingy::Reader';
 
-our @class_names = (
+my @class_names = (
     ATOM,
     BOOLEAN,
     CHARACTER,
