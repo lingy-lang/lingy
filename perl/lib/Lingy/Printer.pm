@@ -20,7 +20,7 @@ sub pr_str {
     my $type = ref $o;
 
     # Hack to allow map key strings to print like symbols:
-    if (not $type and $o =~ /^$symbol_re$/) {
+    if (not $type and $o =~ /^($symbol_re|$namespace_re)$/) {
         $type = 'Lingy::Lang::KeySymbol';
     }
 
@@ -53,9 +53,9 @@ sub pr_str {
             if ($key =~ /^:/) {
                 $key = KEYWORD->new($key);
             } elsif ($key =~ s/^\"//) {
-                $key = string($key);
+                $key = STRING->new($key);
             } elsif ($key =~ s/^(\S+) $/$1/) {
-                $key = symbol($key);
+                $key = SYMBOL->new($key);
             }
             ($self->pr_str($key, $raw) . ' ' . $self->pr_str($val, $raw))
         } keys %$o)}}" :
@@ -63,7 +63,7 @@ sub pr_str {
         "(${$type=~s/_/-/g;\$type} ${\ $self->pr_str($o->[0], $raw)})" :
     $type eq 'Lingy::Env' ? '#<Env>' :
     $type eq 'lingy-internal' ? "" :
-    (blessed($o) and $o->isa('Lingy::Lang::Namespace')) ?
+    (blessed($o) and $o->isa(NAMESPACE)) ?
         qq(#<Namespace ${\ $o->NAME}>) :
     Dump($o) .
         "*** Unrecognized Lingy value printed above ***\n";
