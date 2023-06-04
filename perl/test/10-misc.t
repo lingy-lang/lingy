@@ -6,4 +6,7 @@ tests <<'...';
 
 - - (declare a b c)
   - user/c
+
+- - (ns-map *ns*)
+  - /HashMap lingy.lang.HashMap/
 ...

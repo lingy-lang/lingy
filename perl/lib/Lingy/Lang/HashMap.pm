@@ -4,21 +4,19 @@ package Lingy::Lang::HashMap;
 use Lingy::Common;
 use base CLASS;
 
-use Tie::IxHash;
+use Hash::Ordered;
 
 *err = \&Lingy::Common::err;
 
 sub new {
     my ($class, $list) = @_;
-    my %hash;
-    my $tie = tie(%hash, 'Tie::IxHash');
-    my $hash = \%hash;
+    tie my %hash, 'Hash::Ordered';
     for (my $i = 0; $i < @$list; $i += 2) {
         my $key = $class->_get_key($list->[$i]);
-        delete $hash->{$key} if exists $hash->{$key};
-        $hash->{$key} = $list->[$i + 1];
+        delete $hash{$key} if exists $hash{$key};
+        $hash{$key} = $list->[$i + 1];
     }
-    bless $hash, $class;
+    bless \%hash, $class;
 }
 
 sub clone {
