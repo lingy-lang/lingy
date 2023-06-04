@@ -28,15 +28,6 @@ sub new {
         }
     }
 
-    no strict 'refs';
-    no warnings 'once';
-    if (%{"${class}::ns"}) {
-        %$self = (
-            %$self,
-            %{"${class}::ns"},
-        );
-    }
-
     RT->namespaces->{$name} = $self;
 
     return $self;

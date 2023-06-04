@@ -338,6 +338,11 @@ sub dissoc {
     HASHMAP->new([%$map]);
 }
 
+sub eval_perl {
+    my ($perl) = @_;
+    eval $$perl;
+}
+
 sub find_ns {
     assert_args(\@_, SYMBOL);
     $namespaces{$_[0]} // nil;

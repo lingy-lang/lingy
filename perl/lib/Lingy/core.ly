@@ -385,6 +385,8 @@
 
 (defn number? [x] (instance? lingy.lang.Number x))
 
+(defn perl [string] (. lingy.lang.RT (eval_perl string)))
+
 (defn pos? [num] (. lingy.lang.Numbers (isPos num)))
 
 (defn pr-str [& xs] (apply lingy.lang.RT/pr_str xs))
