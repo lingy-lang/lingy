@@ -1,4 +1,14 @@
 ---
+version: 0.1.10
+date:    Sun Jun  4 01:58:29 PM PDT 2023
+changes:
+- Remove Docker stuffs
+- Switch from Tie::IxHash to Tie::Ordered
+- Unbox booleans
+- Define a 'perl' core function
+- Fix bug printing namespace symbol mapping keys
+- Add applyTo function to RT
+---
 version: 0.1.9
 date:    Sat Jun  3 03:23:11 PM PDT 2023
 changes:
