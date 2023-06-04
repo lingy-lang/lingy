@@ -192,7 +192,7 @@ sub read_scalar {
         if (/^$string_re$/) {
             my $is_regex = /^#/;
             s/^$string_re$/$1/;
-            s/\\([nt\"\\])/$unescape->{$1}/ge;
+            s/\\(.)/$unescape->{$1} or err("Unsupported escape character '\\$1'")/ge;
             return $is_regex ? REGEX->new($_) : string($_);
         }
         if ($self->{repl}) {

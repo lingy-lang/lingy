@@ -9,4 +9,10 @@ tests <<'...';
   - Can't have 2 overloads with same arity
 - - (fn ([& x]) ([y z]))
   - Can't have fixed arity function with more params than variadic function
+- - '"a\bc"'
+  - >-
+    Unsupported escape character '\b'
+- - '"a\ c"'
+  - >-
+    Unsupported escape character '\ '
 ...

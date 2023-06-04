@@ -17,6 +17,7 @@ my $escape = {
 
 sub pr_str {
     my ($self, $o, $raw) = (@_, 0);
+    $o //= '';
     my $type = ref $o;
 
     # Hack to allow map key strings to print like symbols:
