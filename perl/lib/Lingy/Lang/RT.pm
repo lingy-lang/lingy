@@ -65,6 +65,7 @@ sub meta { \%meta }
 
 my $env;
 sub env { $env }
+sub ENV { $Lingy::Eval::ENV }
 
 my $reader;
 sub reader { $reader }
@@ -262,6 +263,13 @@ sub apply {
     ref($fn) eq 'CODE'
         ? $fn->(@$args)
         : evaluate($fn->(@$args));
+}
+
+sub applyTo {
+    my ($obj, $meth, $args) = @_;
+    $meth = "$meth";
+    my @args = map unbox_val(evaluate($_, ENV())), @$args;
+    box_val $obj->$meth(@args);
 }
 
 sub assoc {
