@@ -303,7 +303,7 @@ sub conj {
     $type eq LIST ? list([reverse(@args), @$o]) :
     $type eq VECTOR ? VECTOR->new([@$o, @args]) :
     $type eq NIL ? nil :
-    throw("conj first arg type '$type' not allowed");
+    err("conj first arg type '$type' not allowed");
 }
 
 sub cons { list([$_[0], @{$_[1]}]) }
@@ -348,7 +348,9 @@ sub dissoc {
 
 sub eval_perl {
     my ($perl) = @_;
-    eval $$perl;
+    my $ret = eval "$perl";
+    err("$@") if $@;
+    return $ret;
 }
 
 sub find_ns {
