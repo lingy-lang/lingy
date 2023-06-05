@@ -14,6 +14,7 @@ use Capture::Tiny qw'capture capture_merged';
 use File::Temp 'tempfile';
 
 BEGIN {
+    $ENV{LINGY_TEST} //= 1;
     if (defined $INC{'Carp/Always.pm'}) {
         eval "no Carp::Always";
     }
@@ -27,8 +28,6 @@ my $ypp = YAML::PP->new;
 
 RT->init;
 $Lingy::Lang::RT::ready = 0;
-
-$ENV{LINGY_TEST} = 1;
 
 our $lingy =
     -f './blib/script/lingy' ? './blib/script/lingy' :

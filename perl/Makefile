@@ -21,8 +21,6 @@ export RELEASE_BRANCH := main
 
 export PATH := $(ROOT_PERL)/bin:$(PATH)
 
-export LINGY_TEST := 1
-
 
 default:
 
