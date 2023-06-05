@@ -24,4 +24,7 @@ tests <<'...';
 
 - - '(re-matches #"fo*bar" "foooobarbaz")'
   - nil
+
+- - '#"\bfoo\b"'
+  - '#"\bfoo\b"'
 ...

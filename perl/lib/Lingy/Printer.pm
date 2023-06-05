@@ -31,7 +31,7 @@ sub pr_str {
     $type eq STRING ? $raw ? $$o :
         qq{"${local $_ = $$o; s/([\n\t\"\\])/$escape->{$1}/ge; \$_}"} :
     $type eq REGEX ? $raw ? $$o :
-        qq{#"${local $_ = $$o; s/([\n\t\"\\])/$escape->{$1}/ge; \ substr($_, 4, length($_) - 5)}"} :
+        qq{#"${local $_ = $$o; \ substr($_, 4, length($_) - 5)}"} :
     $type eq 'Lingy::Lang::KeySymbol' ? $o :
     $type eq SYMBOL ? $$o :
     $type eq KEYWORD ? $$o :

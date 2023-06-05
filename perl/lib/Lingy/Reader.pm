@@ -178,22 +178,45 @@ sub read_hash_map {
 }
 
 my $string_re = qr/#?"((?:\\.|[^\\"])*)"/;
-my $unescape = {
+my $string_unescape = {
     'n' => "\n",
     't' => "\t",
     '"' => '"',
     '\\' => "\\",
 };
+my $regexp_unescape = {
+    'A' => "\\A",
+    'b' => "\\b",
+    'd' => "\\d",
+    'n' => "\\n",
+    'r' => "\\r",
+    's' => "\\s",
+    't' => "\\t",
+    'w' => "\\w",
+    'z' => "\\z",
+    '"' => '\\"',
+    '\\' => "\\\\",
+};
 sub read_scalar {
     my ($self) = @_;
     my $scalar = local $_ = shift @{$self->{tokens}};
 
-    while (/^#?"/) {
+    while (/^(#?)"/) {
+        my $is_regex = $1;
         if (/^$string_re$/) {
-            my $is_regex = /^#/;
             s/^$string_re$/$1/;
-            s/\\(.)/$unescape->{$1} or err("Unsupported escape character '\\$1'")/ge;
-            return $is_regex ? REGEX->new($_) : string($_);
+            if ($is_regex) {
+                s/\\(.)/
+                    $regexp_unescape->{$1}
+                        or err("Unsupported escape character '\\$1'")
+                /ge;
+            } else {
+                s/\\(.)/
+                    $string_unescape->{$1}
+                        or err("Unsupported escape character '\\$1'")
+                /ge;
+            }
+            return $is_regex ? REGEX->new($_) : STRING->new($_);
         }
         if ($self->{repl}) {
             my $line = Lingy::ReadLine::readline(1);
