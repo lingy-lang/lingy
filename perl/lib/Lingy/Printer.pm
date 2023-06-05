@@ -25,7 +25,7 @@ sub pr_str {
         $type = 'Lingy::Lang::KeySymbol';
     }
 
-    $type or WWW $o, "Don't know how to print internal value '$o'";
+    $type or return WWW $o, "Don't know how to print internal value '$o'";
 
     $type eq ATOM ? "(atom ${\ $self->pr_str($o->[0], $raw)})" :
     $type eq STRING ? $raw ? $$o :
