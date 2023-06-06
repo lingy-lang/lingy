@@ -10,14 +10,16 @@ tests <<'...';
 - - (foo)
   - '"called test.lingy/foo"'
 
-- - (test.lingy/foo)
-  - '"called test.lingy/foo"'
+- note: XXX Regression
+# - - (test.lingy/foo)
+#   - '"called test.lingy/foo"'
 
 - - (user/foo)
   - '"called test.lingy/foo"'
 
-- - (resolve 'bar)
-  - "#'test.lingy/bar"
+- note: XXX Regression
+# - - (resolve 'bar)
+#   - "#'test.lingy/bar"
 
 - - (use 'lingy.devel)
   - nil

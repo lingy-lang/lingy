@@ -80,7 +80,6 @@ sub complete {
         grep {not /^ /} (
             keys(%$space),
             keys(%{RT->namespaces}),
-            keys(%{RT->ns_refers->{$space->NAME}}),
             map {
                 my $name = $_;
                 $name =~ s/^Lingy::/lingy.lang./;

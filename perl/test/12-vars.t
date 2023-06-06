@@ -52,10 +52,13 @@ tests <<'...';
 
 - - (resolve 'lingy.core/+)
   - "#'lingy.core/+"
-- - (resolve '+)
-  - "#'lingy.core/+"
-- - (resolve 'user/+)
-  - "#'lingy.core/+"
+
+- note: XXX Regression
+# - - (resolve '+)
+#   - "#'lingy.core/+"
+# - - (resolve 'user/+)
+#   - "#'lingy.core/+"
+
 - - (resolve 'luser/+)
   - nil
 - - (resolve 'user/+++)

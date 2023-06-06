@@ -11,25 +11,24 @@ sub NAME {
 }
 
 sub new {
-    my ($class, %args) = @_;
+    my $class = shift;
+    my $name = shift;
 
-    my $self = bless {}, __PACKAGE__;
+    # XXX Could be a HashMap
+    my $self = bless {' NAME' => $name, @_}, __PACKAGE__;
 
-    my $name = $self->{' NAME'} = $args{name};
+    return RT->namespaces->{$name} = $self;
+}
 
-    if (my $refer_list = $args{refer}) {
-        $refer_list = [$refer_list]
-            unless ref($refer_list) eq 'ARRAY';
-        my $refer_map = RT->ns_refers->{$name} //= {};
-        for my $ns (@$refer_list) {
-            my $ns_name = $ns->NAME;
-            map $refer_map->{$_} = $ns_name,
-                grep /^\S/, keys %$ns;
-        }
-    }
-
-    RT->namespaces->{$name} = $self;
-
+sub refer {
+    my ($self, $refer_ns_name) = @_;
+    err "'refer' only works with symbols"
+        unless ref($refer_ns_name) eq SYMBOL;
+    my $refer_ns = RT->namespaces->{$$refer_ns_name}
+        or err "No namespace: '$$refer_ns_name'";
+    map $self->{$_} = $refer_ns->{$_},
+        grep /^\S/, keys %$refer_ns;
+    $self->{$refer_ns_name} = $refer_ns;
     return $self;
 }
 
@@ -39,7 +38,7 @@ sub current {
     RT->current_ns_name($name);
     RT->namespaces->{$name} = $self;
     RT->env->{space} = $self;
-    RT->namespaces->{'lingy.core'}{'*ns*'} = $self;
+    # RT->namespaces->{'lingy.core'}{'*ns*'} = $self;
     return $self;
 }
 
@@ -63,14 +62,7 @@ sub getMappings {
     my $map = {
         %{$_[0]},
     };
-    my $name = delete $map->{' NAME'};
-    my $refer = RT->ns_refers->{$name} // {};
-    for my $key (keys %$refer) {
-        my $ns = $refer->{$key};
-        $map->{$key} =
-            RT->namespaces->{$ns}->{$key} //
-            RT->namespaces->{$key};
-    }
+    delete $map->{' NAME'};
     HASHMAP->new([ %$map ]);
 }
 

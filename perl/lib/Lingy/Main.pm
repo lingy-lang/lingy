@@ -38,7 +38,6 @@ sub run {
     local @ARGV = @$args;
 
     RT->init;
-
     RT->rep(qq<(clojure-repl-on)>) if $clj;
     RT->rep(qq<(use 'lingy.devel)>) if $dev;
 

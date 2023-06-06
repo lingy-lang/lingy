@@ -54,10 +54,6 @@ bless \%namespaces, 'lingy-internal';
 sub namespaces { \%namespaces }
 sub current_ns { $namespaces{$current_ns_name} }
 
-my %ns_refers;
-bless \%ns_refers, 'lingy-internal';
-sub ns_refers { \%ns_refers }
-
 my %classes;
 
 my %meta;
@@ -100,8 +96,9 @@ sub init {
     $printer = $self->require_new($self->printer_class);
 
     $core_ns = $self->core_namespace();
-    $user_ns = $self->user_namespace();
-    $user_ns->current;
+    $user_ns = NAMESPACE->new('user')
+        ->refer(symbol($self->core_ns->NAME))
+        ->current;
 
     $ready = 1;
 
@@ -111,10 +108,7 @@ sub init {
 sub core_namespace {
     my ($self) = @_;
 
-    my $ns = NAMESPACE->new(
-        name => 'lingy.core',
-        %classes,
-    )->current;
+    my $ns = NAMESPACE->new('lingy.core', %classes)->current;
 
     $ns->{$_} = $classes{$_} for keys %classes;
 
@@ -163,17 +157,6 @@ sub core_namespace {
     $self->rep($self->slurp_file($core_ly));
 
     return $ns;
-}
-
-sub user_namespace {
-    my ($self) = @_;
-
-    NAMESPACE->new(
-        name => 'user',
-        refer => [
-            $self->core_ns,
-        ],
-    );
 }
 
 sub require_new {
@@ -326,10 +309,7 @@ sub create_ns {
     my ($name) = @_;
     err "Invalid ns name '$name'"
         unless $name =~ /^\w+(\.\w+)*$/;
-    NAMESPACE->new(
-        name => $name,
-        refer => $core_ns,
-    );
+    NAMESPACE->new($name)->refer(symbol($core_ns->NAME));
 }
 
 sub dec { $_[0] - 1 }
@@ -381,10 +361,7 @@ sub in_ns {
     my ($name) = @_;
     err "Invalid ns name '$name'"
         unless $name =~ /^\w+(\.\w+)*$/;
-    my $ns = $namespaces{$name} //
-    NAMESPACE->new(
-        name => $name,
-    );
+    my $ns = $namespaces{$name} // NAMESPACE->new($name);
     $ns->current;
 }
 
@@ -440,10 +417,7 @@ sub ns_ {
 
     my $ns;
     $ns = $namespaces{$name} //
-    NAMESPACE->new(
-        name => $name,
-        refer => $core_ns,
-    );
+    NAMESPACE->new($name)->refer(symbol($core_ns->NAME));
     $ns->current;
 
     for my $arg (@$args) {
@@ -515,22 +489,6 @@ sub readline {
     string($l);
 }
 
-sub refer_ {
-    my (@specs) = @_;
-    for my $spec (@specs) {
-        err "'refer' only works with symbols"
-            unless ref($spec) eq SYMBOL;
-        my $refer_ns_name = $$spec;
-        my $current_ns_name = $current_ns_name;
-        my $refer_ns = $namespaces{$refer_ns_name}
-            or err "No namespace: '$refer_ns_name'";
-        my $refer_map = $ns_refers{$current_ns_name} //= {};
-        map $refer_map->{$_} = $refer_ns_name,
-            grep /^\S/, keys %$refer_ns;
-    }
-    return nil;
-}
-
 sub require {
     outer:
     for my $spec (@_) {
@@ -580,14 +538,7 @@ sub resolve {
     if (exists $ns->{$sym_name}) {
         $var = $ns_name . '/' . $sym_name;
     } else {
-        my $ref;
-        if (($ref = $ns_refers{$ns_name}) and
-            defined($ns_name = $ref->{$sym_name})
-        ) {
-            $var = $ns_name . '/' . $sym_name;
-        } else {
-            return nil;
-        }
+        return nil;
     }
     return VAR->new($var);
 }

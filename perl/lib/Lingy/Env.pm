@@ -48,12 +48,16 @@ sub ns_set {
 sub get {
     my ($self, $symbol, $optional) = @_;
 
+    if ("$symbol" eq '*ns*') {
+        return RT->current_ns;
+    }
+
     return $self->get_qualified($symbol, $optional)
         if $symbol =~ m{./.};
 
     while ($self) {
         my $ns = $self->space;
-        if (defined(my $value = _referred($ns, $symbol))) {
+        if (defined(my $value = $ns->{$symbol})) {
             return $value;
         }
         $self = $self->{outer};
@@ -90,34 +94,13 @@ sub get_qualified {
     my $ns = RT->namespaces->{$space_name}
         or err "No such namespace: '$space_name'";
 
-    if (defined(my $value = _referred($ns, $symbol_name))) {
+    if (defined(my $value = $ns->{$symbol_name})) {
         return $value;
     }
 
     return if $optional;
 
     err "Unable to resolve symbol: '$symbol' in this context";
-}
-
-sub _referred {
-    my ($ns, $symbol) = @_;
-    if (defined(my $value = $ns->{$symbol})) {
-        return $value;
-    }
-    if (ref($ns) ne 'HASH') {
-        if (my $refer_ns_map = RT->ns_refers->{$ns->NAME}) {
-            if (my $refer_ns_name = $refer_ns_map->{$symbol}) {
-                if (my $refer_ns =
-                    RT->namespaces->{$refer_ns_name}
-                ) {
-                    if (defined(my $value = $refer_ns->{$symbol})) {
-                        return $value;
-                    }
-                }
-            }
-        }
-    }
-    return;
 }
 
 1;

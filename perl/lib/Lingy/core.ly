@@ -438,8 +438,8 @@
 
 (defn re-pattern [s] (lingy.lang.Regex/pattern s))
 
-(defn refer [& xs]
-  (apply lingy.lang.RT/refer_ xs)
+(defn refer [ns]
+  (. *ns* refer ns)
   nil)
 
 (defn rem
