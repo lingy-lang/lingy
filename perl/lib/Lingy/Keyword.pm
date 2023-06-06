@@ -1,5 +1,5 @@
 use strict; use warnings;
-package Lingy::Lang::Keyword;
+package Lingy::Keyword;
 
 use Lingy::Common;
 use base SCALARTYPE;

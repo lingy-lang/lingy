@@ -83,8 +83,8 @@ sub complete {
             keys(%{RT->ns_refers->{$space->NAME}}),
             map {
                 my $name = $_;
+                $name =~ s/^Lingy::/lingy.lang./;
                 $name =~ s/::/./g;
-                $name =~ s/^Lingy\.Lang\./lingy.lang./;
                 my $long = $name;
                 $name =~ s/.*\.//;
                 ($long, $name);

@@ -22,7 +22,7 @@ sub pr_str {
 
     # Hack to allow map key strings to print like symbols:
     if (not $type and $o =~ /^($symbol_re|$namespace_re)$/) {
-        $type = 'Lingy::Lang::KeySymbol';
+        $type = 'Lingy::KeySymbol';
     }
 
     $type or return WWW $o, "Don't know how to print internal value '$o'";
@@ -32,7 +32,7 @@ sub pr_str {
         qq{"${local $_ = $$o; s/([\n\t\"\\])/$escape->{$1}/ge; \$_}"} :
     $type eq REGEX ? $raw ? $$o :
         qq{#"${local $_ = $$o; \ substr($_, 4, length($_) - 5)}"} :
-    $type eq 'Lingy::Lang::KeySymbol' ? $o :
+    $type eq 'Lingy::KeySymbol' ? $o :
     $type eq SYMBOL ? $$o :
     $type eq KEYWORD ? $$o :
     $type eq NUMBER ? $$o :

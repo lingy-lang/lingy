@@ -1,5 +1,5 @@
 use strict; use warnings;
-package Lingy::Lang::HashMap;
+package Lingy::HashMap;
 
 use Lingy::Common;
 use base CLASS;

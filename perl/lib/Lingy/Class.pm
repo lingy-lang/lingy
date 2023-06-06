@@ -1,8 +1,8 @@
 # This module is a base class for all Lingy object classes and base classes,
-# and also a class for 'Lingy::Lang::Class' objects.
+# and also a class for 'Lingy::Class' objects.
 
 use strict; use warnings;
-package Lingy::Lang::Class;
+package Lingy::Class;
 
 use Lingy::Common;
 
@@ -18,7 +18,7 @@ sub new {
 sub NAME {
     my ($self) = @_;
     my $class = ref($self) or die;
-    $class =~ s/^Lingy::Lang::/lingy.lang./;
+    $class =~ s/^Lingy::/lingy.lang./;
     return $class;
 }
 
@@ -37,7 +37,7 @@ sub _method_names {
 }
 
 
-# This section is for special Lingy::Lang::Class objects, which are needed to
+# This section is for special Lingy::Class objects, which are needed to
 # mimic Clojure class behavior.
 
 use overload '""' => sub {
@@ -54,7 +54,7 @@ sub _name {
         die sprintf "Can't call '_name' on '%s' object",
             ref($_[0]);
     my $name = ${$_[0]};
-    $name =~ s/^Lingy::Lang::/lingy.lang./;
+    $name =~ s/^Lingy::/lingy.lang./;
     return $name;
 }
 

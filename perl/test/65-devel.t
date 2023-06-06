@@ -7,7 +7,7 @@ tests <<'...';
 - [ (resolve 'WWW), "#'lingy.devel/WWW" ]
 
 - - (WWW (x-class-names))
-  - /- Lingy::Lang::Atom/
+  - /- Lingy::Atom/
 - - (WWW (x-core-ns))
   - >-
       /cons: !perl/code '\{ "DUMMY" }'/

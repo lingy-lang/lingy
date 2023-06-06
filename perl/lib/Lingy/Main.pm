@@ -2,7 +2,7 @@ use strict; use warnings;
 
 package Lingy::Main;
 
-use Lingy::Lang::RT;
+use Lingy::RT;
 use Lingy::Common;
 
 use Getopt::Long;

@@ -215,8 +215,8 @@ sub special_import {
 
         my ($module_name, $imports) = @$spec;
         my $name = $$module_name;
-        (my $module = $name) =~ s/\./::/g;
-        $module =~ s/lingy::lang::/Lingy::Lang::/;
+        (my $module = $name) =~ s/lingy\.lang\./Lingy::/;
+        $module =~ s/\./::/g;
         eval "require $module; 1" or die $@;
         my $class = RT->current_ns->{$name} =
             CLASS->_new($name);
@@ -398,7 +398,7 @@ sub is_class_symbol {
     return unless ref($_[0]) eq SYMBOL;
     my $class = $$symbol;
     return unless $class =~ /\./;
-    $class =~ s/^lingy\.lang\./Lingy.Lang./;
+    $class =~ s/^lingy\.lang\./Lingy::/;
     $class =~ s/\./::/g;
     (my $path = "$class.pm") =~ s/::/\//g;
     if (not exists $INC{$path}) {

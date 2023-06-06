@@ -1,14 +1,14 @@
 use strict; use warnings;
-package Lingy::Lang::RT;
+package Lingy::RT;
 
 use Lingy;
 use Lingy::Common;
 use Lingy::Eval;
-use Lingy::Lang::HashMap;
-use Lingy::Lang::Namespace;
-use Lingy::Lang::Nil;
-use Lingy::Lang::Sequential;
-use Lingy::Lang::Symbol;
+use Lingy::HashMap;
+use Lingy::Namespace;
+use Lingy::Nil;
+use Lingy::Sequential;
+use Lingy::Symbol;
 use Lingy::ReadLine;
 
 use constant LANG => 'Lingy';
@@ -158,8 +158,8 @@ sub core_namespace {
         })
     ");
 
-    my $core_ly = $INC{'Lingy/Lang/RT.pm'};
-    $core_ly =~ s/Lang\/RT\.pm$/core.ly/;
+    my $core_ly = $INC{'Lingy/RT.pm'};
+    $core_ly =~ s/RT\.pm$/core.ly/;
     $self->rep($self->slurp_file($core_ly));
 
     return $ns;
@@ -194,7 +194,7 @@ sub slurp_file {
 
 sub is_lingy_class {
     my ($self, $class) = @_;
-    $class->isa(CLASS) or $class =~ /^Lingy::Lang::\w/;
+    $class->isa(CLASS) or $class =~ /^Lingy::\w/;
 }
 
 sub rep {
@@ -542,7 +542,7 @@ sub require {
         my $name = $$spec;
 
         my $path = $name;
-        $path =~ s/^lingy\.lang\./Lingy.Lang\./;
+        $path =~ s/^lingy\.lang\./Lingy./;
         $path =~ s/^lingy\./Lingy\./;
         my $module = $path;
         $path =~ s/\./\//g;

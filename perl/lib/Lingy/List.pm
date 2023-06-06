@@ -1,5 +1,5 @@
 use strict; use warnings;
-package Lingy::Lang::List;
+package Lingy::List;
 
 use Lingy::Common;
 use base LISTTYPE, SEQUENTIAL;

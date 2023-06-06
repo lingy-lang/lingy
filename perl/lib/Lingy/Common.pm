@@ -6,36 +6,36 @@ use Exporter 'import';
 use Scalar::Util 'refaddr';
 
 # Base type classes:
-use constant LISTTYPE   => 'Lingy::Lang::ListClass';
-use constant SCALARTYPE => 'Lingy::Lang::ScalarClass';
-use constant SEQUENTIAL => 'Lingy::Lang::Sequential';
+use constant LISTTYPE   => 'Lingy::ListClass';
+use constant SCALARTYPE => 'Lingy::ScalarClass';
+use constant SEQUENTIAL => 'Lingy::Sequential';
 
 # Type classes:
-use constant ATOM       => 'Lingy::Lang::Atom';
-use constant BOOLEAN    => 'Lingy::Lang::Boolean';
-use constant CHARACTER  => 'Lingy::Lang::Character';
-use constant CLASS      => 'Lingy::Lang::Class';
-use constant COMPILER   => 'Lingy::Lang::Compiler';
-use constant FUNCTION   => 'Lingy::Lang::Fn';
-use constant HASHMAP    => 'Lingy::Lang::HashMap';
-use constant KEYWORD    => 'Lingy::Lang::Keyword';
-use constant LIST       => 'Lingy::Lang::List';
-use constant MACRO      => 'Lingy::Lang::Macro';
-use constant NIL        => 'Lingy::Lang::Nil';
-use constant NUMBER     => 'Lingy::Lang::Number';
-use constant REGEX      => 'Lingy::Lang::Regex';
-use constant STRING     => 'Lingy::Lang::String';
-use constant SYMBOL     => 'Lingy::Lang::Symbol';
-use constant UTIL       => 'Lingy::Lang::Util';
-use constant VECTOR     => 'Lingy::Lang::Vector';
-use constant VAR        => 'Lingy::Lang::Var';
+use constant ATOM       => 'Lingy::Atom';
+use constant BOOLEAN    => 'Lingy::Boolean';
+use constant CHARACTER  => 'Lingy::Character';
+use constant CLASS      => 'Lingy::Class';
+use constant COMPILER   => 'Lingy::Compiler';
+use constant FUNCTION   => 'Lingy::Fn';
+use constant HASHMAP    => 'Lingy::HashMap';
+use constant KEYWORD    => 'Lingy::Keyword';
+use constant LIST       => 'Lingy::List';
+use constant MACRO      => 'Lingy::Macro';
+use constant NIL        => 'Lingy::Nil';
+use constant NUMBER     => 'Lingy::Number';
+use constant REGEX      => 'Lingy::Regex';
+use constant STRING     => 'Lingy::String';
+use constant SYMBOL     => 'Lingy::Symbol';
+use constant UTIL       => 'Lingy::Util';
+use constant VECTOR     => 'Lingy::Vector';
+use constant VAR        => 'Lingy::Var';
 
 # Functionality classes:
-use constant NAMESPACE  => 'Lingy::Lang::Namespace';
-use constant NUMBERS    => 'Lingy::Lang::Numbers';
-use constant RT         => 'Lingy::Lang::RT';
-use constant TERM       => 'Lingy::Lang::Term';
-use constant THREAD     => 'Lingy::Lang::Thread';
+use constant NAMESPACE  => 'Lingy::Namespace';
+use constant NUMBERS    => 'Lingy::Numbers';
+use constant RT         => 'Lingy::RT';
+use constant TERM       => 'Lingy::Term';
+use constant THREAD     => 'Lingy::Thread';
 
 BEGIN {
     our @EXPORT = qw<
@@ -150,7 +150,7 @@ sub box_val {
 
 sub unbox_val {
     my ($obj) = @_;
-    ref($obj) =~ /^Lingy::Lang::(String|Number|Boolean|Fn)$/ ? $obj->unbox : $obj;
+    ref($obj) =~ /^Lingy::(String|Number|Boolean|Fn)$/ ? $obj->unbox : $obj;
 }
 
 sub assert_args {

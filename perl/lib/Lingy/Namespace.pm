@@ -1,5 +1,5 @@
 use strict; use warnings;
-package Lingy::Lang::Namespace;
+package Lingy::Namespace;
 
 use Lingy::Common;
 

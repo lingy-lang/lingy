@@ -1,5 +1,5 @@
 use strict; use warnings;
-package Lingy::Lang::String;
+package Lingy::String;
 
 use Lingy::Common;
 use base SCALARTYPE;
@@ -9,8 +9,8 @@ use overload cmp => \&comp_pair;
 # TODO define lingy.string/join
 sub join {
     string(
-        CORE::join ${Lingy::Lang::RT::str($_[0])},
-            map ${Lingy::Lang::RT::str($_)}, @{$_[1]}
+        CORE::join ${Lingy::RT::str($_[0])},
+            map ${Lingy::RT::str($_)}, @{$_[1]}
     );
 }
 

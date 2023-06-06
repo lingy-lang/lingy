@@ -1,5 +1,5 @@
 use strict; use warnings;
-package Lingy::Lang::ListClass;
+package Lingy::ListClass;
 
 use Lingy::Common;
 use base CLASS;

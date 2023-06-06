@@ -21,15 +21,15 @@ run_is qq<$lingy --ppp -e '(prn (+ 2 3))'>,
     qr/--- \(prn \(\+ 2 3\)\)/;
 
 run_is qq<$lingy --xxx -e '(prn (+ 2 3))'>,
-    qr/--- !perl\/array:Lingy::Lang::List
-- !perl\/scalar:Lingy::Lang::Symbol
+    qr/--- !perl\/array:Lingy::List
+- !perl\/scalar:Lingy::Symbol
   =: prn
-- !perl\/array:Lingy::Lang::List
-  - !perl\/scalar:Lingy::Lang::Symbol
+- !perl\/array:Lingy::List
+  - !perl\/scalar:Lingy::Symbol
     =: \+
-  - !perl\/scalar:Lingy::Lang::Number
+  - !perl\/scalar:Lingy::Number
     =: '2'
-  - !perl\/scalar:Lingy::Lang::Number
+  - !perl\/scalar:Lingy::Number
     =: '3'/,
     "'\$cmd' produces correct YAML dump";
 
