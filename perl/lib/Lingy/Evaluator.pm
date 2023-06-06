@@ -1,5 +1,5 @@
 use strict; use warnings;
-package Lingy::Eval;
+package Lingy::Evaluator;
 
 use Lingy::Common;
 
@@ -44,7 +44,7 @@ sub evaluate {
     while (1) {
         $ast = macroexpand($ast, $env);
 
-        return eval_ast($ast, $env) unless ref($ast) eq LIST;
+        return evaluate_ast($ast, $env) unless ref($ast) eq LIST;
 
         return $ast unless @$ast;   # Empty list
 
@@ -53,7 +53,7 @@ sub evaluate {
             return $ast unless $env;
 
         } else {
-            my ($fn, @args) = @{eval_ast($ast, $env)};
+            my ($fn, @args) = @{evaluate_ast($ast, $env)};
             return $fn->(@args) if ref($fn) eq 'CODE';
 
             while ((my $ref = ref($fn)) ne FUNCTION) {
@@ -78,7 +78,7 @@ sub evaluate {
     }
 }
 
-sub eval_ast {
+sub evaluate_ast {
     my ($ast, $env) = @_;
     $ast->isa(LISTTYPE)
         ? ref($ast)->new([ map evaluate($_, $env), @$ast ]) :
@@ -111,7 +111,7 @@ sub special_do {
     my ($ast, $env) = @_;
     my (undef, @do) = @$ast;
     $ast = pop @do;
-    eval_ast(list(\@do), $env);
+    evaluate_ast(list(\@do), $env);
     return ($ast, $env);
 }
 

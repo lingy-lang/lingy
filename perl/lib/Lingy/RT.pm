@@ -3,7 +3,7 @@ package Lingy::RT;
 
 use Lingy;
 use Lingy::Common;
-use Lingy::Eval;
+use Lingy::Evaluator;
 use Lingy::HashMap;
 use Lingy::Namespace;
 use Lingy::Nil;
@@ -65,7 +65,7 @@ sub meta { \%meta }
 
 my $env;
 sub env { $env }
-sub ENV { $Lingy::Eval::ENV }
+sub ENV { $Lingy::Evaluator::ENV }
 
 my $reader;
 sub reader { $reader }
@@ -406,7 +406,7 @@ sub keyword_ { KEYWORD->new($_[0]) }
 sub list_ { list([@_]) }
 
 sub macroexpand {
-    Lingy::Eval::macroexpand($_[0], $Lingy::Eval::ENV);
+    Lingy::Evaluator::macroexpand($_[0], $Lingy::Evaluator::ENV);
 }
 
 sub map {
@@ -460,7 +460,7 @@ sub ns_ {
                         symbol('use'),
                         list([symbol('quote'), $spec]),
                     ]),
-                    $Lingy::Eval::ENV,
+                    $Lingy::Evaluator::ENV,
                 );
             }
         }
@@ -468,7 +468,7 @@ sub ns_ {
             my (undef, @args) = @$arg;
             evaluate(
                 list([ symbol('import'), @args ]),
-                $Lingy::Eval::ENV,
+                $Lingy::Evaluator::ENV,
             );
         }
         else {

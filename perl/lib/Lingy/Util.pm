@@ -25,7 +25,7 @@ sub eval_perl {
 sub rt_internal { my $m = "$_[0]"; RT->$m }
 
 sub env_data {
-    my $env = $Lingy::Eval::ENV;
+    my $env = $Lingy::Evaluator::ENV;
     my $www = {};
     my $w = $www;
     my $e = $env;

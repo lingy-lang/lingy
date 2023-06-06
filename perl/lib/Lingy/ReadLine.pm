@@ -98,7 +98,7 @@ sub complete {
         $_
     } (
         @names,
-        Lingy::Eval->special_symbols,
+        Lingy::Evaluator->special_symbols,
     );
 }
 

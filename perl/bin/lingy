@@ -19,7 +19,7 @@ LINGY_USAGE="
 Usage: lingy [<opts>] [<lingy-file-name>]
 
 Options:
-  -e, --eval      Eval a Lingy source string
+  -e, --eval      Eval a Lingy source string; print non-nil
   --repl          Start Lingy REPL (default w/ no args)
   --run           Run a Lingy program (default w/ file name)
 
