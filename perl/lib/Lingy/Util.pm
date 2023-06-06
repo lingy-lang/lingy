@@ -38,4 +38,36 @@ sub env_data {
     bless $www, 'lingy-internal';
 }
 
+sub equiv {
+    my ($x, $y) = @_;
+    return false
+        unless
+            (
+                $x->isa(LISTTYPE) and
+                $y->isa(LISTTYPE)
+            ) or ref($x) eq ref($y);
+    if ($x->isa(LISTTYPE)) {
+        return false unless @$x == @$y;
+        for (my $i = 0; $i < @$x; $i++) {
+            my $bool = equiv($x->[$i], $y->[$i]);
+            return false if "$bool" eq '0';
+        }
+        return true;
+    }
+    if ($x->isa(HASHMAP)) {
+        my @xkeys = sort map "$_", keys %$x;
+        my @ykeys = sort map "$_", keys %$y;
+        return false unless @xkeys == @ykeys;
+        my @xvals = map $x->{$_}, @xkeys;
+        my @yvals = map $y->{$_}, @ykeys;
+        for (my $i = 0; $i < @xkeys; $i++) {
+            return false unless "$xkeys[$i]" eq "$ykeys[$i]";
+            my $bool = equiv($xvals[$i], $yvals[$i]);
+            return false if "$bool" eq '0';
+        }
+        return true;
+    }
+    BOOLEAN->new($$x eq $$y);
+}
+
 1;

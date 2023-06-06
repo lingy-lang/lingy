@@ -77,16 +77,30 @@
   ([x y & more]
     (reduce / (/ x y) more)))
 
-(defn == ([& xs] (apply = xs)))
-
 (defn =
   ([x] true)
-  ([x y] (lingy.lang.Numbers/equiv x y))
+  ([x y] (lingy.lang.Util/equiv x y))
   ([x y & more]
     (if (= x y)
       (if (next more)
         (recur y (first more) (next more))
         (= y (first more)))
+      false)))
+
+(defn not=
+  ([x] false)
+  ([x y] (not (= x y)))
+  ([x y & more]
+    (not (apply = x y more))))
+
+(defn ==
+  ([x] true)
+  ([x y] (lingy.lang.Numbers/equiv x y))
+  ([x y & more]
+    (if (< x y)
+      (if (next more)
+        (recur y (first more) (next more))
+        (< y (first more)))
       false)))
 
 (defn <

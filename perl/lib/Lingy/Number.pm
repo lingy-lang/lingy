@@ -19,6 +19,13 @@ use overload
     cmp => \&comp_pair,
     ;
 
+sub equal_to {
+    my ($x, $y) = @_;
+    $x = ref($x) ? $$x : $x;
+    $y = ref($y) ? $$y : $y;
+    BOOLEAN->new($x == $y);
+}
+
 sub greater_than {
     my ($x, $y) = @_;
     $x = ref($x) ? $$x : $x;
