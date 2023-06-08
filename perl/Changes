@@ -1,4 +1,18 @@
 ---
+version: 0.1.11
+date:    Thu Jun  8 08:05:32 AM PDT 2023
+changes:
+- Error on unsupported escape characters
+- Take 'Error:' prefix out of error messages
+- Throw any errors from a perl eval
+- Return after printing unknown internal value
+- Add regexp escaping
+- Move all Lingy/Lang/*.pm to Lingy/*.pm
+- Refactor = and == to be more correct
+- Rename Lingy::Eval to Lingy::Evaluator
+- Keep refers pairs in namespace proper
+- Overall refactor and code cleanup
+---
 version: 0.1.10
 date:    Sun Jun  4 01:58:29 PM PDT 2023
 changes:
