@@ -2,6 +2,8 @@ use strict; use warnings;
 package Lingy::Compiler;
 
 use Lingy::Common;
+use Lingy::Symbol;
+use Lingy::HashMap;
 
 use constant DEF            => symbol('def');
 use constant LOOP           => symbol('loop*');

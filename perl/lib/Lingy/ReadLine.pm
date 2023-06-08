@@ -75,7 +75,7 @@ sub complete {
         return;
     }
 
-    my $space = RT->env->space;
+    my $space = RT->env->{space};
     my @names =
         grep {not /^ /} (
             keys(%$space),

@@ -2,7 +2,7 @@ use strict; use warnings;
 package Lingy::Number;
 
 use Lingy::Common;
-use base SCALARTYPE;
+use base 'Lingy::ScalarClass';
 
 use overload
     '""' => sub { ${$_[0]} },

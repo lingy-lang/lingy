@@ -3,8 +3,6 @@ package Lingy::Numbers;
 
 use Lingy::Common;
 
-use constant NAME => 'lingy.lang.Numbers';
-
 sub add { $_[0] + $_[1] }
 
 sub divide { $_[0] / $_[1] }

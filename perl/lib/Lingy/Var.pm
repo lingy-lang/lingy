@@ -1,7 +1,6 @@
 use strict; use warnings;
 package Lingy::Var;
 
-use Lingy::Common;
-use base SCALARTYPE;
+use base 'Lingy::ScalarClass';
 
 1;

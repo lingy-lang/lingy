@@ -4,12 +4,8 @@
 use strict; use warnings;
 package Lingy::Class;
 
-use Lingy::Common;
-
 # This section is base class support for all Lingy object classes.
 # They all inherit from this:
-
-use Lingy::Common();
 
 sub new {
     die sprintf "No 'new' method defined for class '%s'.", ref($_[0]);
@@ -62,7 +58,7 @@ sub _name {
 sub isInstance {
     my ($base_class, $instance) = @_;
     my $instance_class = ref($instance);
-    $instance->isa($base_class) ? true : false;
+    $instance->isa($base_class) ? Lingy::Common::true() : Lingy::Common::false();
 }
 
 1;

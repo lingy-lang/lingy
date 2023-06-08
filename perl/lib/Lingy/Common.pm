@@ -79,6 +79,7 @@ BEGIN {
         string
         symbol
 
+        has
         err
         box_val
         unbox_val
@@ -97,7 +98,16 @@ BEGIN {
     >;
 }
 
-use Lingy::Printer;
+{
+    my ($n, $t, $f);
+    ($n, $t, $f) = (1, 1, 0);
+    my $nil = bless \$n, 'Lingy::Nil';
+    my $true = bless \$t, BOOLEAN;
+    my $false = bless \$f, BOOLEAN;
+    sub nil { $nil }
+    sub true { $true }
+    sub false { $false }
+}
 
 our $namespace_re = qr{(?:
     \w+
@@ -105,7 +115,7 @@ our $namespace_re = qr{(?:
 )}x;
 
 our $symbol_re = qr{(
-    \*?[-\w]+[\?\!\*\#]? |
+    \*?[-\w]+[\?\!\*\#\=]? |
     [-+*/<>] |
     ==? |
     <= |
@@ -118,6 +128,19 @@ sub READY { RT->ready }
 sub list     { LIST->new(@_) }
 sub string   { STRING->new(@_) }
 sub symbol   { SYMBOL->new(@_) }
+
+sub has {
+    my ($caller) = caller;
+    my $name = shift;
+    my $method =
+        sub {
+            $#_
+                ? $_[0]{$name} = $_[1]
+                : $_[0]{$name};
+        };
+    no strict 'refs';
+    *{"${caller}::$name"} = $method;
+};
 
 sub err {
     my $msg = shift;
@@ -178,7 +201,7 @@ sub comp_pair {
         my $i = 0;
         for my $e (@$x) {
             return 1 if $i > @$y;
-            my $r = comp_pair $x->[$i], $y->[$i];
+            my $r = comp_pair($x->[$i], $y->[$i]);
             return $r if $r;
             $i++;
         }

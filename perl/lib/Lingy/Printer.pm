@@ -65,7 +65,7 @@ sub pr_str {
     $type eq 'Lingy::Env' ? '#<Env>' :
     $type eq 'lingy-internal' ? "" :
     (blessed($o) and $o->isa(NAMESPACE)) ?
-        qq(#<Namespace ${\ $o->NAME}>) :
+        qq(#<Namespace ${\ $o->_name}>) :
     Dump($o) .
         "*** Unrecognized Lingy value printed above ***\n";
 }

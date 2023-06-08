@@ -2,7 +2,6 @@ use strict; use warnings;
 package Lingy::HashMap;
 
 use Lingy::Common;
-use base CLASS;
 
 use Hash::Ordered;
 

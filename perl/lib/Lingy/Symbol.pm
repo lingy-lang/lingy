@@ -2,7 +2,8 @@ use strict; use warnings;
 package Lingy::Symbol;
 
 use Lingy::Common;
-use base SCALARTYPE;
+use Lingy::Evaluator;
+use base 'Lingy::ScalarClass';
 
 use overload cmp => \&comp_pair;
 

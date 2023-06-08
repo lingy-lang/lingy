@@ -93,18 +93,18 @@ sub evaluate_ast {
 # Special form handler functions:
 sub special_def {
     my ($ast, $env) = @_;
-    my (undef, $a1, $a2) = @$ast;
-    $a1 // err "Too few arguments to def";
-    $a2 //= nil;
-    err "Can't def a qualified symbol: '$a1'"
-        if $a1 =~ m{./.};
-    return $env->ns_set($$a1, evaluate($a2, $env));
+    my (undef, $sym, $form) = @$ast;
+    $sym // err "Too few arguments to def";
+    $form //= nil;
+    err "Can't def a qualified symbol: '$sym'"
+        if $sym =~ m{./.};
+    RT->current_ns->set($$sym, evaluate($form, $env));
 }
 
 sub special_defmacro {
     my ($ast, $env) = @_;
-    my (undef, $a1, $a2) = @$ast;
-    return $env->ns_set($$a1, MACRO->new(evaluate($a2, $env)));
+    my (undef, $sym, $form) = @$ast;
+    RT->current_ns->set($$sym, MACRO->new(evaluate($form, $env)));
 }
 
 sub special_do {
@@ -190,9 +190,9 @@ sub special_fn {
 
 sub special_if {
     my ($ast, $env) = @_;
-    my (undef, $a1, $a2, $a3) = @$ast;
-    $ast = ${BOOLEAN->new(evaluate($a1, $env))} ? $a2 :
-        defined $a3 ? $a3 : nil;
+    my (undef, $cond, $then, $else) = @$ast;
+    $ast = ${BOOLEAN->new(evaluate($cond, $env))} ? $then :
+        defined $else ? $else : nil;
     return ($ast, $env);
 }
 
@@ -247,56 +247,56 @@ sub special_keyword {
 
 sub special_let {
     my ($ast, $env) = @_;
-    my (undef, $a1, $a2) = @$ast;
+    my (undef, $bindings, $body) = @$ast;
     err "First argument to 'let' must be a vector"
-        unless ref($a1) eq VECTOR;
+        unless ref($bindings) eq VECTOR;
     $env = Lingy::Env->new(outer => $env);
-    for (my $i = 0; $i < @$a1; $i += 2) {
+    for (my $i = 0; $i < @$bindings; $i += 2) {
         $env->set(
-            ${$a1->[$i]},
-            evaluate($a1->[$i+1], $env),
+            ${$bindings->[$i]},
+            evaluate($bindings->[$i+1], $env),
         );
     }
-    $a2 = list([symbol('do'), @{$ast}[2..(@$ast-1)] ])
+    $body = list([symbol('do'), @{$ast}[2..(@$ast-1)] ])
         if @$ast > 3;
-    return ($a2, $env);
+    return ($body, $env);
 }
 
 sub special_loop {
     my ($ast, $env) = @_;
-    my (undef, $a1, $a2) = @$ast;
+    my (undef, $bindings, $body) = @$ast;
     if (not $env->{RECUR}) {
         err "First argument to 'loop' must be a vector"
-            unless ref($a1) eq VECTOR;
+            unless ref($bindings) eq VECTOR;
         $env = Lingy::Env->new(outer => $env);
         my $binds = [];
-        for (my $i = 0; $i < @$a1; $i += 2) {
-            push @$binds, ${$a1->[$i]};
+        for (my $i = 0; $i < @$bindings; $i += 2) {
+            push @$binds, ${$bindings->[$i]};
             $env->set(
-                ${$a1->[$i]},
-                evaluate($a1->[$i+1], $env),
+                ${$bindings->[$i]},
+                evaluate($bindings->[$i+1], $env),
             );
         }
-        $a2 //= nil;
-        $a2 = list([symbol('do'), @{$ast}[2..(@$ast-1)] ])
+        $body //= nil;
+        $body = list([symbol('do'), @{$ast}[2..(@$ast-1)] ])
             if @$ast > 3;
-        $env->{LOOP} = [$binds, $a2];
+        $env->{LOOP} = [$binds, $body];
     } else {
         my $binds;
-        ($binds, $a2) = @{$env->{LOOP}};
-        if (@$a1 != @$binds) {
+        ($binds, $body) = @{$env->{LOOP}};
+        if (@$bindings != @$binds) {
             err sprintf
                 "Mismatched argument count to recur, " .
                 "expected: %d args, got: %d",
                 scalar(@$binds),
-                scalar(@$a1);
+                scalar(@$bindings);
         }
         my $i = 0;
         for my $bind (@$binds) {
-            $env->set($bind, $a1->[$i++], $env);
+            $env->set($bind, $bindings->[$i++], $env);
         }
     }
-    return ($a2, $env);
+    return ($body, $env);
 }
 
 sub special_new {
@@ -333,19 +333,19 @@ sub special_recur {
 
 sub special_try {
     my ($ast, $env) = @_;
-    my (undef, $a1, $a2) = @$ast;
+    my (undef, $body, $catch) = @$ast;
     local $@;
-    my $val = eval { evaluate($a1, $env) };
+    my $val = eval { evaluate($body, $env) };
     return $val unless $@;
     my $err = $@;
     die ref($err) ? RT->printer->pr_str($err) : $err
-        unless defined $a2;
+        unless defined $catch;
     err "Invalid 'catch' clause" unless
-        $a2 and $a2->isa(LISTTYPE) and
-        @$a2 and $a2->[0]->isa(SYMBOL) and
-        ${$a2->[0]} =~ /^catch\*?$/;
+        $catch and $catch->isa(LISTTYPE) and
+        @$catch and $catch->[0]->isa(SYMBOL) and
+        ${$catch->[0]} =~ /^catch\*?$/;
     my $e;
-    (undef, $e, $ast) = @$a2;
+    (undef, $e, $ast) = @$catch;
     if (not ref($err)) {
         chomp $err;
         $err = string($err);
@@ -370,10 +370,10 @@ sub special_throw {
 
 sub special_var {
     my ($ast, $env) = @_;
-    my (undef, $a1) = @$ast;
-    $env->get($a1, 1)
-        or err "Unable to resolve var: '$a1' in this context";
-    return VAR->new($a1);
+    my (undef, $name) = @$ast;
+    $env->get($name, 1)
+        or err "Unable to resolve var: '$name' in this context";
+    return VAR->new($name);
 }
 
 sub special_vector {

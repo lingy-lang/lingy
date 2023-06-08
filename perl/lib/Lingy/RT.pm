@@ -4,11 +4,7 @@ package Lingy::RT;
 use Lingy;
 use Lingy::Common;
 use Lingy::Evaluator;
-use Lingy::HashMap;
 use Lingy::Namespace;
-use Lingy::Nil;
-use Lingy::Sequential;
-use Lingy::Symbol;
 use Lingy::ReadLine;
 
 use constant LANG => 'Lingy';
@@ -97,7 +93,7 @@ sub init {
 
     $core_ns = $self->core_namespace();
     $user_ns = NAMESPACE->new('user')
-        ->refer(symbol($self->core_ns->NAME))
+        ->refer(symbol($self->core_ns->_name))
         ->current;
 
     $ready = 1;
@@ -186,10 +182,13 @@ sub rep {
         $reader->read_str($str);
 }
 
+use constant repl_intro_command =>
+    q<(println (str *LANG* " " (lingy-version) " [" *HOST* "]\n"))>;
+
 sub repl {
     my ($self) = @_;
 
-    $self->rep(q< (println (str *LANG* " " (lingy-version) " [" *HOST* "]\n"))>)
+    $self->rep($self->repl_intro_command)
         unless $ENV{LINGY_TEST};
     my ($clojure_repl) = $self->rep("(identity *clojure-repl*)");
     if ($clojure_repl eq 'true') {
@@ -309,7 +308,7 @@ sub create_ns {
     my ($name) = @_;
     err "Invalid ns name '$name'"
         unless $name =~ /^\w+(\.\w+)*$/;
-    NAMESPACE->new($name)->refer(symbol($core_ns->NAME));
+    NAMESPACE->new($name)->refer(symbol($core_ns->_name));
 }
 
 sub dec { $_[0] - 1 }
@@ -417,7 +416,7 @@ sub ns_ {
 
     my $ns;
     $ns = $namespaces{$name} //
-    NAMESPACE->new($name)->refer(symbol($core_ns->NAME));
+    NAMESPACE->new($name)->refer(symbol($core_ns->_name));
     $ns->current;
 
     for my $arg (@$args) {
@@ -552,7 +551,7 @@ sub rest {
 sub seq {
     my ($o) = @_;
     $o->can('_to_seq') or
-        err(sprintf "Don't know how to create ISeq from: %s", $o->NAME);
+        err(sprintf "Don't know how to create ISeq from: %s", $o->NAME);  # XXX NAME is Class name not namespace
     $o->_to_seq;
 }
 

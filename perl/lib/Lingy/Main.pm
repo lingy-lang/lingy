@@ -1,5 +1,4 @@
 use strict; use warnings;
-
 package Lingy::Main;
 
 use Lingy::RT;
