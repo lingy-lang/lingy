@@ -415,7 +415,7 @@ sub nextID {
 sub ns_ {
     my ($name, $args) = @_;
     err "Invalid ns name '$name'"
-        unless $name =~ /^\w+(\.\w+)*$/;
+        unless $name =~ /^\w+(?:\.\w+)*$/;
 
     my $ns;
     $ns = $namespaces{$name} //

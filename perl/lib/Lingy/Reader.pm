@@ -10,6 +10,7 @@ my $tokenize_re = qr/
         ;.*                     # comments
     )*
     (                       # Capture all these tokens:
+        \#\' |                  # Var
         \#\( |                  # Lambda
         \#\{ |                  # HashSet
         ~@ |                    # Unquote-splice token
@@ -67,6 +68,7 @@ sub read_form {
     /^~\@$/ ? $self->read_quote('splice-unquote') :
     /^\@$/ ? $self->read_quote('deref') :
     /^\^$/ ? $self->with_meta :
+    /^#\'/ ? $self->read_var :
     /^#\(/ ? $self->read_lambda :
     /^%\d*$/ ? $self->read_lambda_symbol :
     $self->read_scalar;
@@ -100,6 +102,16 @@ sub read_list {
         $self->read_more and next;
         err "Reached end of input in 'read_list'";
     }
+}
+
+sub read_var {
+    my ($self) = @_;
+    shift @{$self->{tokens}};
+    my $var = shift @{$self->{tokens}};
+    if ($var !~ m</>) {
+        $var = RT->current_ns_name . "/$var";
+    }
+    VAR->new($var);
 }
 
 sub read_lambda {
