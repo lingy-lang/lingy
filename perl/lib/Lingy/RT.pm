@@ -613,6 +613,6 @@ sub var_ { VAR->new($_[0]) }
 
 sub vec { VECTOR->new([@{$_[0]}]) }
 
-sub vector_ { VECTOR->new([@_]) }
+sub vector { VECTOR->new([@_]) }
 
 1;

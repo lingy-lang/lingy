@@ -343,7 +343,7 @@
 
 (defn map? [x] (instance? lingy.lang.HashMap x))
 
-(defn meta [object] (. lingy.lang.RT (meta_get object)))
+(defn meta [object] (. lingy.lang.RT (meta_get 'object)))
 
 (defn mod
   [num div]

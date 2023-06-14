@@ -315,17 +315,15 @@ sub read_quote {
 }
 
 sub with_meta {
-    my ($self, $quote) = @_;
+    my ($self) = @_;
     shift @{$self->{tokens}};
 
     my $meta = $self->read_form;
     my $form = $self->read_form;
 
-    bless [
-        symbol('with-meta'),
-        $form,
-        $meta,
-    ], LIST;
+    RT->meta->{"$form"} = $meta;
+
+    return $form;
 }
 
 1;

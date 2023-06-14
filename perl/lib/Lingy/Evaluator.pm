@@ -80,6 +80,7 @@ sub evaluate {
 
 sub evaluate_ast {
     my ($ast, $env) = @_;
+
     $ast->isa(SYMBOL)
         ? $env->get($$ast) :
     $ast->isa(LISTTYPE)
@@ -100,7 +101,14 @@ sub special_def {
     $form //= nil;
     err "Can't def a qualified symbol: '$sym'"
         if $sym =~ m{./.};
-    RT->current_ns->set($$sym, evaluate($form, $env));
+
+    my $new = evaluate($form, $env);
+    if (my $meta = RT->meta->{$form}) {
+        $new = $new->clone;
+        RT->meta->{"$new"} = $meta;
+    }
+
+    RT->current_ns->set($$sym, $new);
 }
 
 sub special_defmacro {
