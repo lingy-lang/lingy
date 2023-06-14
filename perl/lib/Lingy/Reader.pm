@@ -11,6 +11,7 @@ my $tokenize_re = qr/
     )*
     (                       # Capture all these tokens:
         \#\( |                  # Lambda
+        \#\{ |                  # HashSet
         ~@ |                    # Unquote-splice token
         [\[\]{}()'`~^@] |       # Single character tokens
         \#?                     # Possibly a regex
@@ -59,6 +60,7 @@ sub read_form {
     /^\($/ ? $self->read_list(LIST, ')') :
     /^\[$/ ? $self->read_list(VECTOR, ']') :
     /^\{$/ ? $self->read_hash_map(HASHMAP, '}') :
+    /^\#\{$/ ? $self->read_hash_set(HASHSET, '}') :
     /^'$/ ? $self->read_quote('quote') :
     /^`$/ ? $self->read_quote('quasiquote') :
     /^~$/ ? $self->read_quote('unquote') :
@@ -167,10 +169,34 @@ sub read_hash_map {
                 my $key_str = $type->_get_key($key);
                 err "Duplicate key: '$key'"
                     if exists $hash->{$key_str};
-                my $val= $self->read_form;
+                my $val = $self->read_form;
                 $hash->{$key_str} = $val;
                 undef $key;
             }
+        }
+        $self->read_more and next;
+        err "Reached end of input in 'read_hash_map'";
+    }
+}
+
+sub read_hash_set {
+    my ($self, $type, $end) = @_;
+    my $tokens = $self->{tokens};
+    shift @$tokens;
+    my $hash = $type->new([]);
+    my $i = 0;
+    while (1) {
+        while (@$tokens > 0) {
+            if ($tokens->[0] eq $end) {
+                shift @$tokens;
+                return $hash;
+            }
+            $i++;
+            my $val = $self->read_form;
+            my $key = $type->_get_key($val);
+            err "Duplicate key: '$val'"
+                if exists $hash->{$key};
+            $hash->{$key} = $val;
         }
         $self->read_more and next;
         err "Reached end of input in 'read_hash_map'";

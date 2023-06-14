@@ -22,6 +22,7 @@ my @class_names = (
     COMPILER,
     FUNCTION,
     HASHMAP,
+    HASHSET,
     KEYWORD,
     LIST,
     LISTTYPE,
@@ -344,7 +345,7 @@ sub first {
 
 sub get {
     my ($map, $key, $default) = @_;
-    return nil unless ref($map) eq HASHMAP;
+    return nil unless ref($map) eq HASHMAP or ref($map) eq HASHSET;
     $key = qq<"$key> if $key->isa(STRING);
     $map->{"$key"} // $default // nil;
 }
@@ -354,7 +355,9 @@ sub getenv {
     defined($val) ? string($val) : nil;
 }
 
-sub hash_map_ { HASHMAP->new([@_]) }
+sub hash_map { HASHMAP->new([@_]) }
+
+sub hash_set { HASHSET->new([@_]) }
 
 sub in_ns {
     my ($name) = @_;

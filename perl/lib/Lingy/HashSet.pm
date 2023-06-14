@@ -1,5 +1,5 @@
 use strict; use warnings;
-package Lingy::HashMap;
+package Lingy::HashSet;
 
 use Lingy::Common;
 
@@ -8,24 +8,17 @@ use Hash::Ordered;
 sub new {
     my ($class, $list) = @_;
     tie my %hash, 'Hash::Ordered';
-    for (my $i = 0; $i < @$list; $i += 2) {
-        my $key = $class->_get_key($list->[$i]);
+    for (my $i = 0; $i < @$list; $i++) {
+        my $val = $list->[$i];
+        my $key = $class->_get_key($val);
         delete $hash{$key} if exists $hash{$key};
-        $hash{$key} = $list->[$i + 1];
+        $hash{$key} = $val;
     }
     bless \%hash, $class;
 }
 
 sub clone {
-    HASHMAP->new([ %{$_[0]} ]);
-}
-
-sub assoc {
-    my ($self, $key, $val) = @_;
-    my $new = $self->clone;
-    $key = $self->_get_key($key);
-    $new->{$key} = $val;
-    $new;
+    HASHSET->new([ %{$_[0]} ]);
 }
 
 sub _get_key {
@@ -49,14 +42,7 @@ sub _to_seq {
     return nil unless %$map;
     LIST->new([
         map {
-            my $val = $map->{$_};
-            my $key =
-                s/^"// ? STRING->new($_) :
-                s/^(\S+) $/$1/ ? SYMBOL->new($_) :
-                s/^:// ? KEYWORD->new($_) :
-                m/^\d+$/ ? NUMBER->new($_) :
-                XXX $_;
-            VECTOR->new([$key, $val]);
+            $map->{$_};
         } keys %{$_[0]}
     ]);
 }

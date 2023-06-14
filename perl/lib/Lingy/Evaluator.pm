@@ -80,12 +80,14 @@ sub evaluate {
 
 sub evaluate_ast {
     my ($ast, $env) = @_;
+    $ast->isa(SYMBOL)
+        ? $env->get($$ast) :
     $ast->isa(LISTTYPE)
         ? ref($ast)->new([ map evaluate($_, $env), @$ast ]) :
     $ast->isa(HASHMAP)
         ? ref($ast)->new([map evaluate($_, $env), %$ast]) :
-    $ast->isa(SYMBOL)
-        ? $env->get($$ast) :
+    $ast->isa(HASHSET)
+        ? ref($ast)->new([map evaluate($_, $env), %$ast]) :
     $ast;
 }
 
@@ -465,6 +467,7 @@ sub quasiquote {
         if $ast->isa(VECTOR);
     return list([symbol('quote'), $ast])
         if $ast->isa(HASHMAP) or
+            $ast->isa(HASHSET) or
             $ast->isa(SYMBOL);
     return $ast unless $ast->isa(LIST);
     my ($a0, $a1) = @$ast;

@@ -18,6 +18,7 @@ use constant CLASS      => 'Lingy::Class';
 use constant COMPILER   => 'Lingy::Compiler';
 use constant FUNCTION   => 'Lingy::Fn';
 use constant HASHMAP    => 'Lingy::HashMap';
+use constant HASHSET    => 'Lingy::HashSet';
 use constant KEYWORD    => 'Lingy::Keyword';
 use constant LIST       => 'Lingy::List';
 use constant MACRO      => 'Lingy::Macro';
@@ -64,6 +65,7 @@ BEGIN {
         CLASS
         FUNCTION
         HASHMAP
+        HASHSET
         KEYWORD
         LIST
         MACRO

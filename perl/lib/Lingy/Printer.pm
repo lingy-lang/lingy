@@ -51,14 +51,17 @@ sub pr_str {
     $type eq HASHMAP ?
         "{${\ join(', ', map {
             my ($key, $val) = ($_, $o->{$_});
-            if ($key =~ /^:/) {
-                $key = KEYWORD->new($key);
-            } elsif ($key =~ s/^\"//) {
-                $key = STRING->new($key);
-            } elsif ($key =~ s/^(\S+) $/$1/) {
-                $key = SYMBOL->new($key);
-            }
+            $key =
+                ($key =~ /^:/) ? KEYWORD->new($key) :
+                ($key =~ s/^\"//) ? STRING->new($key) :
+                ($key =~ s/^(\S+) $/$1/) ? SYMBOL->new($key) :
+                $key;
             ($self->pr_str($key, $raw) . ' ' . $self->pr_str($val, $raw))
+        } keys %$o)}}" :
+    $type eq HASHSET ?
+        "#{${\ join(' ', map {
+            my $val = $o->{$_};
+            $self->pr_str($val, $raw);
         } keys %$o)}}" :
     $type =~ /^(?:(?:quasi|(?:splice_)?un)?quote|deref)$/ ?
         "(${$type=~s/_/-/g;\$type} ${\ $self->pr_str($o->[0], $raw)})" :

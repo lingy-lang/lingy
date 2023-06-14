@@ -283,7 +283,9 @@
           prefix-string
           (str (. lingy.lang.RT (nextID))))))))
 
-(defn hash-map [& args] (apply lingy.lang.RT/hash_map_ args))
+(defn hash-map [& args] (apply lingy.lang.RT/hash_map args))
+
+(defn hash-set [& args] (apply lingy.lang.RT/hash_set args))
 
 (defn identity [x] x)
 
