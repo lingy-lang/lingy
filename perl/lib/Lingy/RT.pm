@@ -260,7 +260,7 @@ sub assoc {
     $map->assoc($key, $val);
 }
 
-sub atom_ { ATOM->new($_[0]) }
+sub atom { ATOM->new($_[0]) }
 
 sub booleanCast {
     my ($val) = @_;
@@ -380,7 +380,7 @@ sub keys_ {
     ]);
 }
 
-sub keyword_ { KEYWORD->new($_[0]) }
+sub keyword { KEYWORD->new($_[0]) }
 
 sub list_ { list([@_]) }
 
@@ -412,7 +412,7 @@ sub nextID {
     string(++$nextID);
 }
 
-sub ns_ {
+sub ns {
     my ($name, $args) = @_;
     err "Invalid ns name '$name'"
         unless $name =~ /^\w+(?:\.\w+)*$/;
@@ -457,7 +457,7 @@ sub ns_ {
 
 sub nth { $_[0][$_[1]] }
 
-sub number_ { NUMBER->new("$_[0]" + 0) }
+sub number { NUMBER->new("$_[0]" + 0) }
 
 sub pos_Q { $_[0] > 0 ? true : false }
 
@@ -596,7 +596,7 @@ sub time_ms {
     NUMBER->new($s * 1000 + $m / 1000);
 }
 
-sub type_ {
+sub type {
     CLASS->_new(ref($_[0]));
 }
 

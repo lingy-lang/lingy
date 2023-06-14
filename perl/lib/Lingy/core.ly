@@ -189,7 +189,7 @@
     (let [ret (assoc map key val)]
       (apply assoc ret (first kvs) (second kvs) (nnext kvs)))))
 
-(defn atom [x] (. lingy.lang.RT (atom_ x)))
+(defn atom [x] (. lingy.lang.RT (atom x)))
 ; XXX Should be:
 ; (defn atom [x] (new lingy.lang.Atom x))
 
@@ -297,7 +297,7 @@
 
 (defn keys [map] (. lingy.lang.RT (keys_ map)))
 
-(defn keyword [string] (. lingy.lang.RT (keyword_ string)))
+(defn keyword [string] (. lingy.lang.RT (keyword string)))
 
 (defn keyword? [x] (instance? lingy.lang.Keyword x))
 
@@ -366,7 +366,7 @@
 
 (defn not [a] (if a false true))
 
-(defmacro ns [name & xs] `(lingy.lang.RT/ns_ '~name '~xs))
+(defmacro ns [name & xs] `(lingy.lang.RT/ns '~name '~xs))
 
 (defn ns-imports [ns]
   (.getImports (the-ns ns)))
@@ -397,7 +397,7 @@
    `(let [or# ~x]
       (if or# or# (or ~@next)))))
 
-(defn number [string] (. lingy.lang.RT (number_ string)))
+(defn number [string] (. lingy.lang.RT (number string)))
 
 (defn number? [x] (instance? lingy.lang.Number x))
 
@@ -489,7 +489,7 @@
 
 (defn true? [x] (lingy.lang.Util/identical x true))
 
-(defn type [object] (. lingy.lang.RT (type_ object)))
+(defn type [object] (. lingy.lang.RT (type object)))
 
 (defn use [ns]
   (require ns)
@@ -509,7 +509,7 @@
 
 (defn vec [value] (. lingy.lang.RT (vec value)))
 
-(defn vector [& args] (apply lingy.lang.RT/vector_ args))
+(defn vector [& args] (apply lingy.lang.RT/vector args))
 
 (defn vector? [x] (instance? lingy.lang.Vector x))
 
