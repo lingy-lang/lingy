@@ -17,6 +17,10 @@ tests <<"...";
   - /perl/hash:Foo::Class/
 
 - - |
+    (Foo.Class.)
+  - /perl/hash:Foo::Class/
+
+- - |
     (Foo.Class/new)
   - /perl/hash:Foo::Class/
 
@@ -30,6 +34,20 @@ tests <<"...";
 
 - - (.bar f)
   - '"haha"'
+
+- - (.sleep Thread 0)
+  - nil
+
+- - (macroexpand '(Thread/sleep 100000))
+  - (. Thread sleep 100000)
+
+- - (macroexpand '(lingy.lang.Thread/sleep 100000))
+  - (. lingy.lang.Thread sleep 100000)
+
+- - (require 'Foo.Bar)
+  - nil
+- - (macroexpand '(Foo.Bar/bar))
+  - (Foo.Bar/bar)
 ...
 
 __DATA__

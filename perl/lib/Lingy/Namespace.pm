@@ -3,8 +3,6 @@ package Lingy::Namespace;
 
 use Lingy::Common;
 
-use Sub::Name 'subname';
-
 has '_name';
 
 sub new {

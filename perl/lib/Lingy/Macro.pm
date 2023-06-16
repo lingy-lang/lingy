@@ -1,6 +1,8 @@
 use strict; use warnings;
 package Lingy::Macro;
 
+use base 'Lingy::Class';
+
 use Lingy::Common;
 
 sub new {

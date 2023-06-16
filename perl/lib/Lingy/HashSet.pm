@@ -1,6 +1,8 @@
 use strict; use warnings;
 package Lingy::HashSet;
 
+use base 'Lingy::Class';
+
 use Lingy::Common;
 
 use Hash::Ordered;

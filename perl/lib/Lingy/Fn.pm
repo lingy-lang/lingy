@@ -1,7 +1,11 @@
 use strict; use warnings;
 package Lingy::Fn;
 
+use base 'Lingy::Class';
+
 use Lingy::Common;
+
+use Sub::Name 'subname';
 
 *list = \&Lingy::Common::list;
 *symbol = \&Lingy::Common::symbol;
@@ -12,6 +16,10 @@ sub new {
     my ($class, $ast, $env) = @_;
 
     my (undef, @exprs) = @$ast;
+
+    my $name = \'AFn';
+    $name = shift @exprs if ref($exprs[0]) eq SYMBOL;
+
     @exprs = (list([@exprs]))
         if ref($exprs[0]) eq VECTOR;
 
@@ -42,7 +50,7 @@ sub new {
         $functions->[$arity+1] = [$sig, @body];
     }
 
-    bless sub {
+    subname $name => bless sub {
         my $arity = @_;
         my $function =
             $functions->[$arity+1] ? $functions->[$arity+1] :

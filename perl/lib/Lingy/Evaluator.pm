@@ -165,6 +165,8 @@ sub special_dot {
     $target = $env->get($target)
         if $target->isa(SYMBOL);
 
+    $target = $$target if ref($target) eq CLASS;
+
     if (@args) {
         my $member = shift(@args);
         if ($target->isa(CLASS)) {
@@ -446,7 +448,12 @@ sub macroexpand {
         if ($sym =~ m{^($namespace_re)/($symbol_re)$}) {
             my $namespace = $1;
             my $sym_name = $2;
-            (my $class = $namespace) =~ s/\./::/g;
+            my $class = $namespace;
+            $class =~ s/\./::/g;
+            if (my $cls = $env->get($namespace, 1)) {
+                $class = $$cls;
+                $class =~ s/\./::/g;
+            }
             if ($class->can('new')) {
                 my (undef, @args) = @$ast;
                 return list([

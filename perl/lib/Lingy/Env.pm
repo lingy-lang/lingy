@@ -57,10 +57,10 @@ sub get {
         return $class;
     }
 
+    return if $optional;
+
     err "Class not found: '$symbol'"
         if $symbol =~ /\w\.\w/;
-
-    return if $optional;
 
     err "Unable to resolve symbol: '$symbol' in this context";
 }
