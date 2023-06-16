@@ -27,6 +27,7 @@ use constant NUMBER     => 'Lingy::Number';
 use constant REGEX      => 'Lingy::Regex';
 use constant STRING     => 'Lingy::String';
 use constant SYMBOL     => 'Lingy::Symbol';
+use constant SYSTEM     => 'Lingy::System';
 use constant UTIL       => 'Lingy::Util';
 use constant VECTOR     => 'Lingy::Vector';
 use constant VAR        => 'Lingy::Var';
@@ -74,6 +75,7 @@ BEGIN {
         REGEX
         STRING
         SYMBOL
+        SYSTEM
         VAR
         VECTOR
 

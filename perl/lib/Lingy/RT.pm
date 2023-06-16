@@ -33,6 +33,7 @@ my @class_names = (
     SEQUENTIAL,
     STRING,
     SYMBOL,
+    SYSTEM,
     VAR,
     VECTOR,
     NUMBERS,

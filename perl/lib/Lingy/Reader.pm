@@ -282,7 +282,7 @@ sub read_scalar {
     return true if $_ eq 'true';
     return false if $_ eq 'false';
     return KEYWORD->new($_) if /^:/;
-    return NUMBER->new($_) if /^-?\d+$/;
+    return NUMBER->new($_) if /^-?\d+(?:\.\d+)?$/;
     return CHARACTER->read($_) if /^\\/;
     err "Unmatched delimiter: '$_'" if /^[\)\]\}]$/;
     return $self->read_symbol($_);
