@@ -10,6 +10,7 @@ my $tokenize_re = qr/
         ;.*                     # comments
     )*
     (                       # Capture all these tokens:
+        \#\_ |                  # Ignore next form
         \#\' |                  # Var
         \#\( |                  # Lambda
         \#\{ |                  # HashSet
@@ -30,6 +31,7 @@ sub new {
     bless {
         tokens => [],
         lambda => [],
+        ignore => 0,
         @_,
     }, $class;
 }
@@ -57,7 +59,9 @@ sub read_str {
 
 sub read_form {
     my ($self) = @_;
-    local $_ = $self->{tokens}[0];
+    my $tokens = $self->{tokens};
+    while (not @$tokens) { $self->read_more }
+    local $_ = $tokens->[0];
     /^\($/ ? $self->read_list(LIST, ')') :
     /^\[$/ ? $self->read_list(VECTOR, ']') :
     /^\{$/ ? $self->read_hash_map(HASHMAP, '}') :
@@ -68,8 +72,9 @@ sub read_form {
     /^~\@$/ ? $self->read_quote('splice-unquote') :
     /^\@$/ ? $self->read_quote('deref') :
     /^\^$/ ? $self->with_meta :
-    /^#\'/ ? $self->read_var :
-    /^#\(/ ? $self->read_lambda :
+    /^#\'$/ ? $self->read_var :
+    /^#\($/ ? $self->read_lambda :
+    /^#_$/ ? $self->read_ignore :
     /^%\d*$/ ? $self->read_lambda_symbol :
     $self->read_scalar;
 }
@@ -171,7 +176,8 @@ sub read_hash_map {
             if ($tokens->[0] eq $end) {
                 shift @$tokens;
                 err "Map literal must contain an even number of forms"
-                    if defined $key;
+                    if defined $key and
+                        not $self->{ignore};
                 return $hash;
             }
             $i++;
@@ -180,7 +186,8 @@ sub read_hash_map {
             } else {
                 my $key_str = $type->_get_key($key);
                 err "Duplicate key: '$key'"
-                    if exists $hash->{$key_str};
+                    if exists $hash->{$key_str} and
+                        not $self->{ignore};
                 my $val = $self->read_form;
                 $hash->{$key_str} = $val;
                 undef $key;
@@ -207,7 +214,8 @@ sub read_hash_set {
             my $val = $self->read_form;
             my $key = $type->_get_key($val);
             err "Duplicate key: '$val'"
-                if exists $hash->{$key};
+                if exists $hash->{$key} and
+                    not $self->{ignore};
             $hash->{$key} = $val;
         }
         $self->read_more and next;
@@ -256,16 +264,18 @@ sub read_scalar {
         my $is_regex = $1;
         if (/^$string_re$/) {
             s/^$string_re$/$1/;
-            if ($is_regex) {
-                s/\\(.)/
-                    $regexp_unescape->{$1}
-                        or err("Unsupported escape character '\\$1'")
-                /ge;
-            } else {
-                s/\\(.)/
-                    $string_unescape->{$1}
-                        or err("Unsupported escape character '\\$1'")
-                /ge;
+            if (not $self->{ignore}) {
+                if ($is_regex) {
+                    s/\\(.)/
+                        $regexp_unescape->{$1}
+                            or err("Unsupported escape character '\\$1'")
+                    /ge;
+                } else {
+                    s/\\(.)/
+                        $string_unescape->{$1}
+                            or err("Unsupported escape character '\\$1'")
+                    /ge;
+                }
             }
             return $is_regex ? REGEX->new($_) : STRING->new($_);
         }
@@ -324,6 +334,16 @@ sub with_meta {
     RT->meta->{"$form"} = $meta;
 
     return $form;
+}
+
+sub read_ignore {
+    my ($self) = @_;
+    $self->{ignore}++;
+    my $tokens = $self->{tokens};
+    shift @$tokens;
+    while (not defined $self->read_form) {}
+    $self->{ignore}--;
+    return;
 }
 
 1;
