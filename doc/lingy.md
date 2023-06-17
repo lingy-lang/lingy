@@ -10,7 +10,7 @@ Run the Lingy REPL:
 
 ```
 $ lingy
-Lingy 0.1.7 [perl]
+Lingy 0.1.12 [perl]
 
 user=> (p<TAB>
 pos?     println  prn      pr-str
@@ -209,6 +209,48 @@ it to Clojure.
 Using this feature is a great way to compare how Lingy and Clojure work.
 Eventually they should be very close to identical but currently Lingy is still
 a baby.
+
+
+# Differences from Clojure
+
+Lingy intends to be a proper "Clojure Platform"; a complete port of Clojure to
+Perl and other languages.
+
+That said, differences must exist.
+
+* The Lingy platform host language is currently just Perl.
+  It is the intent to extend the language set to Python and others soon.
+* Lingy currently only supports a subset of Clojure libraries (most notably
+  clojure.core).
+  It is intended that Lingy will eventually use Clojure's libraries directly
+  starting with clojure.core.
+  As of this release Lingy can `read-string` all of clojure.core and it
+  converts the forms it fully supports into the lingy.core namespace.
+* Lingy tries to map Clojure namespace and Java class symbols/files to Lingy
+  namespace and Perl module/class symbols/files.
+  * The `clojure.core` namespace equivalent in Lingy is `lingy.core` and maps
+    to a file name called `lib/Lingy/core.ly` in the Lingy source code.
+  * The `lingy.lang.HashMap` symbol maps to the `Lingy::HashMap` module (the
+    `lib/Lingy/HashMap.pm` file).
+  * More mapping details to be added here later.
+* The `#?` reader macro uses the `:lingy/pl` keyword to conditionally use forms
+  that the Lingy/Perl platform supports.
+* Special global vars (earmuffs) that are unique to Lingy:
+  * `*lingy-version*`
+    Like `*clojure-version*` but for Lingy's version.
+  * `*LANG*`
+    Set to `"Lingy"`.
+  * `*HOST*`
+    Set to `"perl"`.
+  * `*clojure-repl*`
+    Boolean (default `false`) indicates whether Lingy REPL should also send
+    input to a Clojure REPL.
+* Lingy error messages currently try to be close to the Clojure ones.
+  * This isn't always possible or desirable.
+  * Error messages may be completely overhauled to give better info.
+
+Certainly there are other differences and this section will be improved over
+time.
 
 
 # See Also
