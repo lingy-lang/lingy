@@ -2,8 +2,9 @@
 
 (defn run-a-fizzbuzz-implementation []
   (let [
-    count (number (nth *ARGV* 0 "100"))
-    fizzbuzz (resolve (symbol (str "fizzbuzz-" (nth *ARGV* 1 "1"))))
+    count (number (nth *command-line-args* 0 "100"))
+    fizzbuzz (
+      resolve (symbol (str "fizzbuzz-" (nth *command-line-args* 1 "1"))))
     result (fizzbuzz count)]
     (if (seq result)
       (map println result))))
@@ -11,11 +12,11 @@
 (defn fizzbuzz-1 [n]
   (map
     (fn [x]
-        (cond
-          (zero? (mod x 15)) "FizzBuzz"
-          (zero? (mod x 5)) "Buzz"
-          (zero? (mod x 3)) "Fizz"
-          :else x))
+      (cond
+        (zero? (mod x 15)) "FizzBuzz"
+        (zero? (mod x 5)) "Buzz"
+        (zero? (mod x 3)) "Fizz"
+        :else x))
     (range 1 (inc n))))
 
 (defn fizzbuzz-2 [n]

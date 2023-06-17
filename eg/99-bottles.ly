@@ -16,4 +16,4 @@
     (= n 1) "1 bottle"
     :else (str n " bottles")))
 
-(main (nth *ARGV* 0 99))
+(main (nth *command-line-args* 0 99))

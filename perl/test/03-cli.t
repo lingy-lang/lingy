@@ -44,7 +44,7 @@ sub note_repl_input {
 }
 
 {
-    local $ENV{LINGY_TEST_INPUT} = '(prn *file* *ARGV*)';
+    local $ENV{LINGY_TEST_INPUT} = '(prn *file* *command-line-args*)';
     note_repl_input;
 
     run_is "$lingy", qq<"NO_SOURCE_PATH" ()\nnil>;
@@ -52,7 +52,7 @@ sub note_repl_input {
 
     run_is "$lingy --repl foo bar", qq<"NO_SOURCE_PATH" ("foo" "bar")\nnil>;
 
-    local $ENV{LINGY_TEST_INPUT} = '(prn *file* *ARGV* foo)';
+    local $ENV{LINGY_TEST_INPUT} = '(prn *file* *command-line-args* foo)';
     note_repl_input;
 
     run_is "$lingy -e '(def foo 42)' --repl", qq<"NO_SOURCE_PATH" () 42\nnil>;

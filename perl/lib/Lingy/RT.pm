@@ -127,7 +127,6 @@ sub core_namespace {
     $env->set('*command-line-args*', $argv);
 
     # Lingy dynamic vars:
-    $env->set('*ARGV*', $argv);
     $env->set('*LANG*', STRING->new($self->LANG));
     $env->set('*HOST*', STRING->new($self->HOST));
 

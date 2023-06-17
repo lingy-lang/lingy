@@ -18,7 +18,7 @@ tests <<"...";
 - - '*file*'
   - '"NO_SOURCE_PATH"'
 
-- - '*ARGV*'
+- - '*command-line-args*'
   - nil
 
 - - '*command-line-args*'

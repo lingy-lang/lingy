@@ -143,12 +143,12 @@
   out: 81
 
 
-- say: Testing that *ARGV* exists and is an empty list
-  mal: (list? *ARGV*)
+- say: Testing that *command-line-args* exists and is an empty list
+  mal: (list? *command-line-args*)
   # out: 'true'
   out: 'false'
 
-- mal: '*ARGV*'
+- mal: '*command-line-args*'
   # out: ()
   out: nil
 

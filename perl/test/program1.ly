@@ -1,1 +1,1 @@
-(println "program:" *file* "args:" *ARGV*)
+(println "program:" *file* "args:" *command-line-args*)
