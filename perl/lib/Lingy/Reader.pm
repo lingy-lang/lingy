@@ -3,6 +3,8 @@ package Lingy::Reader;
 
 use Lingy::Common;
 
+our $feature_keyword = ':lingy.pl';
+
 my $tokenize_re = qr/
     (?:                     # Ignore:
         \#\!.* |                # hashbang line
@@ -14,6 +16,7 @@ my $tokenize_re = qr/
         \#\' |                  # Var
         \#\( |                  # Lambda
         \#\{ |                  # HashSet
+        \#\? |                  # Reader conditional
         ~@ |                    # Unquote-splice token
         [\[\]{}()'`~^@] |       # Single character tokens
         \#?                     # Possibly a regex
@@ -75,6 +78,7 @@ sub read_form {
     /^#\'$/ ? $self->read_var :
     /^#\($/ ? $self->read_lambda :
     /^#_$/ ? $self->read_ignore :
+    /^#\?$/ ? $self->read_cond :
     /^%\d*$/ ? $self->read_lambda_symbol :
     $self->read_scalar;
 }
@@ -326,9 +330,27 @@ sub read_quote {
 
 sub with_meta {
     my ($self) = @_;
-    shift @{$self->{tokens}};
 
-    my $meta = $self->read_form;
+    my $tokens = $self->{tokens};
+    my @meta;
+
+    while (@$tokens > 2 and $tokens->[0] eq '^') {
+        shift @$tokens;
+        my $meta = $self->read_form;
+        my $type = ref($meta);
+        if ($type eq SYMBOL or $type eq STRING) {
+            unshift @meta, KEYWORD->new(':tag'), $meta;
+        } elsif ($type eq KEYWORD) {
+            unshift @meta, $meta, true;
+        } elsif ($type eq HASHMAP) {
+            unshift @meta, %$meta;
+        } else {
+            err "Metadata must be Symbol,Keyword,String or Map"
+        }
+    }
+
+    my $meta = $self->make_hash_map(\@meta);
+
     my $form = $self->read_form;
 
     RT->meta->{"$form"} = $meta;
@@ -343,6 +365,28 @@ sub read_ignore {
     shift @$tokens;
     while (not defined $self->read_form) {}
     $self->{ignore}--;
+    return;
+}
+
+sub read_cond {
+    my ($self) = @_;
+    my $tokens = $self->{tokens};
+    shift @$tokens;
+    err "read-cond body must be a list"
+        unless @$tokens and $tokens->[0] eq '(';
+    my $list = $self->read_form;
+    err "read-cond requires an even number of forms"
+        if @$list % 2;
+    while (@$list) {
+        my ($keyword, $form) = splice(@$list, 0, 2);
+        err "Feature should be a keyword: $keyword"
+            unless $keyword->isa(KEYWORD);
+        if ("$keyword" eq $feature_keyword or
+            "$keyword" eq ':default'
+        ) {
+            return $form;
+        }
+    }
     return;
 }
 
