@@ -39,4 +39,8 @@ tests <<'...';
   - '{:d 4}'
 - - (meta f2)
   - nil
+
+# - rep: (def x ^:foo ^:bar {})
+# - - (meta x)
+#   - '{^:foo true}'
 ...

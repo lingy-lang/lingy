@@ -53,6 +53,7 @@ sub namespaces { \%namespaces }
 sub current_ns { $namespaces{$current_ns_name} }
 
 my %classes;
+sub classes { \%classes }
 
 my %meta;
 sub meta { \%meta }

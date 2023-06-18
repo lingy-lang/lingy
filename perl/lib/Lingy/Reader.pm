@@ -67,8 +67,8 @@ sub read_form {
     local $_ = $tokens->[0];
     /^\($/ ? $self->read_list(LIST, ')') :
     /^\[$/ ? $self->read_list(VECTOR, ']') :
-    /^\{$/ ? $self->read_hash_map(HASHMAP, '}') :
-    /^\#\{$/ ? $self->read_hash_set(HASHSET, '}') :
+    /^\{$/ ? $self->read_hash('map') :
+    /^\#\{$/ ? $self->read_hash('set') :
     /^'$/ ? $self->read_quote('quote') :
     /^`$/ ? $self->read_quote('quasiquote') :
     /^~$/ ? $self->read_quote('unquote') :
@@ -168,55 +168,66 @@ sub read_lambda_symbol {
     $lambda->{sym}{$token} //= symbol("p${num}_${\RT->nextID}");
 }
 
-sub read_hash_map {
-    my ($self, $type, $end) = @_;
+sub read_hash {
+    my ($self, $type) = @_;
     my $tokens = $self->{tokens};
     shift @$tokens;
-    my $hash = $type->new([]);
-    my $i = 0;
-    my $key;
+    my $hash = [];
     while (1) {
         while (@$tokens > 0) {
-            if ($tokens->[0] eq $end) {
+            if ($tokens->[0] eq '}') {
                 shift @$tokens;
-                err "Map literal must contain an even number of forms"
-                    if defined $key and
-                        not $self->{ignore};
-                return $hash;
+                my $method = "make_hash_$type";
+                return $self->$method($hash);
             }
-            $i++;
-            if ($i % 2) {
-                $key = $self->read_form;
-            } else {
-                my $key_str = $type->_get_key($key);
-                err "Duplicate key: '$key'"
-                    if exists $hash->{$key_str} and
-                        not $self->{ignore};
-                my $val = $self->read_form;
-                $hash->{$key_str} = $val;
-                undef $key;
-            }
+            push @$hash, $self->read_form;
         }
         $self->read_more and next;
-        err "Reached end of input in 'read_hash_map'";
+        err "Reached end of input in 'read_hash'";
     }
 }
 
+sub make_hash_map {
+    my ($self, $data) = @_;
+    err "Map literal must contain an even number of forms"
+        if @$data % 2 and not $self->{ignore};
+    my %hash;
+    for (my $i = 0; $i < @$data; $i += 2) {
+        err "Duplicate key: '$data->[$i]'"
+            if $hash{$data->[$i]}++ and
+                not $self->{ignore};
+    }
+    HASHMAP->new($data);
+}
+
+sub make_hash_set {
+    my ($self, $data) = @_;
+    my %hash;
+    my $set = [];
+    for my $elem (@$data) {
+        err "Duplicate key: '$elem'"
+            if $hash{$elem}++ and
+                not $self->{ignore};
+        push @$set, $elem, $elem;
+    }
+    HASHSET->new($data);
+}
+
 sub read_hash_set {
-    my ($self, $type, $end) = @_;
+    my ($self) = @_;
     my $tokens = $self->{tokens};
     shift @$tokens;
-    my $hash = $type->new([]);
+    my $hash = HASHSET->new([]);
     my $i = 0;
     while (1) {
         while (@$tokens > 0) {
-            if ($tokens->[0] eq $end) {
+            if ($tokens->[0] eq '}') {
                 shift @$tokens;
                 return $hash;
             }
             $i++;
             my $val = $self->read_form;
-            my $key = $type->_get_key($val);
+            my $key = HASHSET->_get_key($val);
             err "Duplicate key: '$val'"
                 if exists $hash->{$key} and
                     not $self->{ignore};
