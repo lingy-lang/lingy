@@ -194,6 +194,7 @@ You can run Lingy commands and see the output.
 The REPL has command line history to save all your commands.
 It also has readline history search (ctl-r) and tab completion.
 
+
 ## Using the Clojure REPL in the Lingy REPL
 
 If you have Clojure installed on your system and you run this command in the
@@ -209,6 +210,122 @@ it to Clojure.
 Using this feature is a great way to compare how Lingy and Clojure work.
 Eventually they should be very close to identical but currently Lingy is still
 a baby.
+
+
+# Lingy / Perl Interoperability
+
+Like Clojure and Java, Lingy and Perl are both ways interoperable.
+
+Note: This section currently covers the basics, but more in depth content will
+be added later.
+
+
+## Using Lingy from Perl Code
+
+The Lingy.pm module lets you easily evaluate Lingy code from inside your Perl
+code.
+
+```
+use Lingy;
+my $lingy = Lingy->new;     # Setup Lingy environment
+my $result = $lingy->rep("(+ 1 2 3 4)");
+```
+
+### Lingy Methods
+
+The Lingy perl module supports the following methods:
+
+* `my $lingy = Lingy->new();`
+
+  Create a new Lingy object.
+
+  This method takes no arguments.
+
+  The first time `Lingy->new` is called it initializes the Lingy runtime
+  environment (which is required to process Lingy expressions).
+
+* `my $result_string = $lingy->rep($lingy_source_code_string);`
+
+  The `rep` method stands for `Read`, `Evaluate`, `Print` which is the runtime
+  process for running Lingy (or any Lisp) code.
+  This is likely the most common method you will use.
+
+  Note: If you call this in a "Loop" you've created a "REPL" (Read, Evaluate,
+  Print, Loop).
+
+Lingy also exposes each of the Read, Evaluate and Print methods to give you
+more control:
+
+* `my $form = $lingy->read($lingy_source_code_string);`
+
+  Read a string containing a Lingy source expression and return the Lingy AST
+  object (form).
+  In list context, returns all the form objects read if more than one form is
+  parsed.
+
+* `my $result_form = $lingy->eval($form);`
+
+  Evaluate a Lingy form object and return the resulting Lingy form object.
+
+  Use this in a Perl `eval` block to catch any Lingy runtime errors.
+
+* `my $result_string = $lingy->print($form);`
+
+  Print a Lingy form object to a text string.
+
+  Usually this results in a Lingy expression that you can pass to another
+  `$lingy->read` method call if you want to.
+
+  Reading and Printing a Lingy string without Evaluating it in between, often
+  produces the original string (or a semantically equivalent one).
+  That's because Lisp (Lingy) is "homoiconic".
+
+
+## Using Perl from Lingy Code
+
+Like CLojure, Lingy has a lot of functions/functionality for calling Perl code.
+
+This is how Clojure and Lingy are implemented in that as much of the language
+as possible is written in itself (Lisp) but many functions need to call to the
+host language to do the work.
+
+* `(perl "any perl source code string")`
+
+  This is the big hammer.
+  Call Perl's `eval` on any Perl code string and return the result.
+
+  The return value likely will not be a Lingy native object.
+  If you save the result in a variable, don't expect that if will work like a
+  native Lingy object.
+  When the Lingy Printer sees a non-Lingy object it prints it as a YAML dump.
+
+* `(import YAML.PP)`
+
+  Load the `YAML::PP` Perl module.
+
+* `(def y-pp (YAML.PP. "boolean" "JSON::PP"))`
+
+  Create a new `Foo::Bar` object.
+
+* `(def y-pp (.new YAML.PP "boolean" "JSON::PP"))`
+
+  Call a Perl class method with arguments.
+  (Also creates a new YAML::PP instance object)
+
+* `(.dump y-pp (perl "__PACKAGE__"))`
+
+  Call a Perl method with arguments on a Perl instance object.
+
+* `WWW`, `XXX`, `YYY` and `ZZZ`
+
+  These Lingy functions from the `lingy.devel` library, work like the `XXX.pm`
+  CPAN module, but from Lingy.
+
+  This can we very useful for seeing what Lingy is doing internally.
+
+  ```
+  (use 'lingy.devel) (XXX (perl "\\%INC"))  ; Print a YAML dump of Perl's %INC value.
+  ```
 
 
 # Differences from Clojure
