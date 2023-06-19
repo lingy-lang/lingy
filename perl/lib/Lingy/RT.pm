@@ -74,8 +74,7 @@ sub core_ns { $core_ns }
 my $user_ns;
 sub user_ns { $user_ns }
 
-our $ready = 0;
-sub ready { $ready }
+our $OK = 0;
 
 sub init {
     my ($self) = @_;
@@ -99,7 +98,7 @@ sub init {
         ->refer(symbol($self->core_ns->_name))
         ->current;
 
-    $ready = 1;
+    $OK = 1;
 
     return $self;
 }
@@ -176,6 +175,14 @@ sub slurp_file {
 sub is_lingy_class {
     my ($self, $class) = @_;
     $class->isa(CLASS) or $class =~ /^Lingy::\w/;
+}
+
+sub eval {
+    my ($self, $form) = @_;
+    evaluate(
+        $form,
+        $env,
+    );
 }
 
 sub rep {

@@ -27,7 +27,7 @@ symlink 't', 'test' if -d 't' and not -e 'test';
 my $ypp = YAML::PP->new;
 
 RT->init;
-$Lingy::RT::ready = 0;
+$Lingy::RT::OK = 0;
 
 our $lingy =
     -f './blib/script/lingy' ? './blib/script/lingy' :
@@ -103,7 +103,7 @@ sub test {
     my ($input, $want, $label) = @_;
     $label //= "'${\ collapse $input}' -> '${\line $want}'";
 
-    $Lingy::RT::ready = 1;
+    $Lingy::RT::OK = 1;
     my $got = eval { join("\n", RT->rep($input)) };
     $got = $@ if $@;
     chomp $got;

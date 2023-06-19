@@ -41,7 +41,7 @@ use constant THREAD     => 'Lingy::Thread';
 
 BEGIN {
     our @EXPORT = qw<
-        READY
+        OK
 
         $symbol_re
         $namespace_re
@@ -127,7 +127,7 @@ our $symbol_re = qr{(
     ->>?
 )}x;
 
-sub READY { RT->ready }
+sub OK { $Lingy::RT::OK }
 
 sub list     { LIST->new(@_) }
 sub string   { STRING->new(@_) }
@@ -146,13 +146,16 @@ sub has {
     *{"${caller}::$name"} = $method;
 };
 
+our $error_prefix = '';
 sub err {
     my $msg = shift;
     $msg = sprintf $msg, @_;
 
     # XXX This is needed to keep the mal tests passing for now.
-    if ($ENV{LINGY_TEST}) {
-        $msg = "Error:" .
+    $error_prefix = 'Error:' if $ENV{LINGY_TEST};
+
+    if ($error_prefix) {
+        $msg = $error_prefix .
             ($msg =~ /\n./ ? "\n" : ' ') .
             $msg;
     }

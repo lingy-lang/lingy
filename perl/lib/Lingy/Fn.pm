@@ -54,8 +54,9 @@ sub new {
         my $arity = @_;
         my $function =
             $functions->[$arity+1] ? $functions->[$arity+1] :
-            $arity >= (@$functions-1) ? $functions->[0] :
-                err "Wrong number of args ($arity) passed to function";
+            $arity >= (@$functions-1) ? $functions->[0] : undef;
+        err "Wrong number of args ($arity) passed to function"
+            unless defined $function;
         my ($sig, $ast) = @$function;
 
         return (
