@@ -40,7 +40,19 @@ tests <<'...';
 - - (meta f2)
   - nil
 
-# - rep: (def x ^:foo ^:bar {})
-# - - (meta x)
-#   - '{^:foo true}'
+- rep: (def x ^:foo ^:bar {})
+- - (meta x)
+  - '{:bar true, :foo true}'
+
+- rep: (def x ^:foo ^"bar" {})
+- - (meta x)
+  - '{:tag "bar", :foo true}'
+
+- rep: (def x ^:foo ^"bar" ^{:a 1 :b 2} ^{:c 3 :d 4} {})
+- - (meta x)
+  - '{:c 3, :d 4, :a 1, :b 2, :tag "bar", :foo true}'
+
+# - rep: (def x [^:foo {}])
+# - - (meta (nth x 0))
+#   - '{:foo true}'
 ...
