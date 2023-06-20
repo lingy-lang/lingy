@@ -227,7 +227,7 @@ code.
 
 ```
 use Lingy;
-my $lingy = Lingy->new;     # Setup Lingy environment
+my $lingy = Lingy->new;     # Setup the Lingy environment
 my $result = $lingy->rep("(+ 1 2 3 4)");
 ```
 
@@ -283,7 +283,7 @@ more control:
 
 ## Using Perl from Lingy Code
 
-Like CLojure, Lingy has a lot of functions/functionality for calling Perl code.
+Like Clojure, Lingy has a lot of functions/functionality for calling Perl code.
 
 This is how Clojure and Lingy are implemented in that as much of the language
 as possible is written in itself (Lisp) but many functions need to call to the
@@ -299,22 +299,31 @@ host language to do the work.
   native Lingy object.
   When the Lingy Printer sees a non-Lingy object it prints it as a YAML dump.
 
-* `(import YAML.PP)`
+* `(import YAML.PP.Perl)`
 
-  Load the `YAML::PP` Perl module.
+  Load a Perl module.
+  We are just using `YAML::PP::Perl` as an example here.
+  This is like `use YAML::PP::Perl;` in Perl.
 
-* `(def y-pp (YAML.PP. "boolean" "JSON::PP"))`
+* `(def y-pp (YAML.PP.Perl. "boolean" "JSON::PP"))`
 
-  Create a new `Foo::Bar` object.
+  Create a new `YAML::PP::Perl` object.
+  The `.` after the module name is like calling the `->new` in Perl.
 
-* `(def y-pp (.new YAML.PP "boolean" "JSON::PP"))`
+* `(def y-pp (.new YAML.PP.Perl "boolean" "JSON::PP"))`
 
   Call a Perl class method with arguments.
-  (Also creates a new YAML::PP instance object)
+  This is another way to instantiate an object like the previous example.
+  The `.xyz word at the start of an expression is like calling `->xyz` on the
+  second word, which may be a class or an object.
 
-* `(.dump y-pp (perl "__PACKAGE__"))`
+* `(println (.dump ypp '(+ 2 2)))`
 
   Call a Perl method with arguments on a Perl instance object.
+
+  The example above will print the internal AST form of the Lingy expression
+  `(+ 2 2)`.
+  This is a very useful way to debug Lingy.
 
 * `WWW`, `XXX`, `YYY` and `ZZZ`
 

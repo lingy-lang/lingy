@@ -44,6 +44,8 @@ sub evaluate {
     while (1) {
         $ast = macroexpand($ast, $env);
 
+        return nil unless defined $ast;
+
         return evaluate_ast($ast, $env) unless ref($ast) eq LIST;
 
         return $ast unless @$ast;   # Empty list

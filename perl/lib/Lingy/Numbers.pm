@@ -5,6 +5,8 @@ use Lingy::Common;
 
 sub add { $_[0] + $_[1] }
 
+sub dec { $_[0] - 1 }
+
 sub divide { $_[0] / $_[1] }
 
 sub equiv { $_[0] == $_[1] }
@@ -12,6 +14,8 @@ sub equiv { $_[0] == $_[1] }
 sub gt { $_[0] > $_[1] }
 
 sub gte { $_[0] >= $_[1] }
+
+sub inc { $_[0] + 1 }
 
 sub isPos { $_[0] > 0 }
 
@@ -21,9 +25,15 @@ sub lt { $_[0] <  $_[1] }
 
 sub lte { $_[0] <= $_[1] }
 
-sub minus { $_[0] - $_[1] }
+sub minus {
+    @_ == 1
+    ? (0 - ${$_[0]})
+    : $_[0] - $_[1];
+}
 
 sub multiply { $_[0] * $_[1] }
+
+sub quotient { NUMBER->new(int($_[0] / $_[1])) }
 
 sub range {
     my ($start, $end, $step) = @_;

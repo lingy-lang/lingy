@@ -19,6 +19,10 @@ use overload
     cmp => \&comp_pair,
     ;
 
+sub cast {
+   $_[1];
+}
+
 sub equal_to {
     my ($x, $y) = @_;
     $x = ref($x) ? $$x : $x;

@@ -20,4 +20,6 @@ tests <<'...';
   - "Duplicate key: 'b'"
 - - '#_[1 2 3]]'
   - "Unmatched delimiter: ']'"
+- - (comment (throw 123))
+  - nil
 ...

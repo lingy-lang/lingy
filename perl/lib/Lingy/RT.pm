@@ -19,7 +19,9 @@ my @class_names = (
     BOOLEAN,
     CHARACTER,
     CLASS,
+    CLOJURE,
     COMPILER,
+    EXCEPTION,
     FUNCTION,
     HASHMAP,
     HASHSET,
@@ -41,6 +43,8 @@ my @class_names = (
     TERM,
     THREAD,
     UTIL,
+
+    ILLEGALARGUMENTEXCEPTION,
 );
 sub class_names { \@class_names }
 
@@ -104,11 +108,11 @@ sub init {
 }
 
 sub core_namespace {
-    my ($self) = @_;
+    my ($self) = (@_);
 
     my $ns = NAMESPACE->new('lingy.core', %classes)->current;
 
-    $ns->{$_} = $classes{$_} for keys %classes;
+    $ns->{$_} = $classes{$_} for CORE::keys %classes;
 
     my $argv = @ARGV
         ? LIST->new([
@@ -152,6 +156,12 @@ sub core_namespace {
     my $core_ly = $INC{'Lingy/RT.pm'};
     $core_ly =~ s/RT\.pm$/core.ly/;
     $self->rep($self->slurp_file($core_ly));
+
+    unless ($ENV{LINGY_BUILDING_CORE}) {
+        my $core_clj = $core_ly;
+        $core_clj =~ s/\.ly$/.clj/;
+        $self->rep($self->slurp_file($core_clj));
+    }
 
     return $ns;
 }
@@ -242,7 +252,7 @@ sub repl {
 sub all_ns {
     list([
         map { $namespaces{$_} }
-        sort keys %namespaces
+        sort CORE::keys %namespaces
     ]);
 }
 
@@ -320,8 +330,6 @@ sub create_ns {
     NAMESPACE->new($name)->refer(symbol($core_ns->_name));
 }
 
-sub dec { $_[0] - 1 }
-
 sub deref { $_[0]->[0] }
 
 sub dissoc {
@@ -375,16 +383,14 @@ sub in_ns {
     $ns->current;
 }
 
-sub inc { $_[0] + 1 }
-
-sub keys_ {
+sub keys {
     list([
         map {
             s/^"// ? string($_) :
             s/^:// ? KEYWORD->new($_) :
             s/ $// ? symbol($_) :
             symbol("$_");
-        } keys %{$_[0]}
+        } CORE::keys %{$_[0]}
     ]);
 }
 
@@ -404,6 +410,12 @@ sub map {
 
 sub meta_get {
     $meta{"$_[0]"} // nil;
+}
+
+sub more {
+    my ($list) = @_;
+    return list([]) if $list->isa(NIL) or not @$list;
+    list([@{$list}[1..(@$list-1)]]);
 }
 
 sub name {
@@ -485,9 +497,7 @@ sub prn {
     nil;
 }
 
-sub quot { NUMBER->new(int($_[0] / $_[1])) }
-
-sub read_string {
+sub readString {
     my @forms = Lingy::Reader->new->read_str($_[0]);
     return @forms ? $forms[0] : nil;
 }
@@ -499,13 +509,14 @@ sub readline {
     string($l);
 }
 
+our $require_ext = 'ly';
 sub require {
     outer:
     for my $spec (@_) {
         err "'require' only works with symbols"
             unless ref($spec) eq SYMBOL;
 
-        return nil if $namespaces{$$spec};
+        next if $namespaces{$$spec};
 
         my $name = $$spec;
 
@@ -518,9 +529,9 @@ sub require {
         for my $inc (@INC) {
             $inc =~ s{^([^/.])}{./$1};
             my $inc_path = "$inc/$path";
-            if (-f "$inc_path.ly") {
+            if (-f "$inc_path.$require_ext") {
                 my $ns = $namespaces{$current_ns_name};
-                RT->rep(qq< (load-file "$inc_path.ly") >);
+                RT->rep(qq< (load-file "$inc_path.$require_ext") >);
                 $ns->current;
                 next outer;
             }
@@ -551,12 +562,6 @@ sub resolve {
         return nil;
     }
     return VAR->new($var);
-}
-
-sub rest {
-    my ($list) = @_;
-    return list([]) if $list->isa(NIL) or not @$list;
-    list([@{$list}[1..(@$list-1)]]);
 }
 
 sub seq {

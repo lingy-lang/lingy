@@ -31,4 +31,7 @@ tests <<'...'
   - 'true'
 - - (instance? String 123)
   - 'false'
+
+- - (not= 4 (+ 2 2))
+  - 'false'
 ...

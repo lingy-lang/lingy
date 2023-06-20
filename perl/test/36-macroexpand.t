@@ -2,7 +2,7 @@ use Lingy::Test;
 
 tests <<'...';
 - - (macroexpand '(defn a ([a b] (+ a b))))
-  - (def a (fn ([a b] (+ a b))))
+  - (def a (fn* ([a b] (+ a b))))
 
 - - (macroexpand '(fn ([a b] (+ a b))))
   - (fn* ([a b] (+ a b)))

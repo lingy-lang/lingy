@@ -20,6 +20,9 @@ sub new {
     my $name = \'AFn';
     $name = shift @exprs if ref($exprs[0]) eq SYMBOL;
 
+    shift @exprs if ref($exprs[0]) eq STRING;
+    shift @exprs if ref($exprs[0]) eq HASHMAP;
+
     @exprs = (list([@exprs]))
         if ref($exprs[0]) eq VECTOR;
 

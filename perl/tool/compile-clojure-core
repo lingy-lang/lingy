@@ -1,0 +1,176 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+
+use lib 'lib';
+
+use Lingy::RT;
+
+use XXX;
+
+my $want;
+
+$want = qr/(?:
+    (?:\A\(defn|defmacro|def) (?=\ |\n) |
+    (?:\A\#_)
+)/x;
+
+my @def = qw(
+    first
+    instance?
+    map?
+    nfirst
+    nnext
+    rest
+    second
+    string?
+    vector?
+);
+
+my @defn = qw(
+    + - * /
+    < > <= >=
+    =
+    ==
+    boolean
+    boolean?
+    cast
+    char
+    class?
+    clojure-version
+    contains?
+    count
+    dec
+    empty?
+    false?
+    ffirst
+    fn?
+    fnext
+    identity
+    inc
+    keys
+    keyword?
+    list?
+    nil?
+    not
+    not=
+    number?
+    pos?
+    quot
+    read-string
+    rem
+    some?
+    special-symbol?
+    symbol?
+    true?
+    vals
+    zero?
+);
+
+my @defmacro = qw(
+    ->
+    ->>
+    and
+    comment
+    or
+    time
+    when
+    when-not
+);
+
+my $want_def = join '|', map {
+    s/([\?\*\/\+])/\\$1/g;
+    $_;
+} @def;
+
+my $want_defn = join '|', map {
+    s/([\?\*\/\+])/\\$1/g;
+    $_;
+} @defn;
+
+my $want_defmacro = join '|', map {
+    s/([\?\*\/\+])/\\$1/g;
+    $_;
+} @defmacro;
+
+$want = qr/\A(?:
+    \(defn\s+(?:$want_defn)\n
+|   \(defmacro\s*.*\s+(?:$want_defmacro)\n
+|   \(def\n[\s\S]*\n\ (?:$want_def)\ \(
+)/x;
+
+sub main {
+    $ENV{LINGY_BUILDING_CORE} = 1;
+
+    Lingy::RT->init;
+
+    my ($clojure_core_file, $clojure_core_source) = @_;
+
+    my $code = Lingy::RT::slurp('/tmp/clojure/core.clj');
+
+    my $out = <<"...";
+; -----------------------------------------------------------------------------
+; This file contains the current Lingy subset of Clojure's clojure/core.clj.
+; It was generated directly from the original:
+;
+; $clojure_core_source
+;
+; This file contains the parts of clojure.core that Lingy can currently read
+; and evaulate. Lingy will load this file into the lingy.core namespace along
+; with the content of lib/Lingy/core.ly.
+;
+; The original Clojure copyright follows:
+; -----------------------------------------------------------------------------
+
+...
+
+    $code =~ s/\A(.*?\n)\n+(?=\()//s or die;
+
+    $out .= "$1\n";
+
+    $code =~ s/\t/    /g;
+    $code =~ s/ +$//gm;
+    $code =~ s/^(;.*\n+)//gm;
+
+    while (length $code) {
+        $code =~ s/\A(;.*\n+)*//;
+        $code =~ s/\A((?:\#_)?\(.*?\)\n+)(?=\(|;|\z)//s or XXX $code;
+
+        my $def = $1;
+        $def =~ s/\n+\z/\n/;
+
+        if ($def !~ $want) {
+            $def =~ s/^(.)/; $1/gm;
+            $def =~ s/^\n/;\n/gm;
+            #$out .= "\n; Skipping:\n$def";
+            next;
+        }
+
+        $def =~ s/clojure\.lang\.IPersistent(List|Vector)/lingy.lang.$1/g;
+        $def =~ s/clojure\.lang\.IPersistent(Map|Set)/lingy.lang.Hash$1/g;
+        $def =~ s/clojure\.(lang|core)([\.\/])/lingy.$1$2/g;
+
+        eval { Lingy::RT->rep($def) };
+        my $error = $@;
+
+        if (my $error = $@) {
+            $def =~ s/^(.)/; $1/gm;
+            $def =~ s/^\n/;\n/gm;
+            $error =~ s/\s+\z//;
+            $error =~ s/\n/\n;/g;
+            $out .= <<"...";
+
+; *** $error
+$def
+...
+            next;
+        }
+
+        $out .= "\n$def";
+    }
+
+    print $out;
+}
+
+main(@ARGV);

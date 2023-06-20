@@ -3,7 +3,7 @@ package Lingy::Common;
 
 use Exporter 'import';
 
-use Scalar::Util 'refaddr';
+use Scalar::Util qw'refaddr reftype';
 
 # Base type classes:
 use constant LISTTYPE   => 'Lingy::ListClass';
@@ -15,6 +15,7 @@ use constant ATOM       => 'Lingy::Atom';
 use constant BOOLEAN    => 'Lingy::Boolean';
 use constant CHARACTER  => 'Lingy::Character';
 use constant CLASS      => 'Lingy::Class';
+use constant CLOJURE    => 'Lingy::Clojure';
 use constant COMPILER   => 'Lingy::Compiler';
 use constant FUNCTION   => 'Lingy::Fn';
 use constant HASHMAP    => 'Lingy::HashMap';
@@ -32,6 +33,11 @@ use constant UTIL       => 'Lingy::Util';
 use constant VECTOR     => 'Lingy::Vector';
 use constant VAR        => 'Lingy::Var';
 
+# Exception classes:
+use constant EXCEPTION => 'Lingy::Exception';
+use constant ILLEGALARGUMENTEXCEPTION =>
+    'Lingy::IllegalArgumentException';
+
 # Functionality classes:
 use constant NAMESPACE  => 'Lingy::Namespace';
 use constant NUMBERS    => 'Lingy::Numbers';
@@ -47,6 +53,7 @@ BEGIN {
         $namespace_re
 
         refaddr
+        reftype
 
         LISTTYPE
         SCALARTYPE
@@ -64,6 +71,7 @@ BEGIN {
         BOOLEAN
         CHARACTER
         CLASS
+        CLOJURE
         FUNCTION
         HASHMAP
         HASHSET
@@ -78,6 +86,9 @@ BEGIN {
         SYSTEM
         VAR
         VECTOR
+
+        EXCEPTION
+        ILLEGALARGUMENTEXCEPTION
 
         list
         string
