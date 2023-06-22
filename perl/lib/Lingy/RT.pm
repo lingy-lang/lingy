@@ -33,6 +33,7 @@ my @class_names = (
     NUMBER,
     REGEX,
     SEQUENTIAL,
+    STRBUILD,
     STRING,
     SYMBOL,
     SYSTEM,

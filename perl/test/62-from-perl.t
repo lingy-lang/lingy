@@ -1,4 +1,5 @@
 use Test::More;
+no Carp::Always;
 
 use Lingy;
 

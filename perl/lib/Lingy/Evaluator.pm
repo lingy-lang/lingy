@@ -194,6 +194,7 @@ sub special_dot {
         }
     }
 
+    # XXX $target->isa(CLASS);
     XXX $ast, "Don't know how to '.' this yet";
 }
 

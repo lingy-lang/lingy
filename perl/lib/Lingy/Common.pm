@@ -26,6 +26,7 @@ use constant MACRO      => 'Lingy::Macro';
 use constant NIL        => 'Lingy::Nil';
 use constant NUMBER     => 'Lingy::Number';
 use constant REGEX      => 'Lingy::Regex';
+use constant STRBUILD   => 'Lingy::StringBuilder';
 use constant STRING     => 'Lingy::String';
 use constant SYMBOL     => 'Lingy::Symbol';
 use constant SYSTEM     => 'Lingy::System';
@@ -81,6 +82,7 @@ BEGIN {
         NIL
         NUMBER
         REGEX
+        STRBUILD
         STRING
         SYMBOL
         SYSTEM
