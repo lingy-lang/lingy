@@ -6,7 +6,7 @@ use Lingy::RT;
 
 sub require {
     my ($sym) = @_;
-    $$sym =~ s/^clojure\./lingy.clojure./;
+    $$sym =~ s/^clojure\./lingy./;
     local $Lingy::RT::require_ext = 'clj';
     no warnings 'redefine';
     local *Lingy::RT::rep = \&rep;
