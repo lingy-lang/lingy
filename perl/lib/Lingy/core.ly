@@ -2,6 +2,8 @@
 ; Define dynamic variables:
 ;------------------------------------------------------------------------------
 (def *clojure-repl* false)
+(def *print-dup* true)
+(def *print-readably* true)
 
 ;------------------------------------------------------------------------------
 ; Create standard calls from special forms:
@@ -17,6 +19,9 @@
   `(def ~name (fn* ~@body)))
 
 (defmacro let [& xs] (cons 'let* xs))
+
+; XXX Using the same code as 'let' (for now) which isn't quite right.
+(defmacro binding [& xs] (cons 'let* xs))
 
 (defmacro import [& xs] (cons 'import* xs))
 
