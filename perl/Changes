@@ -1,4 +1,30 @@
 ---
+version: 0.1.12
+date:    Thu Jun 22 07:46:05 PM EDT 2023
+changes:
+- Add support for HashSet type
+- Add more legal regex escape sequences
+- Add reader support for vars
+- Refactor some RT function names
+- Fix and test with-meta
+- Fix method calls to Perl classes
+- Add 'time' macro to time expr evals
+- Add #_ reader macro (ignore next form)
+- Make bin/lingy smarter about multiples
+- Add support for `#?` reader conditionals
+- Get rid of non Clojure var *ARGV* (for now)
+- Update docs with "Differences from Clojure" section
+- Refactor map creation in reader
+- iAdd a couple tests
+- Implement Lingy.pm to use Lingy from Perl
+- Add doc for Lingy<->Perl interop
+- Start using Clojure source code in Lingy
+- Bash change to appease shellcheck
+- Fix file path conversion bug when loading clojure.core
+- Fix regex in DistTestFixer
+- Add lingy.string library (akin to clojure.string)
+- Add a 'binding' function (not quite accurate)
+---
 version: 0.1.11
 date:    Thu Jun  8 08:05:32 AM PDT 2023
 changes:
