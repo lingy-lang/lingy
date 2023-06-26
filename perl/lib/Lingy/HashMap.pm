@@ -1,32 +1,33 @@
 use strict; use warnings;
 package Lingy::HashMap;
 
-use base 'Lingy::Class';
+use base 'immutable::map', 'Lingy::Class';
 
 use Lingy::Common;
 
-use Hash::Ordered;
-
 sub new {
     my ($class, $list) = @_;
-    tie my %hash, 'Hash::Ordered';
-    for (my $i = 0; $i < @$list; $i += 2) {
+    my (@keys, %vals);
+    for (my $i = @$list - 2; $i >= 0; $i -= 2) {
         my $key = $class->_get_key($list->[$i]);
-        delete $hash{$key} if exists $hash{$key};
-        $hash{$key} = $list->[$i + 1];
+        if (not exists $vals{$key}) {
+            unshift @keys, $key;
+            $vals{$key} = $list->[$i + 1];
+        }
     }
-    bless \%hash, $class;
+    my @data = map { ($_, $vals{$_}) } @keys;
+    my $self = $class->SUPER::new(@data);
+    return $self;
 }
 
 sub clone {
-    HASHMAP->new([ %{$_[0]} ]);
+    $_[0]->set();
 }
 
 sub assoc {
     my ($self, $key, $val) = @_;
-    my $new = $self->clone;
     $key = $self->_get_key($key);
-    $new->{$key} = $val;
+    my $new = $self->set($key, $val);
     $new;
 }
 
