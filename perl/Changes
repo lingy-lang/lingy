@@ -1,4 +1,9 @@
 ---
+version: 0.1.14
+date:    Sun Jun 25 08:51:44 PM EDT 2023
+changes:
+- Make Lingy::HashMap subclass immutable::map
+---
 version: 0.1.12
 date:    Thu Jun 22 07:46:05 PM EDT 2023
 changes:
