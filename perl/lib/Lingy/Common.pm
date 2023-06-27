@@ -5,6 +5,12 @@ use Exporter 'import';
 
 use Scalar::Util qw'refaddr reftype';
 
+# RT is the RunTime class accessor function.
+# 'Lingy::RT' or a subclass like 'YAMLScript::RT'.
+BEGIN {
+    *RT = sub { 'Lingy::RT' } unless defined &RT;
+}
+
 # Base type classes:
 use constant LISTTYPE   => 'Lingy::ListClass';
 use constant SCALARTYPE => 'Lingy::ScalarClass';
@@ -42,7 +48,6 @@ use constant ILLEGALARGUMENTEXCEPTION =>
 # Functionality classes:
 use constant NAMESPACE  => 'Lingy::Namespace';
 use constant NUMBERS    => 'Lingy::Numbers';
-use constant RT         => 'Lingy::RT';
 use constant TERM       => 'Lingy::Term';
 use constant THREAD     => 'Lingy::Thread';
 
@@ -56,6 +61,8 @@ BEGIN {
         refaddr
         reftype
 
+        RT
+
         LISTTYPE
         SCALARTYPE
         SEQUENTIAL
@@ -63,7 +70,6 @@ BEGIN {
         COMPILER
         NAMESPACE
         NUMBERS
-        RT
         TERM
         THREAD
         UTIL
