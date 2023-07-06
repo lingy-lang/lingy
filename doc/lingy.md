@@ -1,7 +1,7 @@
 Lingy
 =====
 
-A Perl implementation of Clojure
+A Clojure Platform for Perl
 
 
 # Synopsis
@@ -90,8 +90,8 @@ Lingy is in ALPHA status.
 
 # Description
 
-Lingy is an implementation of the Clojure language that is written in Perl and
-hosted by Perl.
+Lingy is an implementation of the Clojure Platform for Perl that is written in
+Perl and hosted by Perl.
 Programs and modules written in Lingy have full access to Perl and its CPAN
 modules.
 
@@ -110,6 +110,7 @@ It has access to any libraries that target the JVM.
 
 Much of the Clojure language is written in Clojure (self hosted) and Lingy
 actually uses the Clojure source code.
+
 A variant of Clojure called ClojureScript uses the same Clojure source code but
 is hosted by JavaScript with full access to NPM modules.
 Lingy also intends to eventually be ported to and hosted by many other
@@ -131,7 +132,7 @@ cpanm Lingy
 
 # `lingy` CLI Usage
 
-The Lingy language installs a command `lingy`.
+The Lingy language installs a command-line program called `lingy`.
 You can use this command to run Lingy programs, start a Lingy REPL or run
 Lingy one-liner expressions.
 
