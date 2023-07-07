@@ -1,4 +1,10 @@
 ---
+version: 0.1.16
+date:    Fri Jul  7 10:51:07 AM EDT 2023
+changes:
+- Small doc changes
+- Support multiline entries in REPL and history
+---
 version: 0.1.15
 date:    Tue Jun 27 06:01:17 PM EDT 2023
 changes:
