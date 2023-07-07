@@ -86,7 +86,7 @@ sub read_form {
 sub read_more {
     my ($self) = @_;
     if ($self->{repl}) {
-        my $line = Lingy::ReadLine::readline(1);
+        my $line = Lingy::ReadLine->readline(1);
         if (defined $line) {
             push @{$self->{tokens}}, @{tokenize($line)};
             return 1;

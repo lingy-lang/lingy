@@ -195,6 +195,41 @@ You can run Lingy commands and see the output.
 The REPL has command line history to save all your commands.
 It also has readline history search (ctl-r) and tab completion.
 
+Note: Input lines that match the previous input line will not be saved in
+history.
+That way you can run the same command multiple times in a row and not clutter
+your history.
+
+
+## Multiline Input
+
+The Lingy REPL will keep prompting you for more lines until you have completed
+a well formed expression.
+Usually that means until you have balanced the parentheses.
+
+The history (up adn down arrow keys) will bring up the entire multiline form
+for you to edit.
+
+If you want to enter multiple lines as one entry when each line is already
+well formed, just wrap the entry in a `do` expression like so:
+
+```
+user=> (do
+  #_=> (prn 1)
+  #_=> (prn 2)
+  #_=> )
+1
+2
+nil
+```
+
+You can also paste multiline examples into the REPL and they will remain
+editable as multiline.
+
+If you want to compress a multiline statement in your history to a single
+line, add a space to the end of it.
+Then (after you run it) it will be added to your history as a single line.
+
 
 ## Using the Clojure REPL in the Lingy REPL
 

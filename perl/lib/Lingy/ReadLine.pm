@@ -6,27 +6,78 @@ use Lingy::Common;
 BEGIN { $ENV{PERL_RL} = 'Gnu' }
 use Term::ReadLine;
 
-my $history_file = "$ENV{HOME}/.lingy_history";
+my $home = $ENV{HOME};
 
-my $tty;
-{
-    local @ENV{qw(HOME EDITOR)};
-    local $^W;
-    $tty = Term::ReadLine->new('Lingy');
+sub history_file {
+    my $history_file = "$ENV{PWD}/.lingy_history";
+    $history_file = "$home/.lingy_history"
+        unless -w $history_file;
+    return $history_file;
 }
 
-die "Please install Term::ReadLine::Gnu from CPAN\n"
-    if $tty->ReadLine ne 'Term::ReadLine::Gnu';
-
+my $tty;
 my $tested = 0;
-our $input;
+my @input;
+my $prev_input = '';
+my $sep = "\x01";
+my $readline_class;
+my $multi = 0;
+
+sub multi_start {}
+sub multi_stop {}
+
+sub new {
+    my ($class) = @_;
+    my $self = bless {}, $class;
+}
+
+sub setup {
+    my ($self) = @_;
+
+    local @ENV{qw(HOME EDITOR)};
+    local $^W;
+    undef $tty;
+    $tty = Term::ReadLine->new('Lingy');
+
+    die "Please install Term::ReadLine::Gnu from CPAN\n"
+        if $tty->ReadLine ne 'Term::ReadLine::Gnu';
+
+    $tty->ReadHistory($self->history_file);
+    $tty->SetHistory(
+        map {
+            s/$sep/\n/g; $prev_input = $_;
+        } $tty->GetHistory
+    );
+    $tty->MinLine(undef);
+
+    return $self;
+}
+
+$SIG{TSTP} = sub {
+    warn "\nCTL-Z disabled in this REPL\n";
+};
+
+sub input {
+    return unless @input;
+    my $input = join "\n", @input;
+    if ($input =~ s/\ +\z//) {
+        $input =~ s/\n/ /g;
+    }
+    if ($input =~ /\S/ and $input ne $prev_input) {
+        $tty->addhistory($input);
+        $prev_input = $input;
+    }
+    return $input;
+}
+
 sub readline {
-    if (my $input = $ENV{LINGY_TEST_INPUT}) {
+    if (my $test_input = $ENV{LINGY_TEST_INPUT}) {
         return if $tested++;
-        return $input;
+        return $test_input;
     }
 
-    my ($continue) = @_;
+    my ($self, $continue) = @_;
+    $readline_class = ref($self);
 
     my $prompt = RT->current_ns_name or die;
     if ($continue) {
@@ -34,7 +85,7 @@ sub readline {
         $prompt = (' ' x (length($prompt) - 2)) . '#_';
     }
     else {
-        $input = '';
+        @input = ();
     }
     $prompt .= '=> ';
 
@@ -57,7 +108,20 @@ sub readline {
 
     my $line = $tty->readline($prompt);
     return unless defined $line;
-    $input .= $line;
+    $line =~ s/\s+\z// unless $line =~ /\ +\z/;
+    push @input, $line;
+
+    if ($self->multi_start($line)) {
+        $prompt = (' ' x (length($prompt) - 5)) . '#_=> ';
+        while (1) {
+            my $more = $tty->readline($prompt);
+            return unless defined $more;
+            push @input, $more;
+            $line .= "\n$more";
+            last if $self->multi_stop($more);
+        }
+    }
+
     return $line;
 }
 
@@ -69,9 +133,6 @@ sub complete {
         if (my $ns = RT->namespaces->{$prefix}) {
             return map "$prefix/$_", keys %$ns;
         }
-#         if (defined (my $class = RT->classes->{$prefix})) {
-#             return map "$prefix/$_", $class->_method_names;
-#         }
         return;
     }
 
@@ -101,11 +162,12 @@ sub complete {
     );
 }
 
-$tty->ReadHistory($history_file);
-
 END {
-    $tty->WriteHistory($history_file)
-        unless $ENV{LINGY_TEST};
+    if ($readline_class) {
+        $tty->SetHistory(map { s/\n/$sep/g; $_ } $tty->GetHistory);
+        $tty->WriteHistory($readline_class->history_file)
+            unless $ENV{LINGY_TEST};
+    }
 }
 
 1;

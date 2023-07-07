@@ -13,6 +13,7 @@ use constant HOST => 'perl';
 use constant env_class => 'Lingy::Env';
 use constant printer_class => 'Lingy::Printer';
 use constant reader_class => 'Lingy::Reader';
+use constant RL => Lingy::ReadLine->new;
 
 my @class_names = (
     ATOM,
@@ -208,6 +209,8 @@ use constant repl_intro_command =>
 sub repl {
     my ($self) = @_;
 
+    $self->RL->setup;
+
     $self->rep($self->repl_intro_command)
         unless $ENV{LINGY_TEST};
     my ($clojure_repl) = $self->rep("(identity *clojure-repl*)");
@@ -216,13 +219,13 @@ sub repl {
         Lingy::ClojureREPL->start();
     }
 
-    while (defined (my $line = Lingy::ReadLine::readline)) {
+    while (defined (my $line = $self->RL->readline)) {
         next unless length $line;
 
         my @forms = eval { $reader->read_str($line, 1) };
         if ($@) {
             print "$@\n";
-            $Lingy::ReadLine::input = '';
+            $self->RL->input;
             next;
         }
 
@@ -236,7 +239,7 @@ sub repl {
             print "$ret\n";
         }
 
-        my $input = $Lingy::ReadLine::input // next;
+        my $input = $self->RL->input // next;
         ($clojure_repl) = $self->rep("(identity *clojure-repl*)");
 
         if ($input =~ s/^;;;// or $clojure_repl eq 'true') {
@@ -504,8 +507,7 @@ sub readString {
 }
 
 sub readline {
-    require Lingy::ReadLine;
-    my $l = Lingy::ReadLine::readline() // return;
+    my $l = RL->readline // return;
     chomp $l;
     string($l);
 }
