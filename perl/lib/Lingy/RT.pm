@@ -307,6 +307,7 @@ sub conj {
     my $type = ref($o);
     $type eq LIST ? list([reverse(@args), @$o]) :
     $type eq VECTOR ? VECTOR->new([@$o, @args]) :
+    $type eq HASHMAP ? HASHMAP->new([%$o, map %$_, @args]) :
     $type eq NIL ? nil :
     err("conj first arg type '$type' not allowed");
 }

@@ -50,7 +50,7 @@
 ;------------------------------------------------------------------------------
 ; Lingy specific functions:
 ;------------------------------------------------------------------------------
-(defn clojure-repl-on [] (def *clojure-repl* true) nil)
+(defn clojure-repl-on  [] (def *clojure-repl* true ) nil)
 (defn clojure-repl-off [] (def *clojure-repl* false) nil)
 
 ;------------------------------------------------------------------------------
@@ -182,6 +182,9 @@
 (defn macroexpand [macro] (. lingy.lang.RT (macroexpand macro)))
 
 (defn map [fn list] (. lingy.lang.RT (map fn list)))
+
+(defn merge [& maps]
+  (apply conj {} maps))
 
 (defn meta [object] (. lingy.lang.RT (meta_get 'object)))
 

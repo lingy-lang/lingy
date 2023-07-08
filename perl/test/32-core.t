@@ -2,6 +2,16 @@ use Lingy::Test;
 
 tests <<'...'
 
+- note: Testing (conj ...)
+- - (conj {:a 1} {:a 2 :b 3})
+  - '{:a 2, :b 3}'
+- - (conj {:a 1} {:a 2 :b 3} {:c 4})
+  - '{:a 2, :b 3, :c 4}'
+
+- note: Testing (merge ...)
+- - (merge {:a 1} {:a 2 :b 3} {:c 4})
+  - '{:a 2, :b 3, :c 4}'
+
 - note: Testing (list* ...)
 - - (list* ())
   - nil
