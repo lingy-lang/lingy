@@ -199,7 +199,11 @@ sub box_val {
 
 sub unbox_val {
     my ($obj) = @_;
-    ref($obj) =~ /^Lingy::(String|Number|Boolean|Fn)$/ ? $obj->unbox : $obj;
+    ref($obj) =~ /^
+        Lingy::(
+            String|Number|Boolean|Nil|HashMap|Vector|Fn
+        )
+    $/x ? $obj->unbox : $obj;
 }
 
 sub assert_args {

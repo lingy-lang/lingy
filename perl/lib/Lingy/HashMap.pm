@@ -20,6 +20,17 @@ sub new {
     return $self;
 }
 
+sub unbox {
+    my @list = %{$_[0]};
+    my $hash = {};
+    for (my $i = 0; $i < @list; $i += 2) {
+        my $key = $list[$i];
+        $key =~ s/^"//;
+        $hash->{$key} = $list[$i+1]->unbox;
+    }
+    return $hash;
+}
+
 sub clone {
     $_[0]->set();
 }

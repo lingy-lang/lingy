@@ -12,4 +12,6 @@ sub _to_seq {
     @$list ? list([@$list]) : nil;
 }
 
+sub unbox { [ map $_->unbox($_), @{$_[0]} ] }
+
 1;
