@@ -1,4 +1,14 @@
 ---
+version: 0.1.17
+date:    Tue Jul 11 07:49:54 AM EDT 2023
+changes:
+- Add merge (and conj for hashmap) to core
+- Add unboxing to HashMap and Vector
+- Support LINGY_CLOJURE_JAR for using repl with clojure
+- Support boxing hashes and arrays
+- Set *file* to an absolute file path
+- A few small fixes
+---
 version: 0.1.16
 date:    Fri Jul  7 10:51:07 AM EDT 2023
 changes:

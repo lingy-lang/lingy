@@ -1,6 +1,6 @@
 use strict; use warnings;
 package Lingy;
-our $VERSION = '0.1.16';
+our $VERSION = '0.1.17';
 
 my $rt = 0;
 
