@@ -1,6 +1,8 @@
 use strict; use warnings;
 package Lingy::RT;
 
+use Cwd;
+
 use Lingy;
 use Lingy::Common;
 use Lingy::Evaluator;
@@ -127,9 +129,9 @@ sub core_namespace {
     $env->set(eval => sub { evaluate($_[0], $env) });
 
     # Clojure dynamic vars:
-    $env->set('*file*', STRING->new(
-        $ARGV[0] || "NO_SOURCE_PATH"
-    ));
+    my $file = $ARGV[0] || "NO_SOURCE_PATH";
+    $file = Cwd::abs_path($file) unless $file eq "NO_SOURCE_PATH";
+    $env->set('*file*', STRING->new($file));
     $env->set('*command-line-args*', $argv);
 
     # Lingy dynamic vars:

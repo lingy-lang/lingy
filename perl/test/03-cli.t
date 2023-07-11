@@ -34,10 +34,10 @@ run_is qq<$lingy --xxx -e '(prn (+ 2 3))'>,
     "'\$cmd' produces correct YAML dump";
 
 run_is "$lingy test/program1.ly",
-    'program: test/program1.ly args: ()';
+    "program: $ENV{PWD}/test/program1.ly args: ()";
 
 run_is "$lingy test/program1.ly foo bar",
-    'program: test/program1.ly args: (foo bar)';
+    "program: $ENV{PWD}/test/program1.ly args: (foo bar)";
 
 sub note_repl_input {
     note "Lingy REPL input: '$ENV{LINGY_TEST_INPUT}'";
