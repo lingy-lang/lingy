@@ -138,7 +138,10 @@ sub core_namespace {
     $env->set('*LANG*', STRING->new($self->LANG));
     $env->set('*HOST*', STRING->new($self->HOST));
 
-    $Lingy::VERSION =~ /^(\d+)\.(\d+)\.(\d+)$/;
+    # Work around a bug in version checking during cpanm install:
+    my $v = $Lingy::VERSION;
+    $v =~ /^(\d+)\.(\d+)\.(\d+)$/;
+
     $self->rep("
       (def *lingy-version*
         {
