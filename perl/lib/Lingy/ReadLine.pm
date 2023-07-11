@@ -62,6 +62,7 @@ sub input {
     my $input = join "\n", @input;
     if ($input =~ s/\ +\z//) {
         $input =~ s/\n/ /g;
+        $input =~ s/\s+/ /g;
     }
     if ($input =~ /\S/ and $input ne $prev_input) {
         $tty->addhistory($input);

@@ -24,7 +24,8 @@ Options:
   --run           Run a Lingy program (default w/ file name)
 
   -D, --dev       Load the lingy.devel library
-  -C, --clj       Enalble Clojure mode in REPL
+  -C, --clj       Enable Clojure mode in REPL
+
   --ppp           Compile file and print AST (Lingy)
   --xxx           Compile file and dump internal AST (YAML)
 

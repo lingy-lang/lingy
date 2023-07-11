@@ -5,7 +5,7 @@ use Lingy::Common;
 use base 'Lingy::ScalarClass';
 
 use overload
-    '""' => sub { ${$_[0]} },
+    '""' => sub { 0 + ${$_[0]} },
     '+' => \&add,
     '-' => \&subtract,
     '*' => \&multiply,
