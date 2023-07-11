@@ -1,7 +1,7 @@
 =meta: 0.0.2
 
 name: Lingy
-version: 0.1.17
+version: 0.1.18
 abstract: A Clojure Platform for Perl
 homepage:
 - http://lingy.org

@@ -1,4 +1,9 @@
 ---
+version: 0.1.18
+date:    Tue Jul 11 11:08:00 AM EDT 2023
+changes:
+- Work around a bug in version checking during cpanm install
+---
 version: 0.1.17
 date:    Tue Jul 11 07:49:54 AM EDT 2023
 changes:
