@@ -189,8 +189,18 @@ sub box_val {
         if (not($type)) {
             /^\-?\d+$/ ? NUMBER->new($o) : STRING->new($o);
         }
-        elsif ($type =~ /^(?:ARRAY|HASH|SCALAR|REF|Regexp)$/) {
-            XXX $o, "Lingy can't box this object yet";
+        elsif ($type eq 'HASH') {
+            HASHMAP->new([
+                map box_val($_), %$o
+            ]);
+        }
+        elsif ($type eq 'ARRAY') {
+            VECTOR->new([
+                map box_val($_), %$o
+            ]);
+        }
+        elsif ($type =~ /^(?:SCALAR|REF|Regexp)$/) {
+            XXX($o, "Lingy can't box this object yet");
         } else {
             $o;
         }
