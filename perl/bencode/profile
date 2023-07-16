@@ -1,0 +1,7 @@
+_root=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)
+
+export PATH=$_root/bin:$PATH
+
+export PERL5LIB=$_root/lib:$_root/bencode/lib
+
+unset _root
