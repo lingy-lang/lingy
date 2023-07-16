@@ -125,9 +125,27 @@ has grown upon.
 
 # Installation
 
+The current implementation of Lingy is packaged for installation as a
+[Perl module distribution package on CPAN](
+https://metacpan.org/pod/Lingy).
+This is obvious if you are reading this from CPAN now, but maybe not if you are
+reading this from the [GitHub repository](
+https://github.com/ingydotnet/lingy).
+
+The easiest way to install Lingy is using the `cpanm` Perl/CPAN installation
+tool:
+
 ```
 cpanm Lingy
 ```
+
+The `cpanm` command is available as a software install on most modern systems,
+but if you are having trouble finding it see these [simple instructions](
+https://metacpan.org/pod/App::cpanminus#INSTALLATION).
+
+**NOTE**: See "Hacking on Lingy" below if you want to install from source
+and/or hack on the Lingy source code yourself (and hopefully contribute to the
+project!).
 
 
 # `lingy` CLI Usage
@@ -415,8 +433,80 @@ Certainly there are other differences and this section will be improved over
 time.
 
 
+# Hacking on Lingy
+
+If you want to contribute to Lingy, Welcome!
+
+If you just want to play with the source while using Lingy, Welcome!
+
+Here, we'll cover how to install Lingy from source and modify the source code.
+This will include tips on debugging Lingy.
+
+This section is a work in progress...
+
+Lingy development requires `git`, `bash`, `perl`, `make`, `curl` (almost any
+versions of these) and a bunch of Perl modules.
+
+You probably already have the commands.
+The best way to install the dependency modules is using the `cpanm Lingy`
+command described above in the "Installation" section.
+The will install Lingy and all the Perl dependencies.
+
+Then you can `git clone` the source code:
+```
+git clone https://github.com/ingydotnet/lingy.git
+```
+
+Set up local environment variables for development:
+```
+export PATH=$PWD/lingy/perl/bin:$PATH
+export PERL5LIB=$PWD/lingy/perl/lib
+```
+
+And test your local source code install of Lingy:
+```
+which lingy     # Should point at your cloned version
+lingy --execs   # Should list your clone
+lingy -e '(println *lingy-version*)'
+```
+
+Add the `export`s above to your shell rc file if you want to.
+
+You might need to add these exports if Lingy warns about them.
+This is more common for people who haven't used Perl in a while since people
+who do likely took care of it in the past.
+```
+LC_CTYPE=en_US.UTF-8
+LC_ALL=en_US.UTF-8
+```
+
+
+## Debugging Lingy in the REPL
+
+Running `lingy -D` will `(use 'lingy.devel)` at startup.
+This provides some dev functions including:
+
+* `(XXX ...)`
+
+  Throw a YAML dump of the internal Perl structure of the arguments.
+
+* `(WWW ...)`
+
+  Warn the same thing as above but then return the argument so that the program
+  can continue.
+
+* `(x-carp-on)`
+
+  Turn on full stack traces when Perl internally warns or dies.
+  Calling `(throw ...)` should also get a full stack trace with this.
+
+* A bunch of other functions starting with `x-`.
+  Tab completion is your friend. :)
+
+
 # See Also
 
+* [Video Talk about Lingy and YAMLScript](https://www.youtube.com/watch?v=9OcFh-HaCyI)
 * [Clojure](https://clojure.org/)
 * [YAMLScript](https://metacpan.org/pod/YAMLScript)
 * [Test::More::YAMLScript](https://metacpan.org/pod/Test::More::YAMLScript)
