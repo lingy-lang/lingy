@@ -50,20 +50,34 @@ sub start {
             print Dumper($received);
             if ($received->{'op'} eq 'eval') {
                 my $send = {
-                    ':session' => $received->{'session'},
-                    ':id' => "$received->{'id'}",
-                    ':value' => 'foo'
+                    'session' => $received->{'session'},
+                    'id' => "$received->{'id'}",
+                    'value' => 'foo'
                 };
                 my $encoded = Bencode::bencode($send);
                 print $conn Bencode::bencode($send);
                 my $done = {
-                    ':session' => $received->{'session'},
-                    ':id' => "$received->{'id'}",
-                    ':status' => 'done',
+                    'session' => $received->{'session'},
+                    'id' => "$received->{'id'}",
+                    'status' => 'done',
                 };
                 print $conn Bencode::bencode($done);
             } elsif ($received->{'op'} eq 'clone') {
                 print "Cloning...\n";
+                my $session = 'foo';
+                my $send = {
+                    'id' => "$received->{'id'}",
+                    'new-session' => $session
+                };
+                my $encoded = Bencode::bencode($send);
+                print $conn Bencode::bencode($send);
+                my $done = {
+                    'session' => $session,
+                    'id' => "$received->{'id'}",
+                    'status' => 'done',
+                };
+                print $conn Bencode::bencode($done);
+                print "Done cloning, new-session: '$session'\n";
             } elsif ($received->{'op'} eq 'close') {
                 close($conn);
                 last CONN;
