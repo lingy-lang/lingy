@@ -6,15 +6,26 @@ use base 'immutable::map', 'Lingy::Class';
 use Lingy::Common;
 
 sub new {
-    my ($class, $list) = @_;
+    my ($class, $data) = @_;
     my (@keys, %vals);
-    for (my $i = @$list - 2; $i >= 0; $i -= 2) {
-        my $key = $class->_get_key($list->[$i]);
-        if (not exists $vals{$key}) {
-            unshift @keys, $key;
-            $vals{$key} = $list->[$i + 1];
+
+    if (ref($data) eq 'HASH') {
+        @keys = keys %$data;
+        %vals = %$data;
+    }
+    elsif (ref($data) eq 'ARRAY') {
+        for (my $i = @$data - 2; $i >= 0; $i -= 2) {
+            my $key = $class->_get_key($data->[$i]);
+            if (not exists $vals{$key}) {
+                unshift @keys, $key;
+                $vals{$key} = $data->[$i + 1];
+            }
         }
     }
+    else {
+        die "Argument must be a reference to a hash or an array.\n";
+    }
+
     my @data = map { ($_, $vals{$_}) } @keys;
     my $self = $class->SUPER::new(@data);
     return $self;
