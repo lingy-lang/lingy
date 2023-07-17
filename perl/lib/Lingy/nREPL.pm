@@ -36,7 +36,6 @@ sub start {
 
     print "Starting nrepl://127.0.0.1:$port\n";
 
-    CONN:
     while (my $conn = $self->{socket}->accept) {
         print "Accepted a new connection\n";
         my $buffer = '';
@@ -54,7 +53,6 @@ sub start {
                     'id' => "$received->{'id'}",
                     'value' => 'foo'
                 };
-                my $encoded = Bencode::bencode($send);
                 print $conn Bencode::bencode($send);
                 my $done = {
                     'session' => $received->{'session'},
@@ -63,24 +61,24 @@ sub start {
                 };
                 print $conn Bencode::bencode($done);
             } elsif ($received->{'op'} eq 'clone') {
-                print "Cloning...\n";
-                my $session = 'foo';
+                my $session = 'a-new-session';
+                print "Cloning... new-session: '$session'\n";
                 my $send = {
                     'id' => "$received->{'id'}",
-                    'new-session' => $session
-                };
-                my $encoded = Bencode::bencode($send);
-                print $conn Bencode::bencode($send);
-                my $done = {
-                    'session' => $session,
-                    'id' => "$received->{'id'}",
+                    'new-session' => $session,
                     'status' => 'done',
                 };
-                print $conn Bencode::bencode($done);
-                print "Done cloning, new-session: '$session'\n";
+                print $conn Bencode::bencode($send);
+            } elsif ($received->{'op'} eq 'describe') {
+                print "Describe...\n";
+                my $send = {
+                    'id' => "$received->{'id'}",
+                    'ops' => {'eval' => {}, 'clone' => {}, 'describe' => {}, 'close' => {}},
+                    'status' => 'done',
+                };
+                print $conn Bencode::bencode($send);
             } elsif ($received->{'op'} eq 'close') {
-                close($conn);
-                last CONN;
+                print "TBD: Close session...\n";
             } else {
                 print "Unknown op: " . $received->{'op'} . "\n";
             }
