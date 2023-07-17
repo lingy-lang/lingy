@@ -34,6 +34,7 @@ requires:
   Hash::Ordered: '0.014'
   immutable: 0.0.3
   IO::Select: '1.51'
+  IO::Socket::INET: '1.51'
   Scalar::Util: '1.63'
   Sub::Identify: '0.14'
   Sub::Name: '0.27'
