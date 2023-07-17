@@ -11,6 +11,7 @@ use constant options => +{
     'clj|C'     => 'bool',
     'dev|D'     => 'bool',
     'eval|e'    => 'str',
+    nrepl       => 'bool',
     ppp         => 'bool',
     repl        => 'bool',
     run         => 'arg',
@@ -32,19 +33,21 @@ sub run {
 
     $self->getopt(@args);
 
-    my ($repl, $run, $eval, $version, $clj, $dev, $args) =
-        @{$self}{qw<repl run eval version clj dev args>};
+    my ($repl, $run, $eval, $version, $clj, $dev, $nrepl, $args) =
+        @{$self}{qw<repl run eval version clj dev nrepl args>};
     local @ARGV = @$args;
+
+    return $self->do_nrepl if $nrepl;
 
     RT->init;
     RT->rep(qq<(clojure-repl-on)>) if $clj;
     RT->rep(qq<(use 'lingy.devel)>) if $dev;
 
-    $version ? $self->do_version() :
-    $eval ? $self->do_eval() :
-    $repl ? $self->do_repl() :
-    $run ? $self->do_run() :
-    $self->do_repl();
+    $version ? $self->do_version :
+    $eval ? $self->do_eval :
+    $repl ? $self->do_repl :
+    $run ? $self->do_run :
+    $self->do_repl;
 }
 
 sub do_version {
@@ -73,6 +76,12 @@ sub do_eval {
                 RT->rep($eval);
         }
     }
+}
+
+sub do_nrepl {
+    require Lingy::nREPL;
+    my $nrepl = Lingy::nREPL->new;
+    $nrepl->start;
 }
 
 sub do_repl {
