@@ -10,7 +10,7 @@ use XXX;
 srand;
 
 sub new {
-    my ($class) = @_;
+    my ($class, %args) = @_;
 
     my $port = int(rand(10000)) + 40000;
 
@@ -23,10 +23,23 @@ sub new {
 
     $socket->autoflush;
 
-    bless {
+    my $self = bless {
         port => $port,
         socket => $socket,
+        'nrepl-message-logging' => $args{'nrepl-message-logging'} // 0,
+        'verbose' => $args{'verbose'} // 0,
     }, $class;
+
+    return $self;
+}
+
+sub debug_print {
+    my ($self, $message, $direction) = @_;
+    if (defined $direction && $self->{'nrepl-message-logging'}) {
+        print "$direction\n$message";
+    } elsif ($self->{'verbose'}) {
+        print "$message";
+    }
 }
 
 sub prepare_response {
@@ -44,8 +57,9 @@ sub prepare_response {
 }
 
 sub send_response {
-    my ($conn, $response) = @_;
+    my ($self, $conn, $response) = @_;
     print $conn Bencode::bencode($response);
+    $self->debug_print(Dumper($response), '--> sent');
 }
 
 sub start {
@@ -56,34 +70,33 @@ sub start {
     print "Starting nrepl://127.0.0.1:$port\n";
 
     while (my $conn = $self->{socket}->accept) {
-        print "Accepted a new connection\n";
+        $self->debug_print("Accepted a new connection\n");
         my $buffer = '';
         while (my $bytes_read = sysread($conn, $buffer, 65535)) {
-            print "Read $bytes_read bytes\n";
-            print "Buffer: $buffer\n";
-            print "Decoding...\n";
+            $self->debug_print("Read $bytes_read bytes\n");
+            $self->debug_print("Received: $buffer\n");
+            $self->debug_print("Decoding...\n");
             my $received = Bencode::bdecode($buffer, 1);
             $buffer = '';
-            print ref($received) . "\n";
-            print Dumper($received);
+            $self->debug_print(Dumper($received), '<-- received');
             if ($received->{'op'} eq 'eval') {
                 my $response = prepare_response($received, {'value' => 'foo'});
-                send_response($conn, $response);
+                $self->send_response($conn, $response);
                 my $done = prepare_response($received, {'status' => 'done'});
-                send_response($conn, $done);
+                $self->send_response($conn, $done);
             } elsif ($received->{'op'} eq 'clone') {
                 my $session = 'a-new-session';
-                print "Cloning... new-session: '$session'\n";
+                $self->debug_print("Cloning... new-session: '$session'\n");
                 my $response = prepare_response($received, {'new-session' => $session, 'status' => 'done'});
-                send_response($conn, $response);
+                $self->send_response($conn, $response);
             } elsif ($received->{'op'} eq 'describe') {
-                print "Describe...\n";
+                $self->debug_print("Describe...\n");
                 my $response = prepare_response($received, {'ops' => {'eval' => {}, 'clone' => {}, 'describe' => {}, 'close' => {}}, 'status' => 'done'});
-                send_response($conn, $response);
+                $self->send_response($conn, $response);
             } elsif ($received->{'op'} eq 'close') {
-                print "TBD: Close session...\n";
+                $self->debug_print("TBD: Close session...\n");
             } else {
-                print "Unknown op: " . $received->{'op'} . "\n";
+                $self->debug_print("Unknown op: " . $received->{'op'} . "\n");
             }
         }
     }
