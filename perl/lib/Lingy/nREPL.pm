@@ -29,6 +29,25 @@ sub new {
     }, $class;
 }
 
+sub prepare_response {
+    my ($received, $additional_fields) = @_;
+
+    my %response = (
+        'id' => "$received->{'id'}",
+    );
+
+    if (exists $received->{'session'}) {
+        $response{'session'} = $received->{'session'};
+    }
+
+    return { %response, %$additional_fields };
+}
+
+sub send_response {
+    my ($conn, $response) = @_;
+    print $conn Bencode::bencode($response);
+}
+
 sub start {
     my ($self) = @_;
 
@@ -48,35 +67,19 @@ sub start {
             print ref($received) . "\n";
             print Dumper($received);
             if ($received->{'op'} eq 'eval') {
-                my $send = {
-                    'session' => $received->{'session'},
-                    'id' => "$received->{'id'}",
-                    'value' => 'foo'
-                };
-                print $conn Bencode::bencode($send);
-                my $done = {
-                    'session' => $received->{'session'},
-                    'id' => "$received->{'id'}",
-                    'status' => 'done',
-                };
-                print $conn Bencode::bencode($done);
+                my $response = prepare_response($received, {'value' => 'foo'});
+                send_response($conn, $response);
+                my $done = prepare_response($received, {'status' => 'done'});
+                send_response($conn, $done);
             } elsif ($received->{'op'} eq 'clone') {
                 my $session = 'a-new-session';
                 print "Cloning... new-session: '$session'\n";
-                my $send = {
-                    'id' => "$received->{'id'}",
-                    'new-session' => $session,
-                    'status' => 'done',
-                };
-                print $conn Bencode::bencode($send);
+                my $response = prepare_response($received, {'new-session' => $session, 'status' => 'done'});
+                send_response($conn, $response);
             } elsif ($received->{'op'} eq 'describe') {
                 print "Describe...\n";
-                my $send = {
-                    'id' => "$received->{'id'}",
-                    'ops' => {'eval' => {}, 'clone' => {}, 'describe' => {}, 'close' => {}},
-                    'status' => 'done',
-                };
-                print $conn Bencode::bencode($send);
+                my $response = prepare_response($received, {'ops' => {'eval' => {}, 'clone' => {}, 'describe' => {}, 'close' => {}}, 'status' => 'done'});
+                send_response($conn, $response);
             } elsif ($received->{'op'} eq 'close') {
                 print "TBD: Close session...\n";
             } else {
