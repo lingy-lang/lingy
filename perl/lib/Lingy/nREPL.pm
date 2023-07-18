@@ -5,6 +5,7 @@ use IO::Socket::INET;
 use IO::Select;
 use Bencode;
 use Data::Dumper;
+use Data::UUID;
 
 use XXX;
 
@@ -28,6 +29,7 @@ sub new {
         port => $port,
         socket => $socket,
         clients => {},
+        sessions => {},
         'nrepl-message-logging' => $args{'nrepl-message-logging'} // 0,
         'verbose' => $args{'verbose'} // 0,
     }, $class;
@@ -74,9 +76,22 @@ my %op_handlers = (
     },
     'clone' => sub {
         my ($self, $conn, $received) = @_;
-        my $session = 'a-new-session';
-        $self->debug_print("Cloning... new-session: '$session'\n");
-        my $response = prepare_response($received, {'new-session' => $session, 'status' => 'done'});
+
+        my $session_to_clone = exists $received->{'session'}
+            ? $received->{'session'}
+            : 'default';
+
+        my $new_session_id;
+        do {
+            $new_session_id = Data::UUID->new->create_str();
+        } while (exists $self->{sessions}->{$new_session_id});
+
+        $self->debug_print("Cloning... new-session: '$new_session_id'\n");
+
+        my %cloned_session = %{ $self->{sessions}->{$session_to_clone} };
+        $self->{sessions}->{$new_session_id} = \%cloned_session;
+
+        my $response = prepare_response($received, {'new-session' => $new_session_id, 'status' => 'done'});
         $self->send_response($conn, $response);
     },
     'describe' => sub {
@@ -87,12 +102,33 @@ my %op_handlers = (
     },
     'close' => sub {
         my ($self, $conn, $received) = @_;
-        $self->debug_print("TBD: Close session...\n");
+
+        if (exists $received->{'session'}) {
+            my $session_to_close = $received->{'session'};
+
+            $self->debug_print("Closed session: '$session_to_close'\n");
+
+            if (exists $self->{sessions}->{$session_to_close}) {
+                delete $self->{sessions}->{$session_to_close};
+                my $response = prepare_response($received, {'status' => 'done'});
+                $self->send_response($conn, $response);
+            } else {
+                $self->debug_print("No such session: '$session_to_close'\n");
+                my $response = prepare_response($received, {'status' => 'error', 'error' => 'No such session'});
+                $self->send_response($conn, $response);
+            }
+        } else {
+            $self->debug_print("No session specified to close\n");
+            my $response = prepare_response($received, {'status' => 'error', 'error' => 'No session specified'});
+            $self->send_response($conn, $response);
+        }
     }
 );
 
 sub start {
     my ($self) = @_;
+
+    $self->{sessions}->{'default'} = {};
 
     my $port = $self->{port};
 
