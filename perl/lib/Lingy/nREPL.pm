@@ -96,6 +96,10 @@ sub start {
 
     my $port = $self->{port};
 
+    open(my $fh, '>', '.nrepl-port');
+    print $fh $port;
+    close($fh);
+
     print "Starting nrepl://127.0.0.1:$port\n";
 
     my $select = IO::Select->new($self->{socket});
@@ -143,6 +147,10 @@ sub stop {
     my ($self) = @_;
 
     my $port = $self->{port};
+
+    if (-e '.nrepl-port') {
+        unlink '.nrepl-port' or warn "Could not remove .nrepl-port file: $!";
+    }
 
     print "Stopping nrepl://127.0.0.1:$port\n";
 
