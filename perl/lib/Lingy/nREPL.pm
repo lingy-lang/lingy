@@ -62,6 +62,33 @@ sub send_response {
     $self->debug_print(Dumper($response), '--> sent');
 }
 
+my %op_handlers = (
+    'eval' => sub {
+        my ($self, $conn, $received) = @_;
+        my $response = prepare_response($received, {'value' => 'foo'});
+        $self->send_response($conn, $response);
+        my $done = prepare_response($received, {'status' => 'done'});
+        $self->send_response($conn, $done);
+    },
+    'clone' => sub {
+        my ($self, $conn, $received) = @_;
+        my $session = 'a-new-session';
+        $self->debug_print("Cloning... new-session: '$session'\n");
+        my $response = prepare_response($received, {'new-session' => $session, 'status' => 'done'});
+        $self->send_response($conn, $response);
+    },
+    'describe' => sub {
+        my ($self, $conn, $received) = @_;
+        $self->debug_print("Describe...\n");
+        my $response = prepare_response($received, {'ops' => {'eval' => {}, 'clone' => {}, 'describe' => {}, 'close' => {}}, 'status' => 'done'});
+        $self->send_response($conn, $response);
+    },
+    'close' => sub {
+        my ($self, $conn, $received) = @_;
+        $self->debug_print("TBD: Close session...\n");
+    }
+);
+
 sub start {
     my ($self) = @_;
 
@@ -78,23 +105,10 @@ sub start {
             $self->debug_print("Decoding...\n");
             my $received = Bencode::bdecode($buffer, 1);
             $buffer = '';
-            $self->debug_print(Dumper($received), '<-- received');
-            if ($received->{'op'} eq 'eval') {
-                my $response = prepare_response($received, {'value' => 'foo'});
-                $self->send_response($conn, $response);
-                my $done = prepare_response($received, {'status' => 'done'});
-                $self->send_response($conn, $done);
-            } elsif ($received->{'op'} eq 'clone') {
-                my $session = 'a-new-session';
-                $self->debug_print("Cloning... new-session: '$session'\n");
-                my $response = prepare_response($received, {'new-session' => $session, 'status' => 'done'});
-                $self->send_response($conn, $response);
-            } elsif ($received->{'op'} eq 'describe') {
-                $self->debug_print("Describe...\n");
-                my $response = prepare_response($received, {'ops' => {'eval' => {}, 'clone' => {}, 'describe' => {}, 'close' => {}}, 'status' => 'done'});
-                $self->send_response($conn, $response);
-            } elsif ($received->{'op'} eq 'close') {
-                $self->debug_print("TBD: Close session...\n");
+            $self->debug_print(Dumper($received), 'received');
+
+            if (exists $op_handlers{$received->{'op'}}) {
+                $op_handlers{$received->{'op'}}->($self, $conn, $received);
             } else {
                 $self->debug_print("Unknown op: " . $received->{'op'} . "\n");
             }
