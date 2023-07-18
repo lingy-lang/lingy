@@ -96,13 +96,20 @@ sub start {
 
     my $port = $self->{port};
 
-    open(my $fh, '>', '.nrepl-port');
-    print $fh $port;
-    close($fh);
+    open(my $fh, '>', '.nrepl-port') or warn "Can't open .nrepl-port: $!";
+    print $fh $port or warn "Can't write to .nrepl-port: $!";
+    close($fh) or warn "Can't close .nrepl-port: $!";
 
     print "Starting nrepl://127.0.0.1:$port\n";
 
     my $select = IO::Select->new($self->{socket});
+    $self->{select} = $select;
+
+    $SIG{INT} = sub {
+        print "Interrupt received, stopping server...\n";
+        $self->stop;
+        exit 0;
+    };
 
     my $client = 0;
 
@@ -146,6 +153,10 @@ sub start {
 sub stop {
     my ($self) = @_;
 
+    if (!defined $self->{select}) {
+        return;
+    }
+
     my $port = $self->{port};
 
     if (-e '.nrepl-port') {
@@ -154,8 +165,23 @@ sub stop {
 
     print "Stopping nrepl://127.0.0.1:$port\n";
 
-    $self->{socket}->shutdown
-        or die "$!";
+    foreach my $client ($self->{select}->handles) {
+        if ($client != $self->{socket}) {
+            $self->{select}->remove($client);
+            shutdown($client, 2) or warn "Couldn't properly shut down a client connection: $!";
+            close $client or warn "Couldn't close a client connection: $!";
+        }
+    }
+
+    $self->{select}->remove($self->{socket});
+
+    if ($self->{socket}) {
+        close $self->{socket}
+            or warn "Couldn't close the server socket: $!";
+        $self->{socket} = undef;
+    }
+
+    $self->{select} = undef;
 }
 
 sub DESTROY {
