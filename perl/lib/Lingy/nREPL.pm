@@ -27,6 +27,7 @@ sub new {
     my $self = bless {
         port => $port,
         socket => $socket,
+        clients => {},
         'nrepl-message-logging' => $args{'nrepl-message-logging'} // 0,
         'verbose' => $args{'verbose'} // 0,
     }, $class;
@@ -60,7 +61,7 @@ sub prepare_response {
 sub send_response {
     my ($self, $conn, $response) = @_;
     print $conn Bencode::bencode($response);
-    $self->debug_print(Dumper($response), '--> sent');
+    $self->debug_print(Dumper($response), "--> sent, client $self->{clients}->{$conn}");
 }
 
 my %op_handlers = (
@@ -99,32 +100,37 @@ sub start {
 
     my $select = IO::Select->new($self->{socket});
 
+    my $client = 0;
+
     while (1) {
         my @ready = $select->can_read;
         foreach my $socket (@ready) {
             if ($socket == $self->{socket}) {
                 my $new_conn = $self->{socket}->accept;
+                $self->{clients}->{$new_conn} = ++$client;
                 $select->add($new_conn);
-                $self->debug_print("Accepted a new connection\n");
+                $self->debug_print("Accepted a new connection, client id: $client\n");
             } else {
                 my $buffer = '';
                 my $bytes_read = sysread($socket, $buffer, 65535);
                 if ($bytes_read) {
-                    $self->debug_print("Read $bytes_read bytes\n");
-                    $self->debug_print("Received: $buffer\n");
-                    $self->debug_print("Decoding...\n");
+                    my $client_id = $self->{clients}->{$socket};
+                    $self->debug_print("Client $client_id: Read $bytes_read bytes\n");
+                    $self->debug_print("Client $client_id: Received: $buffer\n");
+                    $self->debug_print("Client $client_id: Decoding...\n");
                     my $received = Bencode::bdecode($buffer, 1);
                     $buffer = '';
-                    $self->debug_print(Dumper($received), 'received');
-
+                    $self->debug_print(Dumper($received), "<-- received, client $client_id");
                     if (exists $op_handlers{$received->{'op'}}) {
-                        $op_handlers{$received->{'op'}}->($self, $socket, $received);
+                        $op_handlers{$received->{'op'}}->($self, $socket, $received, $client_id);
                     } else {
-                        $self->debug_print("Unknown op: " . $received->{'op'} . "\n");
+                        $self->debug_print("Client $client_id: Unknown op: " . $received->{'op'} . "\n");
                     }
                 } else {
                     # Connection closed by client
-                    $self->debug_print("Connection closed by client\n");
+                    my $client_id = $self->{clients}->{"$socket"};
+                    $self->debug_print("Client $client_id: Connection closed\n");
+                    delete $self->{clients}->{$socket};
                     $select->remove($socket);
                     close($socket);
                 }
