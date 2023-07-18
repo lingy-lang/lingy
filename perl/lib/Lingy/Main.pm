@@ -12,12 +12,15 @@ use constant options => +{
     'dev|D'     => 'bool',
     'eval|e'    => 'str',
     nrepl       => 'bool',
+    'nrepl-message-logging' => 'bool',
     ppp         => 'bool',
     repl        => 'bool',
     run         => 'arg',
     version     => 'bool',
     xxx         => 'bool',
+    'verbose'   => 'bool',
 };
+
 
 sub new {
     my $class = shift;
@@ -79,8 +82,12 @@ sub do_eval {
 }
 
 sub do_nrepl {
+    my ($self) = @_;
     require Lingy::nREPL;
-    my $nrepl = Lingy::nREPL->new;
+    my $nrepl = Lingy::nREPL->new(
+        'nrepl-message-logging' => $self->{'nrepl-message-logging'},
+        'verbose'               => $self->{'verbose'},
+    );
     $nrepl->start;
 }
 
