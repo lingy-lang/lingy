@@ -2,6 +2,7 @@ use strict; use warnings;
 package Lingy::nREPL;
 
 use IO::Socket::INET;
+use IO::Select;
 use Bencode;
 use Data::Dumper;
 
@@ -96,21 +97,37 @@ sub start {
 
     print "Starting nrepl://127.0.0.1:$port\n";
 
-    while (my $conn = $self->{socket}->accept) {
-        $self->debug_print("Accepted a new connection\n");
-        my $buffer = '';
-        while (my $bytes_read = sysread($conn, $buffer, 65535)) {
-            $self->debug_print("Read $bytes_read bytes\n");
-            $self->debug_print("Received: $buffer\n");
-            $self->debug_print("Decoding...\n");
-            my $received = Bencode::bdecode($buffer, 1);
-            $buffer = '';
-            $self->debug_print(Dumper($received), 'received');
+    my $select = IO::Select->new($self->{socket});
 
-            if (exists $op_handlers{$received->{'op'}}) {
-                $op_handlers{$received->{'op'}}->($self, $conn, $received);
+    while (1) {
+        my @ready = $select->can_read;
+        foreach my $socket (@ready) {
+            if ($socket == $self->{socket}) {
+                my $new_conn = $self->{socket}->accept;
+                $select->add($new_conn);
+                $self->debug_print("Accepted a new connection\n");
             } else {
-                $self->debug_print("Unknown op: " . $received->{'op'} . "\n");
+                my $buffer = '';
+                my $bytes_read = sysread($socket, $buffer, 65535);
+                if ($bytes_read) {
+                    $self->debug_print("Read $bytes_read bytes\n");
+                    $self->debug_print("Received: $buffer\n");
+                    $self->debug_print("Decoding...\n");
+                    my $received = Bencode::bdecode($buffer, 1);
+                    $buffer = '';
+                    $self->debug_print(Dumper($received), 'received');
+
+                    if (exists $op_handlers{$received->{'op'}}) {
+                        $op_handlers{$received->{'op'}}->($self, $socket, $received);
+                    } else {
+                        $self->debug_print("Unknown op: " . $received->{'op'} . "\n");
+                    }
+                } else {
+                    # Connection closed by client
+                    $self->debug_print("Connection closed by client\n");
+                    $select->remove($socket);
+                    close($socket);
+                }
             }
         }
     }
