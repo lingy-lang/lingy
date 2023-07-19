@@ -30,6 +30,8 @@ CLOJURE_CORE_SOURCE := $(CLOJURE_SOURCE_DIR)/$(CLOJURE_CORE)
 TMP_CLOJURE_CORE := /tmp/$(CLOJURE_CORE)
 LINGY_CLOJURE_CORE := lib/Lingy/core.clj
 
+NREPL_LOG_FILE := .nrepl-log.txt
+
 DEPS := \
     $(LINGY_CLOJURE_CORE)
 
@@ -49,7 +51,15 @@ $(ZILD): $(DEPS)
 
 clean:
 	zild $@
-	rm -f $(TMP_CLOJURE_CORE)
+	$(RM) $(TMP_CLOJURE_CORE)
+	$(RM) -r .nrepl-log.txt .calva/ .clj-kondo/ .lsp/
+
+nrepl:
+	lingy --nrepl --nrepl-logging --verbose &
+	sleep 0.5
+
+tail:
+	tail -f $(NREPL_LOG_FILE)
 
 $(LINGY_CLOJURE_CORE): $(TMP_CLOJURE_CORE)
 	perl tool/compile-clojure-core $< $(CLOJURE_CORE_SOURCE) > $@

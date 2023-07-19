@@ -4,16 +4,19 @@ package Lingy::nREPL;
 use IO::Socket::INET;
 use IO::Select;
 use Bencode;
-use Data::Dumper;
+use YAML::PP;
 use Data::UUID;
+use IO::All;
+use Cwd;
 
 use XXX;
 
-srand;
+use constant log_file => Cwd::cwd . '/.nrepl-log.txt';
 
 sub new {
     my ($class, %args) = @_;
 
+    srand;
     my $port = int(rand(10000)) + 40000;
 
     my $socket = IO::Socket::INET->new(
@@ -25,163 +28,210 @@ sub new {
 
     $socket->autoflush;
 
+    my $ypp = YAML::PP->new(
+        header => 1,
+    );
+
+    my $log = io(log_file);
+
     my $self = bless {
         port => $port,
         socket => $socket,
         clients => {},
         sessions => {},
-        'nrepl-message-logging' => $args{'nrepl-message-logging'} // 0,
-        'verbose' => $args{'verbose'} // 0,
+        logging => $args{logging},
+        verbose => $args{verbose},
+        ypp => $ypp,
+        log => $log,
     }, $class;
 
     return $self;
 }
 
-sub debug_print {
-    my ($self, $message, $direction) = @_;
-    if (defined $direction && $self->{'nrepl-message-logging'}) {
-        print "$direction\n$message";
-    } elsif ($self->{'verbose'}) {
-        print "$message";
-    }
-}
-
-sub prepare_response {
-    my ($received, $additional_fields) = @_;
-
-    my %response = (
-        'id' => "$received->{'id'}",
+#------------------------------------------------------------------------------
+# nREPL server op codes handlers:
+#------------------------------------------------------------------------------
+sub op_eval {
+    my ($self, $conn, $request) = @_;
+    my $response = $self->prepare_response(
+        $request,
+        {value => 'foo'},
     );
-
-    if (exists $received->{'session'}) {
-        $response{'session'} = $received->{'session'};
-    }
-
-    return { %response, %$additional_fields };
+    my $res1 = $self->send_response($conn, $response);
+    my $done = $self->prepare_response(
+        $request,
+        {status => 'done'},
+    );
+    my $res2 = $self->send_response($conn, $done);
+    return [ $res1, $res2 ];
 }
 
-sub send_response {
-    my ($self, $conn, $response) = @_;
-    print $conn Bencode::bencode($response);
-    $self->debug_print(Dumper($response), "--> sent, client $self->{clients}->{$conn}");
+sub op_clone {
+    my ($self, $conn, $request) = @_;
+
+    my $session_to_clone = exists $request->{session}
+        ? $request->{session}
+        : 'default';
+
+    my $new_session_id;
+    do {
+        $new_session_id = Data::UUID->new->create_str();
+    } while (exists $self->{sessions}->{$new_session_id});
+
+    my %cloned_session = %{ $self->{sessions}->{$session_to_clone} };
+    $self->{sessions}->{$new_session_id} = \%cloned_session;
+
+    my $response = $self->prepare_response(
+        $request,
+        {
+            'new-session' => $new_session_id,
+            status => 'done',
+        },
+    );
+    $self->send_response($conn, $response);
 }
 
-my %op_handlers = (
-    'eval' => sub {
-        my ($self, $conn, $received) = @_;
-        my $response = prepare_response($received, {'value' => 'foo'});
-        $self->send_response($conn, $response);
-        my $done = prepare_response($received, {'status' => 'done'});
-        $self->send_response($conn, $done);
-    },
-    'clone' => sub {
-        my ($self, $conn, $received) = @_;
+sub op_describe {
+    my ($self, $conn, $request) = @_;
+    my $response = $self->prepare_response(
+        $request,
+        {
+            ops => {
+                eval => {},
+                clone => {},
+                describe => {},
+                close => {},
+            },
+            status => 'done',
+        },
+    );
+    $self->send_response($conn, $response);
+}
 
-        my $session_to_clone = exists $received->{'session'}
-            ? $received->{'session'}
-            : 'default';
+sub op_close {
+    my ($self, $conn, $request) = @_;
 
-        my $new_session_id;
-        do {
-            $new_session_id = Data::UUID->new->create_str();
-        } while (exists $self->{sessions}->{$new_session_id});
+    my $response;
+    if (exists $request->{session}) {
+        my $session_to_close = $request->{session};
 
-        $self->debug_print("Cloning... new-session: '$new_session_id'\n");
-
-        my %cloned_session = %{ $self->{sessions}->{$session_to_clone} };
-        $self->{sessions}->{$new_session_id} = \%cloned_session;
-
-        my $response = prepare_response($received, {'new-session' => $new_session_id, 'status' => 'done'});
-        $self->send_response($conn, $response);
-    },
-    'describe' => sub {
-        my ($self, $conn, $received) = @_;
-        $self->debug_print("Describe...\n");
-        my $response = prepare_response($received, {'ops' => {'eval' => {}, 'clone' => {}, 'describe' => {}, 'close' => {}}, 'status' => 'done'});
-        $self->send_response($conn, $response);
-    },
-    'close' => sub {
-        my ($self, $conn, $received) = @_;
-
-        if (exists $received->{'session'}) {
-            my $session_to_close = $received->{'session'};
-
-            $self->debug_print("Closed session: '$session_to_close'\n");
-
-            if (exists $self->{sessions}->{$session_to_close}) {
-                delete $self->{sessions}->{$session_to_close};
-                my $response = prepare_response($received, {'status' => 'done'});
-                $self->send_response($conn, $response);
-            } else {
-                $self->debug_print("No such session: '$session_to_close'\n");
-                my $response = prepare_response($received, {'status' => 'error', 'error' => 'No such session'});
-                $self->send_response($conn, $response);
-            }
+        if (exists $self->{sessions}->{$session_to_close}) {
+            delete $self->{sessions}->{$session_to_close};
+            $response = $self->prepare_response(
+                $request,
+                {status => 'done'},
+            );
         } else {
-            $self->debug_print("No session specified to close\n");
-            my $response = prepare_response($received, {'status' => 'error', 'error' => 'No session specified'});
-            $self->send_response($conn, $response);
+            $self->{error} = "No such session: '$session_to_close'";
+            $response = $self->prepare_response(
+                $request,
+                {
+                    status => 'error',
+                    error => 'No such session',
+                },
+            );
         }
+    } else {
+        $self->{error} = "No session specified to close";
+        $response = $self->prepare_response(
+            $request,
+            {
+                status => 'error',
+                error => 'No session specified',
+            },
+        );
     }
-);
+    $self->send_response($conn, $response);
+}
 
+#------------------------------------------------------------------------------
+# Starting and stopping server:
+#------------------------------------------------------------------------------
 sub start {
     my ($self) = @_;
 
-    $self->{sessions}->{'default'} = {};
+    $self->{sessions}{default} = {};
 
     my $port = $self->{port};
 
-    open(my $fh, '>', '.nrepl-port') or warn "Can't open .nrepl-port: $!";
-    print $fh $port or warn "Can't write to .nrepl-port: $!";
-    close($fh) or warn "Can't close .nrepl-port: $!";
+    io('.nrepl-port')->print($port);
 
-    print "Starting nrepl://127.0.0.1:$port\n";
+    print "Starting: nrepl://127.0.0.1:$port\n";
+    print "Log file: $self->{log}\n";
 
-    my $select = IO::Select->new($self->{socket});
-    $self->{select} = $select;
+    $self->log({
+        '=' => 'start',
+        url => "nrepl://127.0.0.1:$port",
+    });
+
+    $self->{select} = IO::Select->new($self->{socket});
 
     $SIG{INT} = sub {
-        print "Interrupt received, stopping server...\n";
+        $self->log({
+            '=' => 'INTERUPT',
+        });
         $self->stop;
         exit 0;
     };
+
+    return $self;
+}
+
+sub run {
+    my ($self) = @_;
+
+    my $select = $self->{select};
 
     my $client = 0;
 
     while (1) {
         my @ready = $select->can_read;
         foreach my $socket (@ready) {
+            my $o;
+            delete $self->{error};
+
             if ($socket == $self->{socket}) {
                 my $new_conn = $self->{socket}->accept;
                 $self->{clients}->{$new_conn} = ++$client;
                 $select->add($new_conn);
-                $self->debug_print("Accepted a new connection, client id: $client\n");
+                $o = {
+                    '=' => 'connect',
+                    client => $client,
+                };
             } else {
                 my $buffer = '';
                 my $bytes_read = sysread($socket, $buffer, 65535);
                 if ($bytes_read) {
                     my $client_id = $self->{clients}->{$socket};
-                    $self->debug_print("Client $client_id: Read $bytes_read bytes\n");
-                    $self->debug_print("Client $client_id: Received: $buffer\n");
-                    $self->debug_print("Client $client_id: Decoding...\n");
-                    my $received = Bencode::bdecode($buffer, 1);
+                    my $request = Bencode::bdecode($buffer, 1);
+                    my $op = $request->{op};
+                    $o = {
+                        '=' => $op,
+                        length => $bytes_read,
+                        buffer => $buffer,
+                    };
                     $buffer = '';
-                    $self->debug_print(Dumper($received), "<-- received, client $client_id");
-                    if (exists $op_handlers{$received->{'op'}}) {
-                        $op_handlers{$received->{'op'}}->($self, $socket, $received, $client_id);
+                    $o->{req} = $request;
+                    my $op_method = "op_$op";
+                    if ($self->can($op_method)) {
+                        $o->{res} = $self->$op_method(
+                            $socket,
+                            $request,
+                            $client_id,
+                        );
                     } else {
-                        $self->debug_print("Client $client_id: Unknown op: " . $received->{'op'} . "\n");
+                        $o->{error} =
+                            "Client $client_id: Unknown op: $op";
                     }
                 } else {
                     # Connection closed by client
-                    my $client_id = $self->{clients}->{"$socket"};
-                    $self->debug_print("Client $client_id: Connection closed\n");
+                    my $client_id = $self->{clients}->{$socket};
                     delete $self->{clients}->{$socket};
                     $select->remove($socket);
                     close($socket);
                 }
             }
+            $self->log($o);
         }
     }
 }
@@ -196,16 +246,22 @@ sub stop {
     my $port = $self->{port};
 
     if (-e '.nrepl-port') {
-        unlink '.nrepl-port' or warn "Could not remove .nrepl-port file: $!";
+        unlink '.nrepl-port'
+            or warn "Could not remove .nrepl-port file: $!";
     }
 
-    print "Stopping nrepl://127.0.0.1:$port\n";
+    $self->log({
+        '=' => 'stop',
+        url => "nrepl://127.0.0.1:$port",
+    });
 
     foreach my $client ($self->{select}->handles) {
         if ($client != $self->{socket}) {
             $self->{select}->remove($client);
-            shutdown($client, 2) or warn "Couldn't properly shut down a client connection: $!";
-            close $client or warn "Couldn't close a client connection: $!";
+            shutdown($client, 2)
+                or warn "Couldn't properly shut down a client connection: $!";
+            close $client
+                or warn "Couldn't close a client connection: $!";
         }
     }
 
@@ -225,6 +281,42 @@ sub DESTROY {
     $self->stop;
 }
 
+#------------------------------------------------------------------------------
+# nREPL server response methods:
+#------------------------------------------------------------------------------
+sub prepare_response {
+    my ($self, $request, $additional_fields) = @_;
+
+    my %response = (
+        id => $request->{id},
+    );
+
+    if (exists $request->{session}) {
+        $response{session} = $request->{session};
+    }
+
+    return { %response, %$additional_fields };
+}
+
+sub send_response {
+    my ($self, $conn, $response) = @_;
+    print $conn Bencode::bencode($response);
+    return $response;
+}
+
+#------------------------------------------------------------------------------
+# Logging
+#------------------------------------------------------------------------------
+
+sub log {
+    my ($self, $data) = @_;
+    my $yaml = $self->{ypp}->dump_string($data);
+    $self->{log}->print($yaml . "\n")->autoflush;
+}
+
+#------------------------------------------------------------------------------
+# Hot patch Bencode to encode numbers as strings
+#------------------------------------------------------------------------------
 {
     package Bencode;
     no warnings 'redefine';
@@ -233,7 +325,6 @@ sub DESTROY {
         map
         +( ( not defined     ) ? ( $undef_encoding or croak 'unhandled data type' )
         #:  ( not ref         ) ? ( m/\A (?: 0 | -? [1-9] \d* ) \z/x ? 'i' . $_ . 'e' : length . ':' . $_ )
-        # TODO: This will treat all non-refs as strings, which might not be what we want.
         :  ( not ref ) ? length . ':' . $_
         :  ( 'SCALAR' eq ref ) ? ( length $$_ ) . ':' . $$_ # escape hatch -- use this to avoid num/str heuristics
         :  (  'ARRAY' eq ref ) ? 'l' . ( join '', _bencode @$_ ) . 'e'
