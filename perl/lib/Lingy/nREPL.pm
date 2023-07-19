@@ -225,4 +225,22 @@ sub DESTROY {
     $self->stop;
 }
 
+{
+    package Bencode;
+    no warnings 'redefine';
+    our ( $DEBUG, $do_lenient_decode, $max_depth, $undef_encoding );
+    sub _bencode {
+        map
+        +( ( not defined     ) ? ( $undef_encoding or croak 'unhandled data type' )
+        #:  ( not ref         ) ? ( m/\A (?: 0 | -? [1-9] \d* ) \z/x ? 'i' . $_ . 'e' : length . ':' . $_ )
+        # TODO: This will treat all non-refs as strings, which might not be what we want.
+        :  ( not ref ) ? length . ':' . $_
+        :  ( 'SCALAR' eq ref ) ? ( length $$_ ) . ':' . $$_ # escape hatch -- use this to avoid num/str heuristics
+        :  (  'ARRAY' eq ref ) ? 'l' . ( join '', _bencode @$_ ) . 'e'
+        :  (   'HASH' eq ref ) ? 'd' . do { my @k = sort keys %$_; join '', map +( length $k[0] ) . ':' . ( shift @k ) . $_, _bencode @$_{ @k } } . 'e'
+        :  croak 'unhandled data type'
+        ), @_
+    }
+}
+
 1;
