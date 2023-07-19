@@ -12,7 +12,7 @@ use constant options => +{
     'dev|D'     => 'bool',
     'eval|e'    => 'str',
     nrepl       => 'bool',
-    'nrepl-message-logging' => 'bool',
+    'nrepl-logging' => 'bool',
     ppp         => 'bool',
     repl        => 'bool',
     run         => 'arg',
@@ -85,10 +85,10 @@ sub do_nrepl {
     my ($self) = @_;
     require Lingy::nREPL;
     my $nrepl = Lingy::nREPL->new(
-        'nrepl-message-logging' => $self->{'nrepl-message-logging'},
-        'verbose'               => $self->{'verbose'},
+        logging => $self->{'nrepl-logging'},
+        verbose => $self->{'verbose'},
     );
-    $nrepl->start;
+    $nrepl->start->run;
 }
 
 sub do_repl {
