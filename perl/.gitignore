@@ -2,7 +2,9 @@
 /Lingy-*
 /Notes
 /note/
-/.nrepl-log.txt
+/.nrepl-log
+/.nrepl-pid
+/.nrepl-port
 /.calva/
 /.clj-kondo/
 /.lsp/
