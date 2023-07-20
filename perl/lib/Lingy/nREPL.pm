@@ -1,6 +1,7 @@
 use strict; use warnings;
 package Lingy::nREPL;
 
+use Lingy;
 use IO::Socket::INET;
 use IO::Select;
 use Bencode;
@@ -37,6 +38,7 @@ sub new {
     my $self = bless {
         port => $port,
         socket => $socket,
+        repl => Lingy->new,
         clients => {},
         sessions => {},
         logging => $args{logging},
@@ -52,18 +54,20 @@ sub new {
 # nREPL server op codes handlers:
 #------------------------------------------------------------------------------
 sub op_eval {
-    my ($self, $conn, $request) = @_;
+    my ($self, $conn, $received) = @_;
+    my $responses = [];
+    my $result = $self->{repl}->rep($received->{'code'});
     my $response = $self->prepare_response(
-        $request,
-        {value => 'foo'},
+        $received,
+        {'value' => $result},
     );
-    my $res1 = $self->send_response($conn, $response);
+    push @$responses, $self->send_response($conn, $response);
     my $done = $self->prepare_response(
-        $request,
-        {status => 'done'},
+        $received,
+        {'status' => 'done'},
     );
-    my $res2 = $self->send_response($conn, $done);
-    return [ $res1, $res2 ];
+    push @$responses, $self->send_response($conn, $done);
+    return $responses;
 }
 
 sub op_clone {
