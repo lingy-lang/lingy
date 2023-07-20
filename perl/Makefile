@@ -30,7 +30,9 @@ CLOJURE_CORE_SOURCE := $(CLOJURE_SOURCE_DIR)/$(CLOJURE_CORE)
 TMP_CLOJURE_CORE := /tmp/$(CLOJURE_CORE)
 LINGY_CLOJURE_CORE := lib/Lingy/core.clj
 
-NREPL_LOG_FILE := .nrepl-log.txt
+NREPL_LOG_FILE := .nrepl-log
+NREPL_PID_FILE := .nrepl-pid
+NREPL_PORT_FILE := .nrepl-port
 
 DEPS := \
     $(LINGY_CLOJURE_CORE)
@@ -50,17 +52,31 @@ $(ZILD): $(DEPS)
 	zild $@
 
 clean:
-	zild $@
+	$(RM) -r Lingy-* cpan
+	$(RM) -r .calva/ .clj-kondo/ .lsp/
+	$(RM) $(NREPL_LOG_FILE) $(NREPL_PORT_FILE)
 	$(RM) $(TMP_CLOJURE_CORE)
-	$(RM) -r .nrepl-log.txt .calva/ .clj-kondo/ .lsp/
 
-nrepl:
-	lingy --nrepl --nrepl-logging --verbose &
-	sleep 0.5
+#------------------------------------------------------------------------------
+nrepl: nrepl-kill
+	lingy --nrepl --nrepl-logging --verbose & echo $$! > $(NREPL_PID_FILE)
+	@echo "*** lingy nREPL Running... (pid $$(< $(NREPL_PID_FILE)))"
+	@echo
+	@sleep 0.5
+	@echo
 
-tail:
+nrepl-kill:
+ifneq (,$(wildcard $(NREPL_PID_FILE)))
+	@echo "*** lingy nREPL Stopping... (pid $$(< $(NREPL_PID_FILE)))"
+	-kill -9 $$(< $(NREPL_PID_FILE))
+	$(RM) $(NREPL_PID_FILE) $(NREPL_LOG_FILE) $(NREPL_PORT_FILE)
+	@echo
+endif
+
+nrepl-tail:
 	tail -f $(NREPL_LOG_FILE)
 
+#------------------------------------------------------------------------------
 $(LINGY_CLOJURE_CORE): $(TMP_CLOJURE_CORE)
 	perl tool/compile-clojure-core $< $(CLOJURE_CORE_SOURCE) > $@
 

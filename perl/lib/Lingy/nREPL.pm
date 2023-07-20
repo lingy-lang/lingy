@@ -12,7 +12,7 @@ use Cwd;
 
 use XXX;
 
-use constant log_file => Cwd::cwd . '/.nrepl-log.txt';
+use constant log_file => Cwd::cwd . '/.nrepl-log';
 
 sub new {
     my ($class, %args) = @_;
