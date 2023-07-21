@@ -12,7 +12,8 @@ use Cwd;
 
 use XXX;
 
-use constant log_file => Cwd::cwd . '/.nrepl-log';
+use constant log_file  => Cwd::cwd . '/.nrepl-log';
+use constant port_file => Cwd::cwd . '/.nrepl-port';
 
 sub new {
     my ($class, %args) = @_;
@@ -24,16 +25,10 @@ sub new {
         LocalPort => $port,
         Proto => 'tcp',
         Listen => SOMAXCONN,
-        Reuse => 1
+        Reuse => 1,
     ) or die "Can't create socket: $IO::Socket::errstr";
 
     $socket->autoflush;
-
-    my $ypp = YAML::PP->new(
-        header => 0,
-    );
-
-    my $log = io(log_file);
 
     my $self = bless {
         port => $port,
@@ -43,8 +38,8 @@ sub new {
         sessions => {},
         logging => $args{logging},
         verbose => $args{verbose},
-        ypp => $ypp,
-        log => $log,
+        ypp => YAML::PP->new(header => 0),
+        log => io(log_file),
     }, $class;
 
     return $self;
@@ -74,16 +69,13 @@ sub op_clone {
         ? $self->{request}{session}
         : 'default';
 
-    my $new_session_id;
-    do {
-        $new_session_id = Data::UUID->new->create_str();
-    } while (exists $self->{sessions}->{$new_session_id});
+    my $session_id = Data::UUID->new->create_str();
 
     my %cloned_session = %{ $self->{sessions}->{$session_to_clone} };
-    $self->{sessions}->{$new_session_id} = \%cloned_session;
+    $self->{sessions}->{$session_id} = \%cloned_session;
 
     $self->send_response({
-        'new-session' => $new_session_id,
+        'new-session' => $session_id,
         status => 'done',
     });
 }
@@ -104,24 +96,21 @@ sub op_close {
     my ($self) = @_;
 
 
-    if (my $session_to_close = $self->{request}{session}) {
-        if (exists $self->{sessions}{$session_to_close}) {
-            delete $self->{sessions}{$session_to_close};
-            $self->send_response({status => 'done'});
-        } else {
-            $self->{error} = "No such session: '$session_to_close'";
-            $self->send_response({
-                status => 'error',
-                error => 'No such session',
-            });
-        }
-    } else {
-        $self->{error} = "No session specified to close";
-        $self->send_response({
+    my $session_to_close = $self->{request}{session} or
+        return $self->send_response({
             status => 'error',
-            error => 'No session specified',
+            error => "No session specified to close",
         });
-    }
+
+    $self->{sessions}{$session_to_close} or
+        return $self->send_response({
+            status => 'error',
+            error => "No such session: '$session_to_close'",
+        });
+
+    delete $self->{sessions}{$session_to_close};
+
+    $self->send_response({status => 'done'});
 }
 
 #------------------------------------------------------------------------------
@@ -134,7 +123,7 @@ sub start {
 
     my $port = $self->{port};
 
-    io('.nrepl-port')->print($port);
+    io(port_file)->print($port);
 
     print "Starting: nrepl://127.0.0.1:$port\n";
     print "Log file: $self->{log}\n";
@@ -161,59 +150,51 @@ sub run {
     my ($self) = @_;
 
     my $select = $self->{select};
-
     my $client = 0;
 
     while (1) {
         my @ready = $select->can_read;
         foreach my $socket (@ready) {
-            delete @{$self}{qw( conn request error )};
+            delete @{$self}{qw( conn request )};
 
             if ($socket == $self->{socket}) {
-                my $new_conn = $self->{socket}->accept;
-                $self->{clients}->{$new_conn} = ++$client;
-                $select->add($new_conn);
+                my $connection = $self->{socket}->accept;
+                $self->{clients}->{$connection} = ++$client;
+                $select->add($connection);
                 $self->log({
                     '===' => 'CONNECT',
                     client => $client,
                 });
-            } else {
-                my $buffer;
-                my $bytes_read = sysread($socket, $buffer, 65535);
-                if ($bytes_read > 0) {
-                    my $client_id = $self->{clients}->{$socket};
-                    my $request = Bencode::bdecode($buffer, 1);
-                    my $op = $request->{op};
-                    $self->log({
-                        '-->'   => ":op $op, :client $client_id",
-                        buffer  => "$bytes_read: $buffer",
-                        request => $request,
-                    });
+                next;
+            }
 
-                    my $handler = "op_$op";
-                    if ($self->can($handler)) {
-                        @{$self}{qw( conn request )} = (
-                            $socket,
-                            $request,
-                        );
-                        $self->$handler;
-                    } else {
-                        $self->log({
-                            '???'  => $op,
-                            client => $client_id,
-                        });
-                    }
-                } else {
-                    # Connection closed by client
-                    my $client_id = $self->{clients}->{$socket};
-                    delete $self->{clients}->{$socket};
-                    $select->remove($socket);
-                    close($socket);
-                    $self->log({
-                        '===' => 'CLOSED',
-                        client => $client,
-                    });
-                }
+            my ($request, $buffer, $length) =
+                $self->next_request($socket, $client)
+                    or next;
+
+            my $op = $request->{op};
+            my $client_id = $self->{clients}->{$socket};
+
+            $self->log({
+                '-->'   => ":op $op, :client $client_id",
+                buffer  => "$length: $buffer",
+                request => $request,
+            });
+
+            my $handler = "op_$op";
+            if ($self->can($handler)) {
+                @{$self}{qw( conn request )} = (
+                    $socket,
+                    $request,
+                );
+                $self->$handler;
+
+            } else {
+                $self->log({
+                    '???'  => $op,
+                    client => $client_id,
+                    error  => "Unsupported op: '$op'",
+                });
             }
         }
     }
@@ -222,20 +203,16 @@ sub run {
 sub stop {
     my ($self) = @_;
 
-    if (!defined $self->{select}) {
-        return;
-    }
+    return unless defined $self->{select};
 
-    my $port = $self->{port};
-
-    if (-e '.nrepl-port') {
-        unlink '.nrepl-port'
-            or warn "Could not remove .nrepl-port file: $!";
+    if (-e port_file) {
+        unlink port_file
+            or warn "Could not unlink '${\ port_file}' file: $!";
     }
 
     $self->log({
         '===' => 'STOP',
-        'url' => "nrepl://127.0.0.1:$port",
+        'url' => "nrepl://127.0.0.1:$self->{port}",
     });
 
     foreach my $client ($self->{select}->handles) {
@@ -257,6 +234,33 @@ sub stop {
     }
 
     $self->{select} = undef;
+}
+
+sub next_request {
+    my ($self, $socket, $client) = @_;
+    my $buffer;
+    my $length = sysread($socket, $buffer, 65535)
+        or return $self->close_socket($socket, $client);
+    my $request;
+    eval {
+        $request = Bencode::bdecode($buffer, 1);
+    };
+    die "Error decoding request buffer:\n$buffer\n$@" if $@;
+    return ($request, $buffer, $length);
+}
+
+sub close_socket {
+    my ($self, $socket, $client) = @_;
+    # Connection closed by client
+    my $client_id = $self->{clients}->{$socket};
+    delete $self->{clients}->{$socket};
+    $self->{select}->remove($socket);
+    close($socket);
+    $self->log({
+        '===' => 'CLOSED',
+        client => $client,
+    });
+    return;
 }
 
 sub DESTROY {
@@ -295,7 +299,6 @@ sub send_response {
 
 sub log {
     my ($self, $data) = @_;
-    $data->{error} = $self->{error} if $self->{error};
     my $yaml = $self->{ypp}->dump_string($data);
     $self->{log}->print($yaml . "\n")->autoflush;
 }
