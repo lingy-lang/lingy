@@ -30,7 +30,7 @@ sub new {
     $socket->autoflush;
 
     my $ypp = YAML::PP->new(
-        header => 1,
+        header => 0,
     );
 
     my $log = io(log_file);
@@ -54,32 +54,24 @@ sub new {
 # nREPL server op codes handlers:
 #------------------------------------------------------------------------------
 sub op_eval {
-    my ($self, $conn, $received) = @_;
+    my ($self) = @_;
 
     my $result;
     eval {
-        $result = $self->{repl}->rep($received->{'code'});
+        $result = $self->{repl}->rep($self->{request}{code});
     };
     $result = $@ if $@;
 
-    $self->send_response(
-        $conn,
-        $received,
-        {'value' => $result},
-    );
+    $self->send_response({value => $result});
 
-    $self->send_response(
-        $conn,
-        $received,
-        {'status' => 'done'},
-    );
+    $self->send_response({status => 'done'});
 }
 
 sub op_clone {
-    my ($self, $conn, $request) = @_;
+    my ($self) = @_;
 
-    my $session_to_clone = exists $request->{session}
-        ? $request->{session}
+    my $session_to_clone = exists $self->{request}{session}
+        ? $self->{request}{session}
         : 'default';
 
     my $new_session_id;
@@ -90,71 +82,46 @@ sub op_clone {
     my %cloned_session = %{ $self->{sessions}->{$session_to_clone} };
     $self->{sessions}->{$new_session_id} = \%cloned_session;
 
-    $self->send_response(
-        $conn,
-        $request,
-        {
-            'new-session' => $new_session_id,
-            status => 'done',
-        },
-    );
+    $self->send_response({
+        'new-session' => $new_session_id,
+        status => 'done',
+    });
 }
 
 sub op_describe {
-    my ($self, $conn, $request) = @_;
+    my ($self) = @_;
 
-    $self->send_response(
-        $conn,
-        $request,
-        {
-            ops => {
-                eval => {},
-                clone => {},
-                describe => {},
-                close => {},
-            },
-            status => 'done',
-        },
-    );
+    my %ops = map {($_ => +{})}
+        qw(eval clone describe close);
+
+    $self->send_response({
+        ops => { %ops },
+        status => 'done',
+    });
 }
 
 sub op_close {
-    my ($self, $conn, $request) = @_;
+    my ($self) = @_;
 
-    my $response;
-    if (exists $request->{session}) {
-        my $session_to_close = $request->{session};
 
-        if (exists $self->{sessions}->{$session_to_close}) {
-            delete $self->{sessions}->{$session_to_close};
-            $self->send_response(
-                $conn,
-                $request,
-                {status => 'done'},
-            );
+    if (my $session_to_close = $self->{request}{session}) {
+        if (exists $self->{sessions}{$session_to_close}) {
+            delete $self->{sessions}{$session_to_close};
+            $self->send_response({status => 'done'});
         } else {
             $self->{error} = "No such session: '$session_to_close'";
-            $self->send_response(
-                $conn,
-                $request,
-                {
-                    status => 'error',
-                    error => 'No such session',
-                },
-            );
+            $self->send_response({
+                status => 'error',
+                error => 'No such session',
+            });
         }
     } else {
         $self->{error} = "No session specified to close";
-        $self->send_response(
-            $conn,
-            $request,
-            {
-                status => 'error',
-                error => 'No session specified',
-            },
-        );
+        $self->send_response({
+            status => 'error',
+            error => 'No session specified',
+        });
     }
-    $self->send_response($conn, $response);
 }
 
 #------------------------------------------------------------------------------
@@ -200,8 +167,7 @@ sub run {
     while (1) {
         my @ready = $select->can_read;
         foreach my $socket (@ready) {
-            my $log;
-            delete $self->{error};
+            delete @{$self}{qw( conn request error )};
 
             if ($socket == $self->{socket}) {
                 my $new_conn = $self->{socket}->accept;
@@ -219,19 +185,18 @@ sub run {
                     my $request = Bencode::bdecode($buffer, 1);
                     my $op = $request->{op};
                     $self->log({
-                        '<<<'   => $op,
-                        buffer  => $buffer,
-                        client  => $client_id,
-                        length  => $bytes_read,
+                        '-->'   => ":op $op, :client $client_id",
+                        buffer  => "$bytes_read: $buffer",
                         request => $request,
                     });
+
                     my $handler = "op_$op";
                     if ($self->can($handler)) {
-                        $self->$handler(
+                        @{$self}{qw( conn request )} = (
                             $socket,
                             $request,
-                            $client_id,
                         );
+                        $self->$handler;
                     } else {
                         $self->log({
                             '???'  => $op,
@@ -269,7 +234,7 @@ sub stop {
     }
 
     $self->log({
-        '===' => 'STOp',
+        '===' => 'STOP',
         'url' => "nrepl://127.0.0.1:$port",
     });
 
@@ -304,22 +269,20 @@ sub DESTROY {
 #------------------------------------------------------------------------------
 
 sub send_response {
-    my ($self, $conn, $request, $additional_fields) = @_;
+    my ($self, $data) = @_;
+    my ($conn, $request) =
+        @{$self}{qw(conn request)};
 
-    my %response = (
+    my $response = {
         id => $request->{id},
-    );
-
-    if (exists $request->{session}) {
-        $response{session} = $request->{session};
-    }
-
-    my $response = { %response, %$additional_fields };
+        $request->{session} ? (session => $request->{session}) : (),
+        %$data,
+    };
 
     print $conn Bencode::bencode($response);
 
     $self->log({
-        '>>>'    => 1,
+        '<--'    => ":op $request->{op}, :client $self->{clients}{$conn}",
         response => $response,
     });
 
@@ -332,6 +295,7 @@ sub send_response {
 
 sub log {
     my ($self, $data) = @_;
+    $data->{error} = $self->{error} if $self->{error};
     my $yaml = $self->{ypp}->dump_string($data);
     $self->{log}->print($yaml . "\n")->autoflush;
 }
