@@ -239,9 +239,9 @@ sub run {
             }
             $self->log($o);
         }
-        if ( time - $time_last_sent >= 5 ) {
+        if (time - $time_last_sent >= 5) {
             $self->log("BOOM! Sending messages to clients\n");
-            foreach my $session (keys %{ $self->{sessions} }) {
+            foreach my $session (keys %{$self->{sessions}}) {
                 $self->log("BOOM! Session: $session\n");
                 my $message = Bencode::bencode(
                     {
@@ -250,19 +250,16 @@ sub run {
                         'out' => "Hello, client!\n"
                     }
                 );
-                $self->log("BOOM!  $message\n");
-                foreach my $socket ( $select->handles ) {
-                    if ( $socket != $self->{socket} ) {
+                $self->log("BOOM! $message\n");
+                foreach my $socket ($select->handles) {
+                    if ($socket != $self->{socket}) {
                         print $socket $message;
                     }
                 }
             }
             $time_last_sent = time;
         }
-
-        # Sleep for a while to reduce CPU usage
         sleep 0.1;
-
     }
 }
 
