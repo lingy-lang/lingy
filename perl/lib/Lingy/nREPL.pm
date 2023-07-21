@@ -239,7 +239,7 @@ sub run {
             }
             $self->log($o);
         }
-        if (time - $time_last_sent >= 5) {
+        if (time - $time_last_sent >= 3) {
             $self->log("BOOM! Sending messages to clients\n");
             foreach my $session (keys %{$self->{sessions}}) {
                 $self->log("BOOM! Session: $session\n");
@@ -247,7 +247,7 @@ sub run {
                     {
                         'id'      => '0',
                         'session' => $session,
-                        'out' => "Hello, client!\n"
+                        time % 2 eq 0 ? 'out' : 'err' => "Hello, client!\n"
                     }
                 );
                 $self->log("BOOM! $message\n");
