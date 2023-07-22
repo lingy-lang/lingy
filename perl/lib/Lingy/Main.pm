@@ -17,7 +17,6 @@ use constant options => +{
     run         => 'arg',
     version     => 'bool',
     xxx         => 'bool',
-    'verbose'   => 'bool',
 };
 
 
@@ -83,11 +82,7 @@ sub do_eval {
 sub do_nrepl {
     my ($self) = @_;
     require Lingy::nREPL;
-    my $nrepl = Lingy::nREPL->new(
-        logging => $self->{'nrepl-logging'},
-        verbose => $self->{'verbose'},
-    );
-    $nrepl->start->run;
+    Lingy::nREPL->new->start->run;
 }
 
 sub do_repl {
@@ -140,8 +135,6 @@ sub getopt {
         print $ENV{LINGY_USAGE};
         exit 0;
     };
-
-    $spec->{'nrepl-logging:s'} = \$self->{'nrepl-logging'};
 
     Getopt::Long::Configure(qw(
         gnu_getopt

@@ -8,13 +8,12 @@ use Bencode;
 use YAML::PP;
 use Data::UUID;
 use IO::All;
-use File::Spec;
 use Cwd;
 
 use XXX;
 
-use constant default_log_file  => Cwd::cwd . '/.nrepl-log';
-use constant port_file => Cwd::cwd . '/.nrepl-port';
+use constant default_log_file => '.nrepl-log';
+use constant port_file => $ENV{LINGY_NREPL_PORT_FILE} // '.nrepl-port';
 
 sub new {
     my ($class, %args) = @_;
@@ -31,16 +30,21 @@ sub new {
 
     $socket->autoflush;
 
+    my $log;
+    if (my $log_file = $ENV{LINGY_NREPL_LOG_FILE}) {
+        $log_file = default_log_file if $log_file eq '1';
+        $log = io($log_file);
+        $log->absolute unless $log->is_stdio;
+    }
+
     my $self = bless {
         port => $port,
         socket => $socket,
         repl => Lingy->new,
         clients => {},
         sessions => {},
-        logging => $args{logging},
-        verbose => $args{verbose},
         ypp => YAML::PP->new(header => 0),
-        log => log_fh($args{logging}),
+        log => $log,
     }, $class;
 
     return $self;
@@ -126,9 +130,12 @@ sub start {
 
     io(port_file)->print($port);
 
-    print "nREPL server started on port $port on host 127.0.0.1 - nrepl://127.0.0.1:$port\n";
-    if (defined($self->{logging})) {
-        print "Log file: $self->{log}\n" unless $self->{logging} eq '-';
+    print "nREPL server started on port $port " .
+          "on host 127.0.0.1 - nrepl://127.0.0.1:$port\n";
+
+    if (my $log = $self->{log}) {
+        print "Log file: $log\n"
+            unless $log->is_stdio;
     }
 
     $self->log({
@@ -156,8 +163,7 @@ sub run {
     my $client = 0;
 
     while (1) {
-        my @ready = $select->can_read(0);
-        foreach my $socket (@ready) {
+        foreach my $socket ($select->can_read(0.01)) {
             delete @{$self}{qw( conn request )};
 
             if ($socket == $self->{socket}) {
@@ -200,7 +206,6 @@ sub run {
                 });
             }
         }
-        sleep 0.01;
     }
 }
 
@@ -301,33 +306,12 @@ sub send_response {
 # Logging
 #------------------------------------------------------------------------------
 
-sub log_fh {
-    my $logging = shift;
-
-    if ( defined $logging ) {
-        if ( $logging eq '' ) {
-            return io(default_log_file);
-        }
-        elsif ( $logging eq '-' ) {
-            return \*STDOUT;
-        }
-        else {
-            my $path =
-              File::Spec->file_name_is_absolute($logging)
-              ? $logging
-              : Cwd::cwd . '/' . $logging;
-            return io($path);
-        }
-    }
-}
-
 sub log {
     my ( $self, $data ) = @_;
-    if ( defined( $self->{logging} ) ) {
-        my $yaml = $self->{ypp}->dump_string($data);
-        $self->{log}->print( $yaml . "\n" );
-        $self->{log}->autoflush if $self->{logging} ne '-';
-    }
+    my $log = $self->{log} or return;
+    my $yaml = $self->{ypp}->dump_string($data);
+    $log->print( $yaml . "\n" );
+    $log->autoflush unless $log->is_stdio;
 }
 
 #------------------------------------------------------------------------------

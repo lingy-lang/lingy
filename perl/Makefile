@@ -59,7 +59,7 @@ clean:
 
 #------------------------------------------------------------------------------
 nrepl: nrepl-kill
-	lingy --nrepl --nrepl-logging --verbose & echo $$! > $(NREPL_PID_FILE)
+	LINGY_NREPL_LOG_FILE=1 lingy --nrepl & echo $$! > $(NREPL_PID_FILE)
 	@echo "*** lingy nREPL Running... (pid $$(< $(NREPL_PID_FILE)))"
 	@echo
 	@sleep 0.5
