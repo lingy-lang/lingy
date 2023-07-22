@@ -156,7 +156,7 @@ sub run {
     my $client = 0;
 
     while (1) {
-        my @ready = $select->can_read;
+        my @ready = $select->can_read(0);
         foreach my $socket (@ready) {
             delete @{$self}{qw( conn request )};
 
@@ -200,6 +200,7 @@ sub run {
                 });
             }
         }
+        sleep 0.01;
     }
 }
 
