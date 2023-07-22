@@ -22,10 +22,6 @@ Options:
   -e, --eval      Eval a Lingy source string; print non-nil
   --repl          Start Lingy REPL (default w/ no args)
   --run           Run a Lingy program (default w/ file name)
-  --nrepl         Start an nREPL server
-  --nrepl-logging [<file>]
-                  Log nREPL messages to <file> (default: ./.nrepl.log, use - for stdout)
-  --verbose       Verbose logging
 
   -D, --dev       Load the lingy.devel library
   -C, --clj       Enable Clojure mode in REPL
@@ -33,7 +29,9 @@ Options:
   --ppp           Compile file and print AST (Lingy)
   --xxx           Compile file and dump internal AST (YAML)
 
+  --nrepl         Start an nREPL server
   --execs         List executables for setting LINGY_EXEC
+
   --version       Print version
   -h, --help      Print help and exit
 "
