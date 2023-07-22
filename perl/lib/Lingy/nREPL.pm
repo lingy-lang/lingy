@@ -8,11 +8,12 @@ use Bencode;
 use YAML::PP;
 use Data::UUID;
 use IO::All;
+use File::Spec;
 use Cwd;
 
 use XXX;
 
-use constant log_file  => Cwd::cwd . '/.nrepl-log';
+use constant default_log_file  => Cwd::cwd . '/.nrepl-log';
 use constant port_file => Cwd::cwd . '/.nrepl-port';
 
 sub new {
@@ -39,7 +40,7 @@ sub new {
         logging => $args{logging},
         verbose => $args{verbose},
         ypp => YAML::PP->new(header => 0),
-        log => io(log_file),
+        log => log_fh($args{logging}),
     }, $class;
 
     return $self;
@@ -126,7 +127,9 @@ sub start {
     io(port_file)->print($port);
 
     print "Starting: nrepl://127.0.0.1:$port\n";
-    print "Log file: $self->{log}\n";
+    if (defined($self->{logging})) {
+        print "Log file: $self->{log}\n" unless $self->{logging} eq '-';
+    }
 
     $self->log({
         '===' => 'START',
@@ -297,10 +300,33 @@ sub send_response {
 # Logging
 #------------------------------------------------------------------------------
 
+sub log_fh {
+    my $logging = shift;
+
+    if ( defined $logging ) {
+        if ( $logging eq '' ) {
+            return io(default_log_file);
+        }
+        elsif ( $logging eq '-' ) {
+            return \*STDOUT;
+        }
+        else {
+            my $path =
+              File::Spec->file_name_is_absolute($logging)
+              ? $logging
+              : Cwd::cwd . '/' . $logging;
+            return io($path);
+        }
+    }
+}
+
 sub log {
-    my ($self, $data) = @_;
-    my $yaml = $self->{ypp}->dump_string($data);
-    $self->{log}->print($yaml . "\n")->autoflush;
+    my ( $self, $data ) = @_;
+    if ( defined( $self->{logging} ) ) {
+        my $yaml = $self->{ypp}->dump_string($data);
+        $self->{log}->print( $yaml . "\n" );
+        $self->{log}->autoflush if $self->{logging} ne '-';
+    }
 }
 
 #------------------------------------------------------------------------------

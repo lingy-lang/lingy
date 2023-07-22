@@ -12,7 +12,6 @@ use constant options => +{
     'dev|D'     => 'bool',
     'eval|e'    => 'str',
     nrepl       => 'bool',
-    'nrepl-logging' => 'bool',
     ppp         => 'bool',
     repl        => 'bool',
     run         => 'arg',
@@ -26,7 +25,7 @@ sub new {
     my $class = shift;
 
     bless {
-        map( ($_, ''), keys %{$class->options} ),
+        map( ($_, undef), keys %{$class->options} ),
         @_,
     }, $class;
 }
@@ -142,6 +141,8 @@ sub getopt {
         exit 0;
     };
 
+    $spec->{'nrepl-logging:s'} = \$self->{'nrepl-logging'};
+
     Getopt::Long::Configure(qw(
         gnu_getopt
         no_auto_abbrev
@@ -161,7 +162,6 @@ sub getopt {
             $self->{run} = '/dev/stdin'
                 if $self->{run} eq '-';
         }
-
     } else {
         if ($self->from_stdin) {
             $self->{run} = '/dev/stdin';
