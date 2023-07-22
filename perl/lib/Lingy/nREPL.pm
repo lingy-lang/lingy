@@ -126,7 +126,7 @@ sub start {
 
     io(port_file)->print($port);
 
-    print "Starting: nrepl://127.0.0.1:$port\n";
+    print "nREPL server started on port $port on host 127.0.0.1 - nrepl://127.0.0.1:$port\n";
     if (defined($self->{logging})) {
         print "Log file: $self->{log}\n" unless $self->{logging} eq '-';
     }
