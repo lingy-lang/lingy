@@ -54,6 +54,25 @@ sub new {
 #------------------------------------------------------------------------------
 # nREPL server op codes handlers:
 #------------------------------------------------------------------------------
+package StreamedOutput;
+
+sub TIEHANDLE {
+    my ( $class, $send_response ) = @_;
+    bless { send_response => $send_response }, $class;
+}
+
+sub PRINT {
+    my ( $self, @args ) = @_;
+    $self->{send_response}->({out => join '', @args});
+}
+
+sub PRINTF {
+    my ( $self, $format, @args ) = @_;
+    $self->PRINT( sprintf $format, @args );
+}
+
+package Lingy::nREPL;
+
 sub op_eval {
     my ($self) = @_;
 
@@ -61,11 +80,17 @@ sub op_eval {
         RT->env->set('*file*', STRING->new($file));
     }
 
+    my $code = $self->{request}->{code};
+
+    local *STDOUT;
+    tie *STDOUT, 'StreamedOutput', sub { $self->send_response(@_) };
+
     my $result;
     eval {
-        my $code = $self->{request}{code};
         my @results = $self->{repl}->reps($code);
         $result = $results[-1];
+        $self->send_response({value => $result});
+        1;
     };
     $result = $@ if $@;
 
