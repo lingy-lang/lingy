@@ -27,7 +27,9 @@ use constant FUNCTION   => 'Lingy::Fn';
 use constant HASHMAP    => 'Lingy::HashMap';
 use constant HASHSET    => 'Lingy::HashSet';
 use constant KEYWORD    => 'Lingy::Keyword';
+use constant LAZYSEQ    => 'Lingy::LazySeq';
 use constant LIST       => 'Lingy::List';
+use constant LONGRANGE  => 'Lingy::LongRange';
 use constant MACRO      => 'Lingy::Macro';
 use constant NIL        => 'Lingy::Nil';
 use constant NUMBER     => 'Lingy::Number';
@@ -83,7 +85,9 @@ BEGIN {
         HASHMAP
         HASHSET
         KEYWORD
+        LAZYSEQ
         LIST
+        LONGRANGE
         MACRO
         NIL
         NUMBER

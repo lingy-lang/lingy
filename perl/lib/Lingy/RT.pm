@@ -30,7 +30,9 @@ my @class_names = (
     HASHSET,
     KEYWORD,
     LIST,
+    LAZYSEQ,
     LISTTYPE,
+    LONGRANGE,
     MACRO,
     NIL,
     NUMBER,
@@ -424,7 +426,7 @@ sub meta_get {
 
 sub more {
     my ($list) = @_;
-    return list([]) if $list->isa(NIL) or not @$list;
+    return LIST->EMPTY if $list->isa(NIL) or not @$list;
     list([@{$list}[1..(@$list-1)]]);
 }
 

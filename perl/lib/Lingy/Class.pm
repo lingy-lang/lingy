@@ -15,6 +15,7 @@ sub NAME {
     my ($self) = @_;
     my $class = ref($self) or die;
     $class =~ s/^Lingy::/lingy.lang./;
+    $class =~ s/::/./g;
     return $class;
 }
 

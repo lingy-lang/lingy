@@ -62,6 +62,8 @@ sub add {
     my ($x, $y) = @_;
     my $class = ref($x);
     $x = ref($x) ? $$x : $x;
+    # Add 0 to unbox:
+    return $x + 0 if not(ref($y)) and $y == 0;
     $y = ref($y) ? $$y : $y;
     $class->new($x + $y);
 }

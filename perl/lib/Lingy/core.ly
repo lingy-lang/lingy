@@ -235,9 +235,30 @@
 
 (defn prn [& args] (apply lingy.lang.RT/prn args))
 
-(defn range [& args] (apply lingy.lang.Numbers/range args))
+;------------------------------------------------------------------------------
+(defn range
+  ([]
+    (iterate inc 0))
+  ([end]
+    (lingy.lang.LongRange/create end))
+  ([start end]
+    (lingy.lang.LongRange/create start end))
+  ([start end step]
+    (lingy.lang.LongRange/create start end step)))
 
 (defn readline [] (. lingy.lang.RT (readline)))
+
+; XXX fake. not lazy yet.
+(defn lazy-seq [body]
+  (apply list body))
+
+(defn take
+  ([n coll]
+    (lazy-seq
+      (when (pos? n)
+        (when-let [s (seq coll)]
+          (cons (first s) (take (dec n) (rest s))))))))
+;/-----------------------------------------------------------------------------
 
 (defn reduce
   ([fn coll]
