@@ -58,7 +58,10 @@ sub op_eval {
 
     my $result;
     eval {
-        $result = $self->{repl}->rep($self->{request}{code});
+        my $code = $self->{request}{code};
+        # $code = "(+ 1 2 3) (+ 4 5 6)" if $code eq ":test-multi-form";
+        my @results = $self->{repl}->reps($code);
+        $result = $results[-1];
     };
     $result = $@ if $@;
 
