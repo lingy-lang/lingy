@@ -27,6 +27,14 @@ sub rep {
     return $ret;
 }
 
+sub reps {
+    die "Lingy->rep(string) takes one argument"
+        unless @_ == 2;
+    my ($self, $string) = @_;
+    local $Lingy::Common::error_prefix = $self->error_prefix;
+    return $self->{RT}->rep($string);
+}
+
 sub read {
     die "Lingy->read(string) takes one argument"
         unless @_ == 2;
