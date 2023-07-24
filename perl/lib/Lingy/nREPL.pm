@@ -94,10 +94,11 @@ sub op_eval {
 
     my $result;
     eval {
-        my @results = $self->{repl}->reps($code);
-        $result = $results[-1];
-        $self->send_response( { value => $result } );
-        1
+        if (my @results = $self->{repl}->reps($code)) {
+            $result = $results[-1];
+            $self->send_response( { value => $result } );
+        }
+        1;
     } or do {
         my $error = $@;
         $self->send_response( { err => $error } );
