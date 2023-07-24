@@ -15,6 +15,7 @@ use overload
     '>=' => \&greater_equal,
     '<' => \&less_than,
     '<=' => \&less_equal,
+    '<=>' => \&cmp_nums,
     '%' => \&modulo,
     cmp => \&comp_pair,
     ;
@@ -56,6 +57,13 @@ sub less_equal {
     $x = ref($x) ? $$x : $x;
     $y = ref($y) ? $$y : $y;
     BOOLEAN->new($x <= $y);
+}
+
+sub cmp_nums {
+    my ($x, $y) = @_;
+    $x = ref($x) ? $$x : $x;
+    $y = ref($y) ? $$y : $y;
+    BOOLEAN->new($x <=> $y);
 }
 
 sub add {

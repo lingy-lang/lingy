@@ -122,7 +122,11 @@ sub core_namespace {
 
     my $argv = @ARGV
         ? LIST->new([
-            map STRING->new($_), @ARGV[1..$#ARGV]]
+            map {
+                /^-?\d+(\.\d+)?$/
+                ? NUMBER->new($_)
+                : STRING->new($_)
+            } @ARGV[1..$#ARGV]]
         ) : NIL->new;
 
     # Define these functions first for bootstrapping:
@@ -416,7 +420,7 @@ sub macroexpand {
 
 sub map {
     list([
-        map apply($_[0], [$_, []]), @{$_[1]}
+        map apply($_[0], [$_, []]), @{WWW($_[1])->_to_seq}
     ]);
 }
 
