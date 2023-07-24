@@ -57,13 +57,17 @@ sub new {
 package StreamedOutput;
 
 sub TIEHANDLE {
-    my ( $class, $send_response ) = @_;
-    bless { send_response => $send_response }, $class;
+    my ( $class, $send_response, $output_type ) = @_;
+    bless {
+        send_response => $send_response,
+        output_type => $output_type
+    }, $class;
 }
 
 sub PRINT {
     my ( $self, @args ) = @_;
-    $self->{send_response}->({out => join '', @args});
+    my $output_type = $self->{output_type} // 'out';
+    $self->{send_response}->( { $output_type => join '', @args } );
 }
 
 sub PRINTF {
@@ -83,14 +87,20 @@ sub op_eval {
     my $code = $self->{request}->{code};
 
     local *STDOUT;
-    tie *STDOUT, 'StreamedOutput', sub { $self->send_response(@_) };
+    tie *STDOUT, 'StreamedOutput', sub { $self->send_response(@_) }, 'out';
+
+    local *STDERR;
+    tie *STDERR, 'StreamedOutput', sub { $self->send_response(@_) }, 'err';
 
     my $result;
     eval {
         my @results = $self->{repl}->reps($code);
         $result = $results[-1];
-        $self->send_response({value => $result});
-        1;
+        $self->send_response( { value => $result } );
+        1
+    } or do {
+        my $error = $@;
+        $self->send_response( { err => $error } );
     };
     $result = $@ if $@;
 
@@ -99,7 +109,7 @@ sub op_eval {
         ns => RT->current_ns_name
     });
 
-    $self->send_response({status => 'done'});
+    $self->send_response( { status => 'done' } );
 }
 
 sub op_clone {
