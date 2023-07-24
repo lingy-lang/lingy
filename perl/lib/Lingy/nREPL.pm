@@ -69,7 +69,10 @@ sub op_eval {
     };
     $result = $@ if $@;
 
-    $self->send_response({value => $result, ns => RT->current_ns_name});
+    $self->send_response({
+        value => $result,
+        ns => RT->current_ns_name
+    });
 
     $self->send_response({status => 'done'});
 }
