@@ -273,15 +273,16 @@ a baby.
 
 ## nREPL Support
 
-To use Clojure editors/IDEs with Lingy, you can start the REPL with nREPL support.
+To use Clojure editors/IDEs with Lingy, you can start the REPL with nREPL
+support.
 
 To start a Lingy nREPL server for a project, run `lingy --nrepl` in the project
 directory.
 The server will write its port number to the standard `.nrepl-port` file and
 its PID number to `.nrepl-port`.
 
-You can enable nREPL logging (in YAML format) by setting the
-`LINGY_NREPL_LOG_FILE` environment variable.
+You can enable nREPL logging (in YAML format) by setting the `LINGY_NREPL_LOG`
+environment variable.
 The variables value can be the name/path of the log file to be created or `-`
 to write to stdout.
 Setting the value to `1` will write to `.nrepl-log`.
