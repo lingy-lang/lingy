@@ -41,10 +41,10 @@ sub new {
     my $self = bless {
         port => $port,
         socket => $socket,
-        repl => Lingy->new,
+        runtime => Lingy->new,
         clients => {},
         sessions => {},
-        ypp => YAML::PP->new(header => 0),
+        yaml => YAML::PP->new(header => 0),
         log => $log,
     }, $class;
 
@@ -73,7 +73,7 @@ sub op_eval {
             'err';
 
         my $code = $self->{request}->{code};
-        if (my @results = $self->{repl}->reps($code)) {
+        if (my @results = $self->{runtime}->reps($code)) {
             $self->send_response({
                 value => $results[-1],
                 ns => RT->current_ns_name
@@ -327,7 +327,7 @@ sub send_response {
 sub log {
     my ( $self, $data ) = @_;
     my $log = $self->{log} or return;
-    my $yaml = $self->{ypp}->dump_string($data);
+    my $yaml = $self->{yaml}->dump_string($data);
     $log->print( $yaml . "\n" );
     $log->autoflush unless $log->is_stdio;
 }
