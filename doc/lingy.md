@@ -203,6 +203,11 @@ Lingy one-liner expressions.
 
   YAML dump the Lingy compiled AST for a `-e` expression.
 
+* `--nrepl`
+
+  Start a Lingy nREPL server for use by external REPLs and editors/IDEs, like
+  [leiningen](https://leiningen.org/) and [Calva](https://calva.io/).
+
 
 # Lingy REPL Usage
 
@@ -264,6 +269,26 @@ it to Clojure.
 Using this feature is a great way to compare how Lingy and Clojure work.
 Eventually they should be very close to identical but currently Lingy is still
 a baby.
+
+
+## nREPL Support
+
+Lingy has nREPL support so that you can use editors and IDEs that integrate
+interactively with Clojure platforms.
+
+To start a Lingy nREPL server for a project, run `lingy --nrepl` in the project
+directory.
+The server will write its port number to the standard `.nrepl-port` file and
+its PID number to `.nrepl-port`.
+
+You can enable nREPL logging (in YAML format) by setting the
+`LINGY_NREPL_LOG_FILE` environment variable.
+The variables value can be the name/path of the log file to be created or `-`
+to write to stdout.
+Setting the value to `1` will write to `.nrepl-log`.
+
+Note: This is a new feature and is still buggy. It works pretty good with Calva
+but currently fails to connect with `lein repl :connect`.
 
 
 # Lingy / Perl Interoperability
