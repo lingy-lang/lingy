@@ -96,19 +96,16 @@ sub op_eval {
     eval {
         if (my @results = $self->{repl}->reps($code)) {
             $result = $results[-1];
-            $self->send_response( { value => $result } );
+            $self->send_response({
+                value => $result,
+                ns => RT->current_ns_name
+            });
         }
         1;
     } or do {
         my $error = $@;
         $self->send_response( { err => $error } );
     };
-    $result = $@ if $@;
-
-    $self->send_response({
-        value => $result,
-        ns => RT->current_ns_name
-    });
 
     $self->send_response( { status => 'done' } );
 }
