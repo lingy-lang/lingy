@@ -539,7 +539,8 @@ This provides some dev functions including:
 
 # Authors
 
-* Ingy döt Net <ingy@ingy.net>
+* [Ingy döt Net](https://github.com/ingydotnet)
+* [Peter Strömberg](https://github.com/PEZ)
 
 
 # Copyright and License
