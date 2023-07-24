@@ -2,6 +2,7 @@ use strict; use warnings;
 package Lingy::nREPL;
 
 use Lingy;
+use Lingy::Common;
 use IO::Socket::INET;
 use IO::Select;
 use Bencode;
@@ -64,7 +65,7 @@ sub op_eval {
     };
     $result = $@ if $@;
 
-    $self->send_response({value => $result});
+    $self->send_response({value => $result, ns => RT->current_ns_name});
 
     $self->send_response({status => 'done'});
 }
