@@ -32,7 +32,7 @@ sub new {
     $socket->autoflush;
 
     my $log;
-    if (my $log_file = $ENV{LINGY_NREPL_LOG_FILE}) {
+    if (my $log_file = $ENV{LINGY_NREPL_LOG}) {
         $log_file = default_log_file if $log_file eq '1';
         $log = io($log_file);
         $log->absolute unless $log->is_stdio;

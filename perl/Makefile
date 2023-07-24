@@ -60,9 +60,9 @@ clean:
 #------------------------------------------------------------------------------
 nrepl: nrepl-kill
 ifeq (-,$(log))
-	LINGY_NREPL_LOG_FILE=$(log) lingy --nrepl
+	LINGY_NREPL_LOG=$(log) lingy --nrepl
 else
-	LINGY_NREPL_LOG_FILE=$(log) lingy --nrepl & echo $$! > $(NREPL_PID_FILE)
+	LINGY_NREPL_LOG=$(log) lingy --nrepl & echo $$! > $(NREPL_PID_FILE)
 endif
 	@echo "*** lingy nREPL Running... (pid $$(< $(NREPL_PID_FILE)))"
 	@echo
