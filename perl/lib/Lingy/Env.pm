@@ -72,6 +72,9 @@ sub get_qualified {
     my $space_name = $1;
     my $symbol_name = $2;
 
+    # Map clojure.* ns names to lingy.*
+    $space_name =~ s/^clojure\./lingy./;
+
     if (my $ns = RT->core_ns) {
         if (my $class = RT->core_ns->{$space_name}) {
             return \&{"${class}::$symbol_name"};
