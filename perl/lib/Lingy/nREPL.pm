@@ -58,7 +58,7 @@ sub op_eval {
     my ($self) = @_;
 
     if (my $file = $self->{request}{file}) {
-        RT->env->set('*file*', $file);
+        RT->env->set('*file*', STRING->new($file));
     }
 
     my $result;
