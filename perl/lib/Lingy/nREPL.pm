@@ -57,6 +57,10 @@ sub new {
 sub op_eval {
     my ($self) = @_;
 
+    if (my $file = $self->{request}{file}) {
+        RT->env->set('*file*', $file);
+    }
+
     my $result;
     eval {
         my $code = $self->{request}{code};
