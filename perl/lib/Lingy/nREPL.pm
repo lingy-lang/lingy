@@ -54,29 +54,6 @@ sub new {
 #------------------------------------------------------------------------------
 # nREPL server op codes handlers:
 #------------------------------------------------------------------------------
-package StreamedOutput;
-
-sub TIEHANDLE {
-    my ($class, $send_response, $output_type) = @_;
-    bless {
-        send_response => $send_response,
-        output_type => $output_type,
-    }, $class;
-}
-
-sub PRINT {
-    my ( $self, @args ) = @_;
-    my $output_type = $self->{output_type} // 'out';
-    $self->{send_response}->({$output_type => join('', @args)});
-}
-
-sub PRINTF {
-    my ( $self, $format, @args ) = @_;
-    $self->PRINT(sprintf $format, @args);
-}
-
-package Lingy::nREPL;
-
 sub op_eval {
     my ($self) = @_;
 
@@ -353,6 +330,32 @@ sub log {
     my $yaml = $self->{ypp}->dump_string($data);
     $log->print( $yaml . "\n" );
     $log->autoflush unless $log->is_stdio;
+}
+
+#------------------------------------------------------------------------------
+# Tied class to capture stdio during Lingy evals
+#------------------------------------------------------------------------------
+{
+    package StreamedOutput;
+
+    sub TIEHANDLE {
+        my ($class, $send_response, $output_type) = @_;
+        bless {
+            send_response => $send_response,
+            output_type => $output_type,
+        }, $class;
+    }
+
+    sub PRINT {
+        my ( $self, @args ) = @_;
+        my $output_type = $self->{output_type} // 'out';
+        $self->{send_response}->({$output_type => join('', @args)});
+    }
+
+    sub PRINTF {
+        my ( $self, $format, @args ) = @_;
+        $self->PRINT(sprintf $format, @args);
+    }
 }
 
 #------------------------------------------------------------------------------
