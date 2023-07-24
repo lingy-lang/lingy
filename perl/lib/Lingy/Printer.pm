@@ -15,6 +15,11 @@ my $escape = {
     "\\" => "\\\\",
 };
 
+sub pr_invalid {
+    my ($self, $o) = @_;
+    Dump($o, "Don't know how to print perl (non Lingy::* object) value '$o'");
+}
+
 sub pr_str {
     my ($self, $o, $raw) = (@_, 0);
     $o //= '';
@@ -25,7 +30,7 @@ sub pr_str {
         $type = 'Lingy::KeySymbol';
     }
 
-    $type or return WWW $o, "Don't know how to print non-Lingy-object value '$o'";
+    $type or return warn $self->pr_invalid($o);
 
     $type eq ATOM ? "(atom ${\ $self->pr_str($o->[0], $raw)})" :
     $type eq STRING ? $raw ? $$o :
@@ -69,8 +74,7 @@ sub pr_str {
     $type eq 'lingy-internal' ? "" :
     (blessed($o) and $o->isa(NAMESPACE)) ?
         qq(#<Namespace ${\ $o->_name}>) :
-    Dump($o) .
-        "*** Unrecognized Lingy value printed above ***\n";
+    $self->pr_invalid($o);
 }
 
 1;
