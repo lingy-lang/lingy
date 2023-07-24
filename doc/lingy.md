@@ -273,8 +273,7 @@ a baby.
 
 ## nREPL Support
 
-Lingy has nREPL support so that you can use editors and IDEs that integrate
-interactively with Clojure platforms.
+To use Clojure editors/IDEs with Lingy, you can start the REPL with nREPL support.
 
 To start a Lingy nREPL server for a project, run `lingy --nrepl` in the project
 directory.
