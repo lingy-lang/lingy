@@ -1,7 +1,7 @@
 =meta: 0.0.2
 
 name: Lingy
-version: 0.1.18
+version: 0.1.19
 abstract: A Clojure Platform for Perl
 homepage:
 - http://lingy.org
@@ -42,11 +42,13 @@ requires:
   Sub::Identify: 0.14
   Sub::Name: 0.27
   Term::ReadLine: 1.17
-  Term::ReadLine::Gnu: 1.45
   Test::Simple: 1.302195
   Time::HiRes: 1.9764
   XXX: 0.38
   YAML::PP: 0.036
+
+recommends:
+  Term::ReadLine::Gnu: 1.45
 
 =zild:
   no-about: true

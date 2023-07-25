@@ -1,8 +1,11 @@
 ---
-version: 0.1.18
-date:    Tue Jul 11 11:08:00 AM EDT 2023
+version: 0.1.19
+date:    Tue Jul 25 08:20:23 AM PDT 2023
 changes:
-- Work around a bug in version checking during cpanm install
+- Add initial nREPL server support
+- Add Peter Strömberg to authors
+- Don't run GHA tests twice for PRs pushed here
+- Make Term::ReadLine::Gnu an optional dependency
 ---
 version: 0.1.17
 date:    Tue Jul 11 07:49:54 AM EDT 2023
