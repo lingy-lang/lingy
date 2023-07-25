@@ -9,6 +9,7 @@ use YAML::PP;
 use Lingy;
 use Lingy::RT;
 use Lingy::Common;
+use Lingy::ReadLine;
 
 use Capture::Tiny qw'capture capture_merged';
 use File::Temp 'tempfile';
@@ -25,6 +26,9 @@ use lib 'lib', './test/lib', './t/lib';
 symlink 't', 'test' if -d 't' and not -e 'test';
 
 my $ypp = YAML::PP->new;
+
+our $gnu_readline =
+    Term::ReadLine->new('')->ReadLine eq 'Term::ReadLine::Gnu';
 
 RT->init;
 $Lingy::RT::OK = 0;
