@@ -10,10 +10,10 @@ Run the Lingy REPL:
 
 ```
 $ lingy
-Lingy 0.1.12 [perl]
+Lingy 0.1.19 [perl]
 
 user=> (p<TAB>
-pos?     println  prn      pr-str
+perl     pos?     println  prn      pr-str
 user=> (prn "Hello, world!")
 "Hello, world!"
 nil
@@ -38,11 +38,9 @@ Hello, world!
 or run an example Lingy program:
 
 ```
-$ wget -q https://raw.githubusercontent.com/ingydotnet/lingy/main/eg/99-bottles.ly
-```
-
-```
-$ cat 99-bottles.ly
+$ curl -s https://raw.githubusercontent.com/lingy-lang/lingy/main/eg/99-bottles.ly |
+  tee /dev/tty |
+  lingy - 3
 (defn main [number]
   (let [
     paragraphs (map paragraph (range number 0 -1)) ]
@@ -61,11 +59,8 @@ $ cat 99-bottles.ly
     (= n 1) "1 bottle"
     :else (str n " bottles")))
 
-(main (nth *ARGV* 0 99))
-```
+(main (nth *command-line-args* 0 99))
 
-```
-$ lingy 99-bottles.ly 3
 3 bottles of beer on the wall,
 3 bottles of beer.
 Take one down, pass it around.
@@ -108,11 +103,17 @@ mostly immutable data types.
 It is a Lisp dialect that is hosted by Java and compiles to JVM byte code.
 It has access to any libraries that target the JVM.
 
+[This article](
+https://www.newline.co/@shivekkhurana/clojure-a-learn-once-run-anywhere-candidate-you-probably-didnt-know-about--9d1444c7)
+does a great job of explaining what makes Clojure so great.
+Give it a read and imagine all that with Perl included.
+
 Much of the Clojure language is written in Clojure (self hosted) and Lingy
-actually uses the Clojure source code.
+actually uses (a steadily increasing amount of) the Clojure source code.
 
 A variant of Clojure called ClojureScript uses the same Clojure source code but
 is hosted by JavaScript with full access to NPM modules.
+
 Lingy also intends to eventually be ported to and hosted by many other
 programming languages.
 
@@ -169,7 +170,7 @@ Lingy one-liner expressions.
 * `lingy program.ly foo bar`
 
   Run a Lingy program passing in arguments.
-  Arguments are available in Lingy as `*ARGV*`.
+  Arguments are available in Lingy as `*command-line-args*`.
 
 * `cat program.ly | lingy - foo bar`
 
@@ -177,7 +178,7 @@ Lingy one-liner expressions.
   The `-` means run from STDIN instead of a file.
   If there are no arguments you can omit the `-`.
 
-* `lingy -e '(println "Hello" (nth *ARGV* 0))' world`
+* `lingy -e '(println "Hello" (first *command-line-args*))' world`
 
   Run a Lingy one-liner with arguments.
 
@@ -283,7 +284,7 @@ its PID number to `.nrepl-port`.
 
 You can enable nREPL logging (in YAML format) by setting the `LINGY_NREPL_LOG`
 environment variable.
-The variables value can be the name/path of the log file to be created or `-`
+The variable's value can be the name/path of the log file to be created or `-`
 to write to stdout.
 Setting the value to `1` will write to `.nrepl-log`.
 
