@@ -1,0 +1,16 @@
+{ "api": 0
+, "name": "Lingy"
+, "version": "0.1.0"
+, "description": "A Clojure Platform for Raku"
+, "auth": "zef:ingy"
+, "provides":
+  { "Lingy": "lib/Lingy.rakumod"
+  }
+, "depends": []
+, "build-depends": []
+, "test-depends": []
+, "tags":
+  [ "clojure"
+  , "language"
+  ]
+}
