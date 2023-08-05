@@ -1,6 +1,7 @@
-use Lingy::Test;
+#!/usr/bin/env lingy-test
 
-tests <<'...';
-- - (time (clojure-require 'clojure.core))
-  - nil
-...
+T=> (time (clojure-require 'clojure.core))
+ == nil
+O=~ Elapsed time: \d+\.\d+ msecs
+
+# vim: ft=txt:

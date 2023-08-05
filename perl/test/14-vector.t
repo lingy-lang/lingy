@@ -1,27 +1,33 @@
-use Lingy::Test;
+#!/usr/bin/env lingy-test
 
-tests <<'...';
-- - (def v1 [:foo 123])
-  - user/v1
-- - v1
-  - '[:foo 123]'
-- - (v1 0)
-  - :foo
-- - (v1 1)
-  - 123
+T=> (def v1 [:foo 123])
+ == user/v1
 
-- - (v1)
-  - "Wrong number of args (0) passed to: 'lingy.lang.Vector'"
-- - (v1 0 1)
-  - "Wrong number of args (2) passed to: 'lingy.lang.Vector'"
+T=> v1
+ == [:foo 123]
 
-- - ((vector 3 6 9) (- 5 4))
-  - 6
+T=> (v1 0)
+ == :foo
 
-- - (let [x ([42] 0)] x)
-  - 42
+T=> (v1 1)
+ == 123
 
-- rep: (defn f1 [v] (let [x (v 0)] x))
-- - (f1 [3 4])
-  - 3
-...
+T=> (v1)
+ == Wrong number of args (0) passed to: 'lingy.lang.Vector'
+
+T=> (v1 0 1)
+ == Wrong number of args (2) passed to: 'lingy.lang.Vector'
+
+T=> ((vector 3 6 9) (- 5 4))
+ == 6
+
+T=> (let [x ([42] 0)] x)
+ == 42
+
+T=> (defn f1 [v] (let [x (v 0)] x))
+ == user/f1
+
+T=> (f1 [3 4])
+ == 3
+
+# vim: ft=txt:

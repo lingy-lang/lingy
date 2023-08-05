@@ -1,23 +1,28 @@
-use Lingy::Test;
+#!/usr/bin/env lingy-test
 
-rep '(def aaa 123)';
+; def a var
+T=> (def aaa 123)
+ == user/aaa
 
-tests <<'...';
-- - "'foo.bar/baz"
-  - foo.bar/baz
+; Quoted FQ symbol
+T=> 'foo.bar/baz
+ == foo.bar/baz
 
-- - aaa
-  - 123
-- - user/aaa
-  - 123
+; Eval a symbol
+T=> aaa
+ == 123
 
-- - not
-  - '#<Function>'
+; Eval a FQ symbol
+T=> user/aaa
+ == 123
 
-- - user/abc
-  - "Unable to resolve symbol: 'user/abc' in this context"
+T=> not
+ == #<Function>
 
-- - (def foo/bar 42)
-  - "Can't def a qualified symbol: 'foo/bar'"
-...
+T=> user/abc
+ == Unable to resolve symbol: 'user/abc' in this context
 
+T=> (def foo/bar 42)
+ == Can't def a qualified symbol: 'foo/bar'
+
+# vim: ft=txt:

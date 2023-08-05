@@ -1,26 +1,26 @@
-use Lingy::Test;
+#!/usr/bin/env lingy-test
 
-tests <<'...';
-- - (foo)
-  - "Unable to resolve symbol: 'foo' in this context"
+T=> (foo)
+ == Unable to resolve symbol: 'foo' in this context
 
-- - (use 'test.lingy)
-  - nil
+T=> (use 'test.lingy)
+ == nil
 
-- - (foo)
-  - '"called test.lingy/foo"'
+T=> (foo)
+ == "called test.lingy/foo"
 
-- note: XXX Regression
-# - - (test.lingy/foo)
-#   - '"called test.lingy/foo"'
+; XXX Regression
+# T=> (test.lingy/foo)
+#  == "called test.lingy/foo"
 
-- - (user/foo)
-  - '"called test.lingy/foo"'
+T=> (user/foo)
+ == "called test.lingy/foo"
 
-- note: XXX Regression
-# - - (resolve 'bar)
-#   - "#'test.lingy/bar"
+; XXX Regression
+# T=> (resolve 'bar)
+#  == #'test.lingy/bar
 
-- - (use 'lingy.devel)
-  - nil
-...
+T=> (use 'lingy.devel)
+ == nil
+
+# vim: ft=txt:

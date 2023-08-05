@@ -1,0 +1,7 @@
+#!/usr/bin/env perl
+
+use lib 'test/lib';
+
+use LingyTest;
+
+LingyTest::repl_test(@ARGV);

@@ -18,7 +18,7 @@ v ?= -v
 
 export RELEASE_BRANCH := main
 
-export PATH := $(ROOT_PERL)/bin:$(PATH)
+export PATH := $(ROOT_PERL)/bin:$(ROOT_PERL)/test/bin:$(PATH)
 
 export LINGY_EXEC := $(ROOT_PERL)/bin/_lingy.pl
 

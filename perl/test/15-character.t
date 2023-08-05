@@ -1,15 +1,15 @@
-use Lingy::Test;
+#!/usr/bin/env lingy-test
 
-tests <<'...';
-- - \A
-  - \A
+T=> \A
+ == \A
 
-- - (char 65)
-  - \A
+T=> (char 65)
+ == \A
 
-- - \space
-  - \space
+T=> \space
+ == \space
 
-- - (char 32)
-  - \space
-...
+T=> (char 32)
+ == \space
+
+# vim: ft=txt:
